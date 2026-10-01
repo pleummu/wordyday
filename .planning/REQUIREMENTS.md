@@ -19,7 +19,7 @@
 ### Modes and Word Pools (WORD)
 
 - [ ] **WORD-01**: User can switch between Normal and Wordubado modes
-- [ ] **WORD-02**: In Normal mode, answers are common English words only: blocklisted words removed, plurals and inflections (-s, -ed, -ing) removed
+- [x] **WORD-02**: In Normal mode, answers are common English words only: blocklisted words removed, plurals and inflections (-s, -ed, -ing) removed
 - [ ] **WORD-03**: User can guess slang/meme/Gen Z words in Normal mode, but they are never the answer
 - [ ] **WORD-04**: In Wordubado mode, each game's answer is slang 75% of the time and a common word 25% of the time
 - [x] **WORD-05**: Answers are fully random (repeats allowed)
@@ -145,7 +145,7 @@
 | UI-01 | Phase 2 | Pending |
 | UI-06 | Phase 2 | Pending |
 | UI-09 | Phase 2 | Pending |
-| WORD-02 | Phase 2 | Pending |
+| WORD-02 | Phase 2 | Complete |
 | WORD-05 | Phase 2 | Complete |
 | WORD-07 | Phase 2 | Complete |
 | WORD-09 | Phase 2 | Pending |
