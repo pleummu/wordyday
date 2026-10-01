@@ -92,7 +92,7 @@
 - [ ] **QA-03**: Playwright E2E tests run against the production build: a full win and loss, invalid guess, resume after refresh, switching Boards, Give Up rule, the Restore prompt (fake clock), and an axe accessibility check, in desktop and mobile projects
 - [ ] **QA-04**: GitHub Actions CI on every PR and push to main runs lint, format check, typecheck, unit tests, build, E2E and the word-drift check
 - [x] **QA-05**: Vercel deploys a preview for every PR and production from main
-- [ ] **QA-06**: Production build succeeds, with the word pools kept out of the entry chunk
+- [x] **QA-06**: Production build succeeds, with the word pools kept out of the entry chunk
 
 ## v2 Requirements
 
@@ -141,7 +141,7 @@
 | PLAY-04 | Phase 2 | Complete |
 | PLAY-05 | Phase 2 | Complete |
 | PLAY-06 | Phase 2 | Complete |
-| QA-06 | Phase 2 | Pending |
+| QA-06 | Phase 2 | Complete |
 | UI-01 | Phase 2 | Complete |
 | UI-06 | Phase 2 | Complete |
 | UI-09 | Phase 2 | Complete |
