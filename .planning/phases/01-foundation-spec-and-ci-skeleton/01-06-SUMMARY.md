@@ -33,7 +33,7 @@ completed: 2026-10-01
 The owner's "approved" reply was replaced by a delegated approval with automated verification (see above). No other deviations.
 
 ## Open Follow-ups
-- Node.js 24.x in Vercel project settings is NOT confirmed (owner unsure, Vercel MCP lacked team access). Check in the Vercel dashboard.
+- ~~Node.js 24.x in Vercel not confirmed~~ RESOLVED 2026-10-01: owner set it; the Vercel API reports `nodeVersion: "24.x"` for project wordyday. The owner also reconnected the Vercel MCP, and the protected preview URL was then fetched directly: HTTP 200 with `<title>Unlimited Wordle</title>`.
 - Local main carries planning-doc commits not pushed to origin/main (D-13); they ride with the Phase 2 branch.
 
 ## Self-Check: PASSED
