@@ -51,7 +51,7 @@ Plans:
 
 **Wave 5** *(blocked on Wave 4 completion)*
 
-- [ ] 01-05-PLAN.md — Merge PR 1, owner connects Vercel (checkpoint), proof PR 2 with preview
+- [x] 01-05-PLAN.md — Merge PR 1, owner connects Vercel (checkpoint), proof PR 2 with preview
 
 **Wave 6** *(blocked on Wave 5 completion)*
 
@@ -184,7 +184,7 @@ Plans:
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation, Spec and CI Skeleton | 4/6 | In Progress|  |
+| 1. Foundation, Spec and CI Skeleton | 5/6 | In Progress|  |
 | 2. Playable Normal Game | 0/TBD | Not started | - |
 | 3. Wordubado Mode and Slang | 0/TBD | Not started | - |
 | 4. Six Boards and Persistence | 0/TBD | Not started | - |
