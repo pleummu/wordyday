@@ -1,0 +1,174 @@
+import { describe, it, expect } from 'vitest'
+import {
+  parseList,
+  isInflection,
+  buildPools,
+  assertInvariants,
+  serialisePools,
+} from './lib.mjs'
+
+const ALL = new Set([
+  'boat',
+  'boats',
+  'stop',
+  'stopped',
+  'bake',
+  'baked',
+  'city',
+  'cities',
+  'box',
+  'boxes',
+  'glass',
+  'bless',
+  'thing',
+  'bring',
+  'king',
+  'ring',
+  'need',
+  'nee',
+  'seed',
+  'see',
+  'feed',
+  'fee',
+  'the',
+  're',
+  'th',
+  'br',
+])
+
+describe('R-POOL-7 / D-02 stem rules', () => {
+  it.each(['boats', 'stopped', 'baked', 'cities', 'boxes'])('drops %s', (w) => {
+    expect(isInflection(w, ALL)).toBe(true)
+  })
+  it.each([
+    'glass',
+    'bless',
+    'thing',
+    'bring',
+    'king',
+    'ring',
+    'need',
+    'seed',
+    'feed',
+  ])('keeps %s', (w) => {
+    expect(isInflection(w, ALL)).toBe(false)
+  })
+})
+
+describe('parseList', () => {
+  it('strips comments and blanks, lowercases', () => {
+    expect(parseList('# comment\n\nKill  \nfoo # trailing\n')).toEqual([
+      'kill',
+      'foo',
+    ])
+  })
+})
+
+describe('buildPools', () => {
+  const base = () => ({
+    length: 4,
+    common: new Set([
+      'good',
+      'blok',
+      'excl',
+      'prof',
+      'slng',
+      'cars',
+      'hmmm',
+      'fine',
+    ]),
+    all: new Set([
+      'good',
+      'blok',
+      'excl',
+      'prof',
+      'slng',
+      'cars',
+      'car',
+      'hmmm',
+      'fine',
+      'rare',
+    ]),
+    slang: ['slng', 'yeet'],
+    extra: ['xtra', 'toolong'],
+    blocklist: new Set(['blok']),
+    exclude: new Set(['excl']),
+    isProfane: (w) => w === 'prof',
+  })
+  it('filters answers and keeps dropped words as guesses', () => {
+    const { answers, guesses } = buildPools(base())
+    expect(answers).toEqual(['fine', 'good'])
+    for (const w of [
+      'blok',
+      'excl',
+      'prof',
+      'slng',
+      'cars',
+      'hmmm',
+      'yeet',
+      'xtra',
+      'rare',
+    ]) {
+      expect(answers).not.toContain(w)
+      expect(guesses).toContain(w)
+    }
+    expect(guesses).not.toContain('toolong')
+    for (const a of answers) expect(guesses).not.toContain(a)
+    expect([...answers]).toEqual([...answers].sort())
+    expect([...guesses]).toEqual([...guesses].sort())
+  })
+})
+
+describe('assertInvariants', () => {
+  const ok = () => ({
+    length: 4,
+    answers: ['fine', 'good'],
+    guesses: ['rare', 'slng'],
+    slang: ['slng'],
+    blocklist: new Set(['blok']),
+    exclude: new Set(['excl']),
+    minAnswers: 2,
+  })
+  it('passes on a valid fixture', () => {
+    expect(() => assertInvariants(ok())).not.toThrow()
+  })
+  it('throws on violations', () => {
+    expect(() =>
+      assertInvariants({ ...ok(), answers: ['fine', 'fine'] }),
+    ).toThrow()
+    expect(() =>
+      assertInvariants({ ...ok(), guesses: ['rare', 'fine'] }),
+    ).toThrow()
+    expect(() =>
+      assertInvariants({ ...ok(), answers: ['fine', 'Good'] }),
+    ).toThrow()
+    expect(() =>
+      assertInvariants({ ...ok(), answers: ['fine', 'goods'] }),
+    ).toThrow()
+    expect(() =>
+      assertInvariants({ ...ok(), answers: ['fine', 'blok'] }),
+    ).toThrow()
+    expect(() =>
+      assertInvariants({ ...ok(), answers: ['fine', 'excl'] }),
+    ).toThrow()
+    expect(() =>
+      assertInvariants({
+        ...ok(),
+        answers: ['fine', 'slng'],
+        guesses: ['rare'],
+      }),
+    ).toThrow()
+    expect(() =>
+      assertInvariants({ ...ok(), slang: ['slng', 'gone'] }),
+    ).toThrow()
+    expect(() => assertInvariants({ ...ok(), minAnswers: 3 })).toThrow()
+  })
+})
+
+describe('serialisePools', () => {
+  it('ends with one newline and round-trips', () => {
+    const t = serialisePools({ answers: ['a', 'b'], guesses: ['c'] })
+    expect(t.endsWith('}\n')).toBe(true)
+    expect(JSON.parse(t)).toEqual({ answers: 'a b', guesses: 'c' })
+  })
+})
