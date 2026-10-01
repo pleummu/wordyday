@@ -2,6 +2,8 @@ import Banner from './components/Banner'
 import Grid from './components/Grid'
 import Header from './components/Header'
 import Keyboard from './components/Keyboard'
+import LoadError from './components/LoadError'
+import LoadingNotice from './components/LoadingNotice'
 import Toast from './components/Toast'
 import { usePhysicalKeyboard } from './components/usePhysicalKeyboard'
 import { BOARD_CONFIG } from './logic/boards'
@@ -20,6 +22,7 @@ export default function App() {
   const shakeRow = useGameStore((s) => s.shakeRow)
   const dismissToast = useGameStore((s) => s.dismissToast)
   const playAgain = useGameStore((s) => s.playAgain)
+  const retryLoad = useGameStore((s) => s.retryLoad)
 
   function onKey(key: string) {
     const store = useGameStore.getState()
@@ -31,6 +34,7 @@ export default function App() {
   return (
     <div className="app">
       <Toast toast={toast} onDismiss={dismissToast} />
+      <LoadingNotice active={status === 'loading'} />
       <Header />
       <main className="board-area">
         <Grid
@@ -51,6 +55,8 @@ export default function App() {
             maxAttempts={BOARD_CONFIG[length].attempts}
             onPlayAgain={playAgain}
           />
+        ) : status === 'error' ? (
+          <LoadError onRetry={retryLoad} />
         ) : (
           <Keyboard
             keyStates={keyStates}

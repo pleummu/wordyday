@@ -68,3 +68,52 @@ it('pointer-selecting a length then pressing Enter submits and does not restart'
   expect(loadPools).toHaveBeenCalledTimes(1)
   expect(loadPools).toHaveBeenCalledWith(4)
 })
+
+it('shows Loading words... only after 400 ms of loading', async () => {
+  vi.useFakeTimers()
+  try {
+    loadPools.mockImplementation(() => new Promise(() => {}))
+    render(<App />)
+    act(() => {
+      void useGameStore.getState().startGame(5)
+    })
+    expect(
+      (screen.getByRole('button', { name: 'Enter' }) as HTMLButtonElement)
+        .disabled,
+    ).toBe(true)
+    act(() => {
+      vi.advanceTimersByTime(399)
+    })
+    expect(screen.queryByText('Loading words...')).toBeNull()
+    act(() => {
+      vi.advanceTimersByTime(2)
+    })
+    expect(screen.getByText('Loading words...')).toBeTruthy()
+  } finally {
+    vi.useRealTimers()
+  }
+})
+
+it('shows a load error with Try again that recovers', async () => {
+  loadPools.mockImplementation(() => Promise.reject(new Error('boom')))
+  render(<App />)
+  await act(async () => {
+    await useGameStore.getState().startGame(5)
+  })
+  expect(
+    screen.getByText(
+      "Couldn't load the word list. Check your connection and try again.",
+    ),
+  ).toBeTruthy()
+  expect(screen.getAllByRole('gridcell')).toHaveLength(30)
+  expect(screen.queryByRole('button', { name: 'Enter' })).toBeNull()
+
+  loadPools.mockImplementation(() => Promise.resolve(pools5))
+  await act(async () => {
+    fireEvent.click(screen.getByRole('button', { name: 'Try again' }))
+  })
+  expect(
+    (screen.getByRole('button', { name: 'Enter' }) as HTMLButtonElement)
+      .disabled,
+  ).toBe(false)
+})
