@@ -67,16 +67,19 @@
 }
 
 .tile[data-state='correct'] {
+  --tile-colour: var(--tile-correct);
   background: var(--tile-correct);
   border-color: var(--tile-correct);
 }
 
 .tile[data-state='present'] {
+  --tile-colour: var(--tile-present);
   background: var(--tile-present);
   border-color: var(--tile-present);
 }
 
 .tile[data-state='absent'] {
+  --tile-colour: var(--tile-absent);
   background: var(--tile-absent);
   border-color: var(--tile-absent);
 }
@@ -127,8 +130,15 @@
   flex: 1.5;
 }
 
+.key {
+  transition:
+    background-color 160ms var(--ease-soft),
+    transform 80ms var(--ease-soft);
+}
+
 .key:active:not(:disabled) {
   background: var(--color-key-pressed);
+  transform: scale(0.96);
 }
 
 .key[data-state='correct'] {
@@ -257,4 +267,183 @@
   font-weight: 600;
   box-shadow: var(--shadow-button);
   cursor: pointer;
+}
+
+.toast-layer {
+  position: fixed;
+  top: calc(env(safe-area-inset-top) + var(--space-3));
+  left: 0;
+  right: 0;
+  z-index: 10;
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.toast {
+  max-width: min(calc(100vw - 32px), 360px);
+  padding: var(--space-2) var(--space-3);
+  background: var(--color-surface);
+  border: 1px solid transparent;
+  border-radius: var(--radius-toast);
+  box-shadow: var(--shadow-toast);
+  font-size: var(--font-size-label);
+  font-weight: 600;
+  line-height: 1.2;
+  animation: toast-life 1860ms var(--ease-soft) both;
+}
+
+.toast[data-kind='error'] {
+  border-color: var(--color-error);
+}
+
+@keyframes toast-life {
+  0% {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  8.6%,
+  89.2% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pop {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.08);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes flip {
+  0% {
+    transform: rotateX(0);
+    background: var(--color-bg);
+    border-color: var(--tile-filled-border);
+  }
+  49% {
+    background: var(--color-bg);
+    border-color: var(--tile-filled-border);
+  }
+  50% {
+    transform: rotateX(90deg);
+    background: var(--tile-colour);
+    border-color: var(--tile-colour);
+  }
+  100% {
+    transform: rotateX(0);
+    background: var(--tile-colour);
+    border-color: var(--tile-colour);
+  }
+}
+
+@keyframes shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  20% {
+    transform: translateX(-6px);
+  }
+  40% {
+    transform: translateX(6px);
+  }
+  60% {
+    transform: translateX(-4px);
+  }
+  80% {
+    transform: translateX(4px);
+  }
+}
+
+@keyframes bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-12px);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0.4;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes outline-flash {
+  0%,
+  100% {
+    outline: 2px solid var(--color-error);
+  }
+}
+
+.tile[data-pop] {
+  animation: pop 100ms var(--ease-soft);
+}
+
+.tile[data-flip] {
+  animation: flip 500ms var(--ease-soft) calc(var(--i) * 300ms) both;
+}
+
+.row[data-shake] .tile {
+  animation: shake 400ms ease-in-out;
+}
+
+.row[data-bounce] .tile[data-flip] {
+  animation:
+    flip 500ms var(--ease-soft) calc(var(--i) * 300ms) both,
+    bounce 400ms var(--ease-soft) calc(var(--i) * 100ms);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tile[data-pop],
+  .row[data-bounce] .tile[data-flip] {
+    animation: none;
+  }
+
+  .tile[data-flip],
+  .row[data-bounce] .tile[data-flip] {
+    animation: fade-in 120ms linear;
+  }
+
+  .row[data-shake] .tile {
+    animation: outline-flash 800ms linear;
+  }
+
+  .key,
+  .key:active:not(:disabled) {
+    transform: none;
+    transition: background-color 120ms linear;
+  }
+
+  .toast {
+    animation-name: toast-fade;
+    transform: none;
+  }
+
+  @keyframes toast-fade {
+    0%,
+    100% {
+      opacity: 0;
+    }
+    8.6%,
+    89.2% {
+      opacity: 1;
+    }
+  }
 }

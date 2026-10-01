@@ -7,9 +7,19 @@ type TileProps = {
   row: number
   col: number
   revealed: boolean
+  active?: boolean
+  flip?: boolean
 }
 
-export default function Tile({ letter, state, row, col, revealed }: TileProps) {
+export default function Tile({
+  letter,
+  state,
+  row,
+  col,
+  revealed,
+  active,
+  flip,
+}: TileProps) {
   const upper = letter.toUpperCase()
   let label = `Row ${row}, column ${col}, `
   if (!letter) label += 'empty'
@@ -19,10 +29,13 @@ export default function Tile({ letter, state, row, col, revealed }: TileProps) {
   }
   return (
     <div
+      key={`${row}-${col}-${letter}`}
       role="gridcell"
       className="tile"
       data-state={state}
       data-filled={letter ? 'true' : undefined}
+      data-pop={active && letter ? 'true' : undefined}
+      data-flip={flip ? 'true' : undefined}
       style={{ '--i': col - 1 } as CSSProperties}
       aria-label={label}
     >

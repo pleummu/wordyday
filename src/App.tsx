@@ -2,6 +2,7 @@ import Banner from './components/Banner'
 import Grid from './components/Grid'
 import Header from './components/Header'
 import Keyboard from './components/Keyboard'
+import Toast from './components/Toast'
 import { usePhysicalKeyboard } from './components/usePhysicalKeyboard'
 import { BOARD_CONFIG } from './logic/boards'
 import { useGameStore } from './state/gameStore'
@@ -14,6 +15,10 @@ export default function App() {
   const status = useGameStore((s) => s.status)
   const answer = useGameStore((s) => s.answer)
   const keyStates = useGameStore((s) => s.keyStates)
+  const toast = useGameStore((s) => s.toast)
+  const shakeId = useGameStore((s) => s.shakeId)
+  const shakeRow = useGameStore((s) => s.shakeRow)
+  const dismissToast = useGameStore((s) => s.dismissToast)
   const playAgain = useGameStore((s) => s.playAgain)
 
   function onKey(key: string) {
@@ -25,9 +30,17 @@ export default function App() {
 
   return (
     <div className="app">
+      <Toast toast={toast} onDismiss={dismissToast} />
       <Header />
       <main className="board-area">
-        <Grid length={length} rows={rows} current={current} status={status} />
+        <Grid
+          length={length}
+          rows={rows}
+          current={current}
+          status={status}
+          shakeId={shakeId}
+          shakeRow={shakeRow}
+        />
       </main>
       <div className="controls">
         {status === 'won' || status === 'lost' ? (
