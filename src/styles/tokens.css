@@ -1,0 +1,13 @@
+:root {
+  --color-bg: #fbfaf7;
+  --color-text: #2b2d33;
+  --color-muted: #7a7f8a;
+  --color-accent: #a9c4b0;
+  --radius-tile: 14px;
+  --radius-card: 20px;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 16px;
+  --space-4: 32px;
+  --font-body: system-ui, -apple-system, 'Segoe UI', sans-serif;
+}

@@ -1,7 +1,9 @@
 // @vitest-environment jsdom
-import { render, screen } from '@testing-library/react'
-import { expect, it } from 'vitest'
+import { cleanup, render, screen } from '@testing-library/react'
+import { afterEach, expect, it } from 'vitest'
 import App from './App'
+
+afterEach(cleanup)
 
 it('shows the product name as the level-1 heading', () => {
   render(<App />)
