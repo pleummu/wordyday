@@ -75,7 +75,7 @@
 - [ ] **UI-06**: The layout works on phone widths (≥320 px) with the largest grid (6 letters × 7 rows), using a `dvh`-safe height
 - [ ] **UI-07**: Screen-reader users hear each guess result through an aria-live region; tiles and keys have accessible labels
 - [ ] **UI-08**: Modals trap focus, close on Esc and return focus; the whole game is playable by keyboard alone
-- [ ] **UI-09**: Animations respect prefers-reduced-motion
+- [x] **UI-09**: Animations respect prefers-reduced-motion
 - [ ] **UI-10**: Page has a title, meta description, Open Graph tags with an absolute image URL, a favicon and a `<noscript>` message
 - [ ] **UI-11**: Settings has a note that progress is stored in this browser only
 
@@ -144,7 +144,7 @@
 | QA-06 | Phase 2 | Pending |
 | UI-01 | Phase 2 | Complete |
 | UI-06 | Phase 2 | Pending |
-| UI-09 | Phase 2 | Pending |
+| UI-09 | Phase 2 | Complete |
 | WORD-02 | Phase 2 | Complete |
 | WORD-05 | Phase 2 | Complete |
 | WORD-07 | Phase 2 | Complete |

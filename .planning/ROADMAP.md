@@ -100,7 +100,7 @@ Plans:
 
 **Wave 6** *(blocked on Wave 5 completion)*
 
-- [ ] 02-08-PLAN.md — Toast, row-scoped shake, pop/flip/bounce and reduced motion (wave 6)
+- [x] 02-08-PLAN.md — Toast, row-scoped shake, pop/flip/bounce and reduced motion (wave 6)
 
 **Wave 7** *(blocked on Wave 6 completion)*
 
@@ -225,7 +225,7 @@ Plans:
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation, Spec and CI Skeleton | 6/6 | Complete    | 2026-10-01 |
-| 2. Playable Normal Game | 7/11 | In Progress|  |
+| 2. Playable Normal Game | 8/11 | In Progress|  |
 | 3. Wordubado Mode and Slang | 0/TBD | Not started | - |
 | 4. Six Boards and Persistence | 0/TBD | Not started | - |
 | 5. Stats, Streaks and Restore | 0/TBD | Not started | - |
