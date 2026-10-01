@@ -1,0 +1,3 @@
+# Owner cut list (D-07): words removed from Normal answers during review.
+# Applies to ANSWERS only: these words stay valid guesses.
+# One lowercase word per line; '#' starts a comment. Entries are added in 02-04.

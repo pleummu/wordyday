@@ -110,7 +110,8 @@ export function assertInvariants({
   for (const w of [...answers, ...guesses]) {
     if (!isPlainWord(w)) fail(`"${w}" is not a-z only`)
     if (w.length !== length) fail(`"${w}" has wrong length`)
-    if (seen.has(w)) fail(`"${w}" is duplicated (or in both answers and guesses)`)
+    if (seen.has(w))
+      fail(`"${w}" is duplicated (or in both answers and guesses)`)
     seen.add(w)
   }
   const slangSet = new Set(slang)
@@ -155,7 +156,8 @@ export function renderSlangReview(
     lines.push('| --- | --- | --- | --- | --- | --- |')
     for (const e of rows) {
       const flags = []
-      if (isProfane(e.word) || blocklist.has(e.word)) flags.push('blocklist hit')
+      if (isProfane(e.word) || blocklist.has(e.word))
+        flags.push('blocklist hit')
       if (commonByLength[length]?.has(e.word)) flags.push('common word')
       const def = String(e.definition).replace(/\|/g, '\\|')
       lines.push(

@@ -12,7 +12,8 @@
     "format:check": "prettier --check .",
     "typecheck": "tsc -b",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "build:words": "node scripts/build-words.mjs"
   },
   "dependencies": {
     "react": "^19.2.8",
