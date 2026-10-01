@@ -27,7 +27,15 @@ Vertical MVP: a playable game appears as early as possible (Phase 2), then each 
   2. Owner can read GLOSSARY.md and find all twelve defined terms (Board, Mode, Normal, Wordubado, Answer Pool, Guess Pool, Win Streak, Day Streak, Missed Day, Restore, Forfeit, Give Up)
   3. Running install, lint, format check, typecheck, unit tests and build on a fresh clone succeeds (React + Vite + TypeScript 6.0.x, Node 24)
   4. Opening a pull request triggers a baseline GitHub Actions run and a Vercel preview URL that shows the placeholder app; merging to main publishes to production
-**Plans**: TBD
+**Plans**: 6 plans
+
+Plans:
+- [ ] 01-01-PLAN.md — Scaffold React/Vite/TS 6 with ESLint 10, Prettier, Vitest; Unlimited Wordle placeholder page test-first
+- [ ] 01-02-PLAN.md — SPEC.md: ID-tagged rules, Restore state machine, EC-01..EC-44, owner-overridable defaults
+- [ ] 01-03-PLAN.md — GLOSSARY.md with the twelve terms, cross-linked with SPEC.md
+- [ ] 01-04-PLAN.md — Baseline CI check job, PR 1 green, fresh-clone proof, owner reviews SPEC/GLOSSARY
+- [ ] 01-05-PLAN.md — Merge PR 1, owner connects Vercel (checkpoint), proof PR 2 with preview
+- [ ] 01-06-PLAN.md — Owner verifies preview, merge PR 2, prove production deploy from main
 **Notes**: Baseline CI (lint, format, typecheck, unit, build) starts here; QA-04 is completed in Phase 8 after later phases add word-drift and E2E jobs. Research flag: confirm whether the scaffold installs TS 6 or 7 and typescript-eslint's peer range.
 
 ### Phase 2: Playable Normal Game
@@ -134,7 +142,7 @@ Vertical MVP: a playable game appears as early as possible (Phase 2), then each 
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation, Spec and CI Skeleton | 0/TBD | Not started | - |
+| 1. Foundation, Spec and CI Skeleton | 0/6 | Not started | - |
 | 2. Playable Normal Game | 0/TBD | Not started | - |
 | 3. Wordubado Mode and Slang | 0/TBD | Not started | - |
 | 4. Six Boards and Persistence | 0/TBD | Not started | - |
