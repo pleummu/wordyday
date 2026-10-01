@@ -1,0 +1,158 @@
+UNLIMITED WORDLE - SPEC FIXES + BUILD PLAN
+==========================================
+
+CONTEXT
+-------
+The original spec (Downloads\Unlimited Wordle.txt) had contradictions:
+  - "Unlimited" vs "daily streak"
+  - "every word incl. slang" vs "only dictionary words"
+It also had gaps: attempts per length, stats scope, abandon/refresh, share format, accessibility.
+These were settled in a Q&A session. This is a greenfield build.
+Deliverables: a corrected spec, a glossary, and the working app.
+
+
+SETTLED DECISIONS
+-----------------
+
+Modes & lengths
+  - Two modes: NORMAL and WORDUBADO (slang mode).
+  - Three lengths: 4 / 5 / 6 letters -> 5 / 6 / 7 attempts.
+  - Normal answers = common English words only.
+  - Slang/meme/Gen Z words are VALID GUESSES in Normal, but never the answer.
+  - Wordubado answers: 75% slang, 25% common word, chosen per game.
+  - Answers are fully random (repeats allowed).
+  - Wordubado has an (i) info popup explaining the mode.
+
+Boards & persistence (saved in localStorage)
+  - 6 Boards (2 modes x 3 lengths), each with its own saved in-progress game.
+  - Switching mode/length never forfeits; you return to the same board later.
+  - Refreshing the page resumes the game.
+  - Pressing "New game" while a game is in progress = loss. A confirm dialog
+    asks first: "This counts as a loss. Start a new game?"
+  - "Give up" button reveals the answer and counts as a loss (same confirm).
+
+Streaks
+  - WIN STREAK: one per Board. +1 on win; resets to 0 on loss / give up / forfeit.
+  - DAY STREAK: one global number. +1 at most once per local calendar day,
+    when any game is finished (win or loss). More games that day add nothing.
+  - MISSED DAY: a local calendar day with no finished game.
+
+Missed days & Restore (checked when the app opens)
+  Stored: dayStreak { current, longest, lastActiveDate },
+          restores { month: "YYYY-MM", used }, per-Board winStreak.
+  missed = calendar days strictly between lastActiveDate and today.
+  - missed = 0 -> nothing happens.
+  - missed >= 1:
+      1. Every Board's Win Streak resets to 0 immediately. A Restore never
+         brings Win Streaks back.
+      2. Day Streak: if current > 0 AND missed <= 4 AND a Restore is left
+         this month -> show the Restore prompt:
+           "Your 12-day streak broke. Restore it? (2 left this month)"
+         Otherwise Day Streak resets to 0, no prompt.
+         (Example: last active Mon 1st -> restore offered up to Sat 6th;
+          from Sun 7th the streak resets.)
+  - Prompt "Restore": uses 1 Restore. One Restore covers the whole gap.
+    Streak keeps its number; missed days are not added. lastActiveDate is
+    set to yesterday, so finishing a game today makes it +1.
+  - Prompt "No": Day Streak resets to 0.
+  - Refresh without answering: prompt shows again (nothing was decided).
+  - 3 Restores per calendar month; refill to 3 on the 1st; unused ones
+    don't carry over. Counted against the month the Restore is used in.
+  - Clock moved backwards (today < lastActiveDate): treated as missed = 0.
+
+Statistics
+  - Games played, win rate, current/longest Win Streak, guess distribution,
+    average number of guesses (won games only).
+  - Tabs: 4 / 5 / 6 / All, shown separately for Normal and Wordubado
+    (Wordubado stats never mix with Normal).
+  - "All" tab shows totals only; Win Streaks appear only on the 4/5/6 tabs.
+  - Day Streak (current / longest) and "Restores left: N/3" shown globally.
+
+Result screen
+  - Won/lost, the answer, attempts used, statistics.
+  - "Show definition" button (both modes, hidden until clicked):
+      slang  -> curated definition bundled with the app
+      common -> looked up from dictionaryapi.dev; "Definition unavailable" if offline
+  - Play again / Share.
+  - Share copies an emoji grid to the clipboard, e.g.
+      Unlimited Wordle - Wordubado 5 - 4/6
+      🟩🟨⬛⬛⬛ ...
+    (colour-blind mode uses 🟧🟦; a loss shows "X/6" instead of a number)
+
+Extras
+  - How-to-play modal (opens automatically on first visit).
+  - Dark mode.
+  - Colour-blind (high-contrast) palette.
+  - No hard mode.
+
+Standard rules (Wordle convention)
+  - Repeated letters: greens are scored first, then yellows, limited by how
+    many of that letter remain in the answer.
+  - Keyboard keys keep their best state (green > yellow > gray).
+  - Invalid or too-short guess: row shakes, toast message, attempt NOT used.
+
+
+FIXES TO THE ORIGINAL SPEC TEXT
+-------------------------------
+  - Line 4: remove the double period "..".
+  - "Unlimited Puzzle - six attempts" -> per-length attempts (5/6/7).
+  - "Daily streak tracking" -> Win Streak + Day Streak + Restore rules above.
+  - "Contains every word, even memes, slang" -> Normal/Wordubado word-pool rules above.
+  - Add: Wordubado mode, Give up, How-to-play, dark/colour-blind, definitions,
+    resume after refresh.
+
+
+IMPLEMENTATION (when approved)
+------------------------------
+Stack: Web, React + Vite (TypeScript), Vitest for tests.
+
+Files:
+  SPEC.md                   corrected spec
+  GLOSSARY.md               Board, Mode, Normal, Wordubado, Answer Pool, Guess Pool,
+                            Win Streak, Day Streak, Missed Day, Restore, Forfeit, Give Up
+  scripts/build-words.mjs   generates word lists from the `wordlist-english` package:
+                            answers = common words; guesses = large dictionary;
+                            filtered to 4-6 letters a-z
+  src/data/
+    answers-4/5/6.json      common-word answer pools
+    guesses-4/5/6.json      valid-guess pools (also include all slang)
+    slang.json              [{ word, definition }]: ~80-150 clean words per length,
+                            drafted by Claude, reviewed by you
+  src/logic/
+    evaluate.ts             scores a guess (correct / present / absent)
+    pickAnswer.ts           picks the answer (75/25 split for Wordubado)
+    streaks.ts              missed-day check, Restore eligibility/apply/decline,
+                            monthly refill, recording results
+    storage.ts              save/load to localStorage (incl. restores + dayStreak)
+    definitions.ts          slang lookup, otherwise dictionaryapi.dev
+  src/state/gameStore.ts    game state for all boards, stats, settings
+  src/components/
+    Header                  mode toggle, length picker, help/stats/settings, Wordubado (i)
+    Board, Row, Tile        letter grid with flip / pop / shake animations
+    Keyboard                on-screen + physical keyboard
+    Toast, Modal, HowToPlayModal, StatsModal, ResultModal,
+    SettingsModal, WordubadoInfoModal, RestoreModal, ConfirmModal
+  src/styles/               light / dark / colour-blind themes
+
+
+VERIFICATION
+------------
+Unit tests (vitest):
+  - Repeated-letter scoring (e.g. answer ABBEY vs guess BABES; SPEED vs ERASE).
+  - Wordubado picks slang ~75% of the time over 10,000 draws.
+  - Streaks: several games in one day count once; a missed day resets all
+    Win Streaks (and the Day Streak unless Restored); a loss resets only that Board's Win Streak.
+  - Restore: 1 or 4 missed days -> prompt offered; 5 missed -> reset, no prompt.
+  - Restore keeps the streak number; next finished game makes it +1.
+  - Win Streaks stay 0 after a Restore.
+  - No 4th Restore in the same month; refill to 3 in a new month.
+  - Declining resets the Day Streak; clock moved backwards = no missed days.
+  - Save/load round-trip.
+Manual (in browser):
+  - Play one game per length in both modes.
+  - Physical + on-screen keyboard; invalid word shows a toast.
+  - Refresh mid-game resumes; switching boards keeps progress.
+  - Give up and New-game-mid-game ask to confirm, then count as losses.
+  - Restore prompt appears after faking a missed day (edit lastActiveDate).
+  - Share text, definition button, dark + colour-blind toggles, phone width.
+  - Production build succeeds.
