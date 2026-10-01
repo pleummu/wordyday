@@ -1,3 +1,53 @@
 # Owner cut list (D-07): words removed from Normal answers during review.
 # Applies to ANSWERS only: these words stay valid guesses.
 # One lowercase word per line; '#' starts a comment. Entries are added in 02-04.
+
+# Owner review 2026 (D-07), Phase 2
+# Cut categories: crude or edgy words, proper nouns and abbreviations.
+
+# 4 letters
+bash
+beta
+buss
+coke
+duff
+evil
+hell
+info
+lust
+pope
+scum
+sine
+slag
+zoom
+
+# 5 letters
+alpha
+bible
+bigot
+bogus
+crass
+delta
+drunk
+idiot
+moron
+roman
+smith
+
+# 6 letters
+bugger
+condom
+corpse
+cuckoo
+drivel
+french
+guinea
+heroin
+kidnap
+python
+racism
+racist
+scotch
+sexist
+sexual
+sinful
