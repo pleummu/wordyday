@@ -1,8 +1,8 @@
 ---
 phase: 1
 slug: foundation-spec-and-ci-skeleton
-status: draft
-nyquist_compliant: false
+status: ready
+nyquist_compliant: true
 wave_0_complete: false
 created: 2026-10-01
 ---
@@ -36,17 +36,22 @@ created: 2026-10-01
 
 ## Per-Task Verification Map
 
-To be filled in by the planner and executor once task IDs exist. Requirement → check mapping:
-
-| Requirement | Behavior | Test Type | Automated Command | File Exists | Status |
-|-------------|----------|-----------|-------------------|-------------|--------|
-| QA-01 | TypeScript is 6.0.x | script | `node -e "process.exit(require('typescript/package.json').version.startsWith('6.0.')?0:1)"` | ❌ W0 | ⬜ pending |
-| QA-01 | ESLint flat config, Prettier, Node 24, no oxlint | smoke | `npm run lint && npm run format:check && test "$(cat .nvmrc)" = 24 && test -f eslint.config.js && test ! -f .oxlintrc.json` | ❌ W0 | ⬜ pending |
-| QA-01 | Unit test infra is real | unit | `npm test` (pure test + component test) | ❌ W0 | ⬜ pending |
-| QA-01 | Fresh clone works | integration | in a fresh clone: `npm ci` + full suite command | ❌ W0 | ⬜ pending |
-| QA-05 | PR triggers CI `check` job | CI | `gh pr checks <n>` shows `check` passing | ❌ W0 | ⬜ pending |
-| DOC-01 | SPEC has decisions, state machine, edge cases | doc grep | `grep -q "R-RESTORE-" SPEC.md && [ $(grep -oE "EC-[0-9]{2}" SPEC.md \| sort -u \| wc -l) -ge 40 ]` | ❌ W0 | ⬜ pending |
-| DOC-02 | GLOSSARY has all twelve terms | doc grep | loop over the 12 terms, each must match a heading/bold entry in GLOSSARY.md | ❌ W0 | ⬜ pending |
+| Task ID | Plan | Wave | Requirement | Behavior | Test Type | Automated Command | File Exists | Status |
+|---------|------|------|-------------|----------|-----------|-------------------|-------------|--------|
+| 01-01-T1 | 01-01 | 1 | QA-01 | Scaffold + toolchain; TS 6.0.x; ESLint 10; no oxlint | smoke | `npm run lint && npm run format:check && npm run typecheck && npm run build && node -e "process.exit(require('typescript/package.json').version.startsWith('6.0.')?0:1)"` | ❌ W0 | ⬜ pending |
+| 01-01-T2 | 01-01 | 1 | QA-01 | Placeholder page + BOARD_CONFIG, test-first (D-16..D-18) | unit + component | `npm test && npm run lint && npm run format:check && npm run typecheck && npm run build` | ❌ W0 | ⬜ pending |
+| 01-02-T1 | 01-02 | 2 | DOC-01 | SPEC sections 0-7, rule IDs, plan.txt supersede note | doc grep | `head -8 SPEC.md \| grep -q plan.txt` + R-<AREA>-1 loop + `daily streak` count = 0 (see plan verify) | ❌ W0 | ⬜ pending |
+| 01-02-T2 | 01-02 | 2 | DOC-01 | Restore state machine, EC-01..EC-44, sections 9-13 | doc grep | EC-01..44 loop, `R-RESTORE-` unique >= 13, states/events, verbatim prompt, `^## ` >= 14 (see plan verify) | ❌ W0 | ⬜ pending |
+| 01-03-T1 | 01-03 | 3 | DOC-02 | GLOSSARY has exactly the twelve terms | doc grep | 12-term `grep -qx "### $t"` loop and `grep -c '^### '` = 12 | ❌ W0 | ⬜ pending |
+| 01-03-T2 | 01-03 | 3 | DOC-01, DOC-02 | SPEC/GLOSSARY cross-link and shared vocabulary | doc grep | rule-ID existence loop, 12 terms in SPEC, `grep -q GLOSSARY.md SPEC.md` | ❌ W0 | ⬜ pending |
+| 01-04-T1 | 01-04 | 4 | QA-01 | CI workflow `check` job; PIPELINE.md commands | config grep | ci.yml step loop, `contents: read`, no `pull_request_target`/vercel, `npm run format:check` | ❌ W0 | ⬜ pending |
+| 01-04-T2 | 01-04 | 4 | QA-01, QA-05 | PR #1 open, `check` green; fresh clone passes | CI | `gh pr view phase-01/foundation --json state,statusCheckRollup ...` = `OPEN SUCCESS` | ❌ W0 | ⬜ pending |
+| 01-04-T3 | 01-04 | 4 | DOC-01, DOC-02 | Owner approves SPEC/GLOSSARY (checkpoint) | CI + manual | `gh pr checks phase-01/foundation \| grep -E "^check\s" \| grep -q pass` | ❌ W0 | ⬜ pending |
+| 01-05-T1 | 01-05 | 5 | QA-05 | PR #1 merged; main CI green | CI | `gh pr view ... MERGED` and latest main CI run = success | ❌ W0 | ⬜ pending |
+| 01-05-T2 | 01-05 | 5 | QA-05 | Owner connects Vercel (checkpoint) | smoke + manual | `curl -fsSL "$PRODUCTION_URL" \| grep -c "<title>Unlimited Wordle</title>"` | ❌ W0 | ⬜ pending |
+| 01-05-T3 | 01-05 | 5 | QA-05 | Proof PR #2: `check` + Vercel preview pass | CI | `gh pr checks phase-01/deploy-proof` shows `check` and Vercel pass | ❌ W0 | ⬜ pending |
+| 01-06-T1 | 01-06 | 6 | QA-05 | Owner sees placeholder at preview URL (checkpoint) | CI + manual | `gh pr checks phase-01/deploy-proof \| grep -i vercel \| grep -q pass` | ❌ W0 | ⬜ pending |
+| 01-06-T2 | 01-06 | 6 | QA-05 | Merge PR #2; production deploy for merge SHA | CI + smoke | `gh pr view ... MERGED`, main CI success, deployment status success, curl title | ❌ W0 | ⬜ pending |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
 
@@ -72,11 +77,11 @@ To be filled in by the planner and executor once task IDs exist. Requirement →
 
 ## Validation Sign-Off
 
-- [ ] All tasks have `<automated>` verify or Wave 0 dependencies
-- [ ] Sampling continuity: no 3 consecutive tasks without automated verify
+- [x] All tasks have `<automated>` verify or Wave 0 dependencies
+- [x] Sampling continuity: no 3 consecutive tasks without automated verify
 - [ ] Wave 0 covers all MISSING references
-- [ ] No watch-mode flags
+- [x] No watch-mode flags
 - [ ] Feedback latency < 30s
-- [ ] `nyquist_compliant: true` set in frontmatter
+- [x] `nyquist_compliant: true` set in frontmatter
 
 **Approval:** pending

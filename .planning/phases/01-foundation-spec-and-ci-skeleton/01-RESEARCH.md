@@ -546,16 +546,21 @@ With a test asserting `attempts === length + 1`. Recommendation: **include it**;
 | A5 | Vercel default build/output (`vite build`/`dist`) are auto-detected for the Vite preset | Vercel Git Integration | Owner sets them manually per instructions |
 | A6 | Edge-case table rows EC-15, EC-20, EC-23, EC-40 reflect the owner's intent | SPEC state machine | Spec must be changed after owner review; Phase 5 tests follow SPEC |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **FINISH that itself reveals a broken streak (EC-40, rule 7).**
    - Known: the check runs on app open/focus/midnight, so normally the prompt appears before a guess. A game left open overnight could finish after the break.
    - Unclear: credit for that game before or after the prompt.
    - Recommendation: record the Board result immediately; defer the Day Streak credit until the prompt is answered; then credit +1 (Accept: LAD=yesterday then today; Decline: S=0 then S=1). Write this as the default in SPEC.md and list it under "Owner can override".
+   - RESOLVED: written into SPEC.md as the stated default (record the Board result now, defer Day Streak credit until the prompt is answered, then +1), listed as owner-overridable open question 1; plan 01-02 Task 2.
 2. **"K left this month" in the prompt.** plan.txt example "(2 left this month)" is ambiguous (before or after use). Recommendation: K = left before answering.
+   - RESOLVED: SPEC.md default is K = Restores left before this use (EC-43), owner-overridable open question 2; plan 01-02 Task 2.
 3. **Restore answered in a later month than the gap (EC-22/23).** plan.txt: "counted against the month the Restore is used in". Recommendation: refill first on the answer date, count against that month (consistent with D-03).
+   - RESOLVED: SPEC.md default is refill first on the answer date and count the Restore against that month (EC-22, EC-23), owner-overridable open question 3; plan 01-02 Task 2.
 4. **Zero-guess board and the 2-tries rule.** Under PLAY-07/08 a player cannot abandon a fresh board. Confirm this is intended (REQUIREMENTS says so explicitly, so SPEC just records it).
+   - RESOLVED: SPEC.md records that a zero-guess Board cannot be abandoned (exactly-2-tries rule per PLAY-07/PLAY-08), owner-overridable open question 4; plan 01-02 Tasks 1-2.
 5. **Does `README.md` need a rewrite now?** Not required; recommend a 10-line README (what it is, scripts, Node 24) so the Vercel/GitHub landing page is not the Vite default.
+   - RESOLVED: yes, a short project README (what it is, Node 24, scripts, links to SPEC/GLOSSARY/PIPELINE) replaces the Vite default; plan 01-01 Task 2.
 
 ## Environment Availability
 
