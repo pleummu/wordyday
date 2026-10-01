@@ -1,0 +1,82 @@
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 0 var(--space-3);
+}
+
+@media (min-width: 480px) {
+  .app {
+    padding: 0 var(--space-4);
+  }
+}
+
+.board-area {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.grid {
+  --tile: clamp(
+    40px,
+    calc(
+      (100vw - 2 * var(--space-3) - (var(--cols) - 1) * var(--space-1)) /
+        var(--cols)
+    ),
+    62px
+  );
+  display: grid;
+  grid-template-rows: repeat(var(--rows), var(--tile));
+  gap: var(--space-1);
+}
+
+.row {
+  display: grid;
+  grid-template-columns: repeat(var(--cols), var(--tile));
+  gap: var(--space-1);
+}
+
+.tile {
+  width: var(--tile);
+  height: var(--tile);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--font-size-display);
+  font-weight: 600;
+  line-height: 1;
+  text-transform: uppercase;
+  background: var(--color-bg);
+  border: 2px solid var(--tile-empty-border);
+  border-radius: var(--radius-tile-sm);
+}
+
+@media (min-width: 480px) and (min-height: 760px) {
+  .tile {
+    border-radius: var(--radius-tile);
+  }
+}
+
+.tile[data-filled] {
+  border-color: var(--tile-filled-border);
+}
+
+.tile[data-state='correct'] {
+  background: var(--tile-correct);
+  border-color: var(--tile-correct);
+}
+
+.tile[data-state='present'] {
+  background: var(--tile-present);
+  border-color: var(--tile-present);
+}
+
+.tile[data-state='absent'] {
+  background: var(--tile-absent);
+  border-color: var(--tile-absent);
+}
