@@ -73,19 +73,20 @@ Plans:
   4. User who runs out of attempts sees the answer revealed; every new game draws a random common word (repeats allowed) that is never a plural or inflection or a blocklisted word
   5. The largest grid (6 letters x 7 rows) fits a 320 px phone with a dvh-safe layout, animations are disabled under prefers-reduced-motion, and the production build keeps word pools out of the entry chunk
 
-**Plans**: 10 plans
+**Plans**: 11 plans
 
 Plans:
 - [ ] 02-01-PLAN.md — Pure scoring, pickAnswer and key merge, test-first (wave 1)
 - [ ] 02-02-PLAN.md — Draft slang.json with D-18 validation test (wave 1)
 - [ ] 02-03-PLAN.md — Word build script, lists and committed per-length pools (wave 2)
 - [ ] 02-04-PLAN.md — Owner review of Normal answers, exclude.txt (checkpoint, wave 3)
-- [ ] 02-05-PLAN.md — Failing win/lose E2E, lazy loader and game store (wave 3)
-- [ ] 02-06-PLAN.md — Playable UI: grid, keyboards, length picker, banner (wave 4)
-- [ ] 02-07-PLAN.md — Toast, shake, pop/flip/bounce and reduced motion (wave 5)
-- [ ] 02-08-PLAN.md — 320 px fit with compact rule, loading and error states (wave 6)
-- [ ] 02-09-PLAN.md — check:bundle, CI words and e2e jobs, PIPELINE.md (wave 7)
-- [ ] 02-10-PLAN.md — PR with green CI and owner preview sign-off (checkpoint, wave 8)
+- [ ] 02-05-PLAN.md — Playwright on the production build and failing win/lose E2E (wave 3)
+- [ ] 02-06-PLAN.md — Lazy pool loader and game store, test-first (wave 4)
+- [ ] 02-07-PLAN.md — Playable UI: grid, keyboards, length picker, banner (wave 5)
+- [ ] 02-08-PLAN.md — Toast, row-scoped shake, pop/flip/bounce and reduced motion (wave 6)
+- [ ] 02-09-PLAN.md — 320 px fit with compact rule at <=540 px, loading and error states (wave 7)
+- [ ] 02-10-PLAN.md — check:bundle, CI words and e2e jobs, PIPELINE.md (wave 8)
+- [ ] 02-11-PLAN.md — PR with green CI and owner preview sign-off (checkpoint, wave 9)
 
 **UI hint**: yes
 **Notes**: Scoring and answer picking are pure modules written test-first. The word build script, blocklist and committed JSON land here (Normal pools plus guess pools); slang is added in Phase 3. Slang drafting for slang.json starts in parallel during this phase so the owner's review does not block Phase 3.

@@ -21,6 +21,7 @@ Already locked elsewhere and not re-decided here: the scoring algorithm and inpu
 
 ### Answer pool (Normal)
 - **D-01:** Normal answer candidates come from `wordlist-english` tiers **10 + 20** (english/10 and english/20, American list), filtered to the exact length.
+  - *Owner confirmed 2026-10-01: union with english/american/10 and /20* (answer source = english/10 + english/20 + english/american/10 + english/american/20).
 - **D-02:** Plurals and inflections (R-POOL-7) are detected with a **stem-in-list check**. A word is dropped only if stripping the suffix gives another real word in the source list. Rules to cover: `-s`, `-es`, `-ies→y`, `-ed`, `-ing`, doubled consonant (STOPPED→STOP), and silent-e (BAKED→BAKE). This means GLASS, BLESS, THING, BRING, KING, NEED and SEED stay. Dropped words remain valid guesses.
 - **D-03:** Profanity filtering uses the **`obscenity` package's English preset plus a checked-in, commented `blocklist.txt`** for slurs, hate terms, sexual and violent words that obscenity misses. The blocklist applies to answers only (R-POOL-6).
 - **D-04:** **Mildly crude but not profane words are allowed as Normal answers.** Only true profanity, slurs, hate terms and anything the owner cuts at review are removed. This deliberately relaxes PROJECT.md's "clean common words" wording; the owner's review checkpoint (D-07) is the safety net.
