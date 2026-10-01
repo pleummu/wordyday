@@ -8,9 +8,9 @@
 ### Gameplay (PLAY)
 
 - [ ] **PLAY-01**: User can play with 4, 5 or 6-letter words, getting 5, 6 or 7 attempts respectively
-- [ ] **PLAY-02**: User sees each guess scored correct/present/absent, with greens scored first and yellows limited by how many of that letter remain in the answer
+- [x] **PLAY-02**: User sees each guess scored correct/present/absent, with greens scored first and yellows limited by how many of that letter remain in the answer
 - [ ] **PLAY-03**: User can only submit guesses from the Guess Pool for that length; an invalid or too-short guess shakes the row, shows a toast and does not use an attempt
-- [ ] **PLAY-04**: User can type with both the on-screen and the physical keyboard; keys keep their best state (green > yellow > gray)
+- [x] **PLAY-04**: User can type with both the on-screen and the physical keyboard; keys keep their best state (green > yellow > gray)
 - [ ] **PLAY-05**: User sees tile pop (typing), flip (reveal) and shake (invalid) animations; input is blocked while a row is revealing; keyboard colours update after the flip finishes
 - [ ] **PLAY-06**: User sees the answer revealed when they lose
 - [ ] **PLAY-07**: User can only Give Up when exactly 2 tries are left; Give Up asks to confirm, reveals the answer and counts as a loss
@@ -22,7 +22,7 @@
 - [ ] **WORD-02**: In Normal mode, answers are common English words only: blocklisted words removed, plurals and inflections (-s, -ed, -ing) removed
 - [ ] **WORD-03**: User can guess slang/meme/Gen Z words in Normal mode, but they are never the answer
 - [ ] **WORD-04**: In Wordubado mode, each game's answer is slang 75% of the time and a common word 25% of the time
-- [ ] **WORD-05**: Answers are fully random (repeats allowed)
+- [x] **WORD-05**: Answers are fully random (repeats allowed)
 - [ ] **WORD-06**: User can open a Wordubado (i) popup that explains the mode and warns about mildly crude content
 - [ ] **WORD-07**: A build script generates the answer and guess pools for 4-6 letters from `wordlist-english` with a blocklist; every answer and every slang word is also in the guess pool; generated JSON is committed and CI checks it hasn't drifted
 - [ ] **WORD-08**: `slang.json` holds ~80-150 curated words per length, each with a definition; mild words are allowed, slurs and hate terms never; owner-reviewed; validated by a unit test (length, non-empty definition, no duplicates, not blocklisted)
@@ -136,9 +136,9 @@
 | QA-01 | Phase 1 | Complete |
 | QA-05 | Phase 1 | Complete |
 | PLAY-01 | Phase 2 | Pending |
-| PLAY-02 | Phase 2 | Pending |
+| PLAY-02 | Phase 2 | Complete |
 | PLAY-03 | Phase 2 | Pending |
-| PLAY-04 | Phase 2 | Pending |
+| PLAY-04 | Phase 2 | Complete |
 | PLAY-05 | Phase 2 | Pending |
 | PLAY-06 | Phase 2 | Pending |
 | QA-06 | Phase 2 | Pending |
@@ -146,7 +146,7 @@
 | UI-06 | Phase 2 | Pending |
 | UI-09 | Phase 2 | Pending |
 | WORD-02 | Phase 2 | Pending |
-| WORD-05 | Phase 2 | Pending |
+| WORD-05 | Phase 2 | Complete |
 | WORD-07 | Phase 2 | Pending |
 | WORD-09 | Phase 2 | Pending |
 | UI-05 | Phase 3 | Pending |
