@@ -107,3 +107,212 @@ Two pools exist per length. The **Answer Pool** is what the game can pick as a s
 - R-DAY-3: A Missed Day is a local calendar day with no finished game. The count of missed days is taken strictly between the last active date and today: `missed = max(0, days(today) - days(lastActiveDate) - 1)`. Covers: STRK-03
   - Why: if you last played on Monday and today is Wednesday, only Tuesday was missed, so missed is 1.
 - R-DAY-4: The longest Day Streak only ever increases. It is updated when the current Day Streak exceeds it. Decline and Restore do not change it. Covers: STRK-02
+
+## 8. Restore state machine
+
+A Restore protects the Day Streak (never Win Streaks). The logic is written as a small state machine: `(state, event, today) -> state`. It is a pure function of its inputs, which is why `today` is injected (R-DATE-3) and why Phase 5 can test it with a table.
+
+### Persisted state
+
+The exact storage shape is finalised in Phase 4. The names below are the ones the rules use.
+
+- `dayStreak { current, longest, lastActiveDate }` where `lastActiveDate` is `YYYY-MM-DD` or `null`.
+- `restores { month: 'YYYY-MM', used: 0..3 }`.
+- `pendingRestore: null | { streak, missed }`. It is persisted so a refresh shows the prompt again (D-02).
+- Per Board: `winStreak`.
+
+### Derived values (never stored)
+
+- `restoresLeft = 3 - used`, evaluated after the monthly refill and clamped to the range 0 to 3.
+- `missed = max(0, days(today) - days(lastActiveDate) - 1)`, with `days()` taken from `Date.UTC` parts (R-DATE-2).
+- `missed = 0` when `lastActiveDate` is `null` or later than `today`.
+
+### States
+
+| State     | Meaning                                                                         |
+| --------- | ------------------------------------------------------------------------------- |
+| NO_STREAK | `current = 0`. Nothing to protect.                                              |
+| ACTIVE    | `current > 0` and `missed = 0`. The streak is alive.                            |
+| PENDING   | A Restore prompt is outstanding. `pendingRestore` is set. Waiting for an answer. |
+
+### Events
+
+All events take an injected `today`.
+
+| #   | Event                          | Trigger                                                                           |
+| --- | ------------------------------ | --------------------------------------------------------------------------------- |
+| E1  | `CHECK(today)`                 | app open, tab focus or visibilitychange, local date change, and before every E4   |
+| E2  | `RESTORE(today)`               | the player taps Restore in the prompt                                             |
+| E3  | `DECLINE(today)`               | the player taps No in the prompt                                                  |
+| E4  | `FINISH(today, board, outcome)` | a game ends: win, loss, Give Up or Forfeit                                        |
+| E5  | `RESET_ALL`                    | Settings reset after a confirm                                                    |
+
+### Transitions
+
+- R-RESTORE-1: Refill first, and only forward. At the start of `CHECK`, `RESTORE` and `FINISH`: if `monthOf(today)` is later than `restores.month`, set `restores = { month: monthOf(today), used: 0 }`. The refill runs before any eligibility test (D-03). It never runs when the clock has moved backwards, and `restores.month` never moves to an earlier month. Covers: STRK-08
+  - Why: a check on the 1st must already see 3 Restores. Doing the refill lazily, at the moment it matters, avoids needing a timer.
+- R-RESTORE-2: `CHECK` with `missed = 0` changes nothing. This covers a `null` last active date, the same day, yesterday and a clock moved backwards. Covers: STRK-03, STRK-04
+- R-RESTORE-3: `CHECK` with `missed >= 1` while PENDING re-evaluates eligibility using the current `today`, because the gap may have grown. If still eligible, nothing changes. If no longer eligible (missed is now above 4, or no Restore is left after the refill), apply R-RESTORE-5 (auto-decline). Win Streaks are already 0, so running this again is harmless (D-01). Covers: STRK-04
+- R-RESTORE-4: `CHECK` with `missed >= 1` while not PENDING sets every Board's Win Streak to 0. Then, if `current > 0` AND `missed <= 4` AND `restoresLeft > 0`, the state becomes PENDING with `pendingRestore = { streak: current, missed }` and the prompt is shown. Otherwise `current` becomes 0 and no prompt is shown. Covers: STRK-05, STRK-06
+- R-RESTORE-5: `DECLINE`, and the auto-decline from R-RESTORE-3, set `current = 0` and `pendingRestore = null`. `lastActiveDate`, `longest` and the Restore count do not change. A second `CHECK` for the same `today` then sees `current = 0` and does nothing, so the check is idempotent (D-01). Covers: STRK-04, STRK-07
+- R-RESTORE-6: `RESTORE` is valid only in PENDING. It applies the refill first (R-RESTORE-1). If `restoresLeft` is then 0, it is treated as `DECLINE`. Otherwise it sets `used += 1`, counted in the month of `today`; sets `lastActiveDate` to yesterday (the day before `today`); leaves `current` and `longest` unchanged; and sets `pendingRestore = null`. One Restore covers the whole gap. A second `RESTORE` is a no-op because the state is no longer PENDING. Win Streaks stay 0. Covers: STRK-07, STRK-08
+- R-RESTORE-7: `FINISH` runs `CHECK(today)` first. If that produced PENDING, the Board result (Win Streak and stats) is recorded now, and the Day Streak credit is deferred until the prompt is answered, after which R-RESTORE-8 is applied. If it did not produce PENDING, R-RESTORE-8 applies at once. This is a stated default; see open question 1. Covers: STRK-02, STRK-04
+- R-RESTORE-8: Day Streak credit. If `lastActiveDate` is `null` or `today` is later than `lastActiveDate`: `current += 1`, `longest = max(longest, current)`, `lastActiveDate = today`. If `today` equals `lastActiveDate` (already credited today) or is earlier (clock moved backwards): no change. `lastActiveDate` never moves backwards (D-05). Covers: STRK-02, STRK-03
+- R-RESTORE-9: Win Streak on `FINISH`: a win adds 1 to that Board's `winStreak`. A loss, Give Up or Forfeit sets that Board's `winStreak` to 0. The Day Streak credit of R-RESTORE-8 applies to all four outcomes (D-06). Covers: STRK-01, STRK-02
+- R-RESTORE-10: `FINISH` uses the local date at the moment the game finishes, not the date it started (D-04). A game that crosses midnight triggers the date-change `CHECK` and then credits the new day. The check must not punish a player who was active yesterday. Covers: STRK-02, STRK-04
+- R-RESTORE-11: `RESET_ALL` returns everything to the initial state: `current = 0`, `longest = 0`, `lastActiveDate = null`, `restores = { month: monthOf(today), used: 0 }`, `pendingRestore = null`, all Win Streaks 0. Covers: SAVE-09
+- R-RESTORE-12: While PENDING, the game accepts no input. The Restore modal can only be closed by answering Restore or No. Esc and clicking outside do nothing (D-02). Covers: STRK-06
+- R-RESTORE-13: The prompt text uses this template, with `{restoresLeft}` being the number left before this Restore is used: `Your {streak}-day streak broke. Restore it? ({restoresLeft} left this month)`. Example: `Your 12-day streak broke. Restore it? (2 left this month)`. Covers: STRK-06
+
+### Worked example (the calendar case)
+
+The last active day is Monday 1 June 2026, and the player has a Day Streak above 0 and at least one Restore left.
+
+| Today        | missed | Result                                                   |
+| ------------ | ------ | -------------------------------------------------------- |
+| Mon 1 June   | 0      | nothing                                                  |
+| Tue 2 June   | 0      | nothing (yesterday counts as active)                     |
+| Wed 3 June   | 1      | Win Streaks reset, prompt shown                          |
+| Sat 6 June   | 4      | prompt still offered (the last day it can be)            |
+| Sun 7 June   | 5      | Day Streak resets to 0, no prompt                        |
+
+### Transition diagram
+
+```
+              CHECK, missed>=1, current>0,
+              missed<=4, restoresLeft>0
+   ACTIVE ------------------------------------> PENDING
+     ^  |                                        |  |  |
+     |  | CHECK, missed>=1, not eligible         |  |  | CHECK, still eligible
+     |  v                                        |  |  +--> PENDING (no change)
+     | NO_STREAK <-------- DECLINE / auto-decline +  |
+     |    ^                                         | RESTORE (lastActiveDate = yesterday)
+     |    |                                         v
+     +----+------------------------------------ ACTIVE
+        FINISH credit (+1, lastActiveDate = today)
+        NO_STREAK --FINISH credit--> ACTIVE (current = 1)
+        any state --RESET_ALL--> NO_STREAK
+```
+
+### Edge-case table
+
+Notation: `S` is `dayStreak.current`, `LAD` is `lastActiveDate`, `R` is `restores` as `month/used`, `WS` is the Win Streaks. All dates are in 2026 unless noted, and 1 June 2026 is a Monday. "Prompt" means the blocking Restore prompt. Phase 5 test titles cite the EC ID.
+
+| ID    | Case                                  | Given                                               | Event + today                              | Expected                                                                                  | Covers                  |
+| ----- | ------------------------------------- | --------------------------------------------------- | ------------------------------------------ | ----------------------------------------------------------------------------------------- | ----------------------- |
+| EC-01 | Same day                              | S=5, LAD=Jun 3                                      | CHECK Jun 3                                | no change                                                                                 | STRK-03, STRK-04        |
+| EC-02 | Yesterday                             | S=5, LAD=Jun 2                                      | CHECK Jun 3                                | no change, no prompt (missed 0)                                                           | STRK-03                 |
+| EC-03 | One missed day                        | S=5, LAD=Jun 1, R=2026-06/0                         | CHECK Jun 3                                | WS all 0, prompt shown (3 left)                                                           | STRK-05, STRK-06        |
+| EC-04 | Four missed days (boundary)           | S=5, LAD=Mon Jun 1                                  | CHECK Sat Jun 6                            | prompt offered                                                                            | STRK-06                 |
+| EC-05 | Five missed days (boundary)           | S=5, LAD=Mon Jun 1                                  | CHECK Sun Jun 7                            | S=0, no prompt, WS all 0                                                                  | STRK-05, STRK-06        |
+| EC-06 | Streak is already 0                   | S=0, LAD=Jun 1                                      | CHECK Jun 4                                | WS all 0, no prompt                                                                       | STRK-05, STRK-06        |
+| EC-07 | No Restores left                      | S=5, LAD=Jun 1, R=2026-06/3                         | CHECK Jun 3                                | S=0, no prompt, WS all 0                                                                  | STRK-06, STRK-08        |
+| EC-08 | New player                            | S=0, LAD=null                                       | CHECK any day                              | no change                                                                                 | STRK-03                 |
+| EC-09 | Idempotent check while pending        | state after EC-03 (PENDING)                         | CHECK Jun 3 again                          | identical state, still one prompt                                                         | STRK-04                 |
+| EC-10 | Idempotent check after a reset        | state after EC-05                                   | CHECK Jun 7 again                          | identical state                                                                           | STRK-04                 |
+| EC-11 | Pending, then page refresh            | EC-03 pending, page reloaded                        | CHECK Jun 3                                | prompt shown again, `used` still 0                                                        | STRK-07                 |
+| EC-12 | Gap grows while pending               | EC-03 pending                                       | CHECK Jun 8 (missed 6)                     | S=0, pending cleared, no prompt                                                           | STRK-04, STRK-06        |
+| EC-13 | Restore accepted                      | EC-03 pending                                       | RESTORE Jun 3                              | S=5, LAD=Jun 2, R used=1, WS all 0, pending null                                          | STRK-07                 |
+| EC-14 | Restore, then finish today            | state after EC-13                                   | FINISH win Jun 3                           | S=6, LAD=Jun 3                                                                            | STRK-02, STRK-07        |
+| EC-15 | Restore, nothing played, next day     | state after EC-13, no game finished                 | CHECK Jun 4                                | LAD=Jun 2 so missed 1: prompt again if eligible (a Restore buys no free pass for today)   | STRK-06, STRK-07        |
+| EC-16 | Decline                               | EC-03 pending                                       | DECLINE Jun 3                              | S=0, pending null, R unchanged                                                            | STRK-07                 |
+| EC-17 | Decline, then finish                  | state after EC-16                                   | FINISH win Jun 3                           | S=1, LAD=Jun 3                                                                            | STRK-02, STRK-07        |
+| EC-18 | Double RESTORE                        | state after EC-13                                   | RESTORE Jun 3                              | no-op, `used` stays 1                                                                     | STRK-07                 |
+| EC-19 | One Restore covers the whole gap      | S=9, LAD=Jun 1, pending after CHECK Jun 5 (missed 3) | RESTORE Jun 5                              | `used` +1 only, LAD=Jun 4, S=9                                                            | STRK-07                 |
+| EC-20 | Restore limit                         | S=5, LAD=Jun 1, R=2026-06/2, pending after CHECK Jun 3 | RESTORE Jun 3, later a new gap in June     | third Restore works (used=3); the next gap gives S=0 and no prompt (no Restore left)      | STRK-06, STRK-08        |
+| EC-21 | Refill on the 1st                     | S=5, LAD=Jun 28, R=2026-06/3                        | CHECK Jul 1 (missed 2)                     | R=2026-07/0, then prompt shows "3 left"                                                   | STRK-08                 |
+| EC-22 | Gap seen in a new month, answered then | S=5, LAD=Jun 28, R=2026-06/3, first CHECK on Jul 1  | RESTORE Jul 1                              | counted against 2026-07, used=1                                                           | STRK-07, STRK-08        |
+| EC-23 | Month changes while prompt unanswered | S=5, LAD=Jun 27, R=2026-06/2, pending since CHECK Jun 30 (missed 2) | RESTORE Jul 1                  | refill first, then used=1 in 2026-07, LAD=Jun 30                                          | STRK-08                 |
+| EC-24 | Year boundary                         | S=5, LAD=2026-12-30                                 | CHECK 2027-01-02 (missed 2)                | prompt shown; month key 2027-01 refills                                                   | STRK-03, STRK-08        |
+| EC-25 | Leap day                              | S=5, LAD=2028-02-28                                 | CHECK 2028-03-01 (missed 1)                | prompt shown (29 Feb is a missed day). In 2027, 28 Feb to 1 Mar is missed 0               | STRK-03                 |
+| EC-26 | DST spring forward                    | TZ America/Los_Angeles, S=5, LAD=2026-03-07         | CHECK 2026-03-09 (missed 1)                | prompt; day maths uses UTC parts, not a 23-hour day                                       | STRK-03                 |
+| EC-27 | DST fall back                         | TZ America/Los_Angeles, S=5, LAD=2026-10-31         | CHECK 2026-11-02 (missed 1)                | prompt; day maths is unaffected by the 25-hour day                                        | STRK-03                 |
+| EC-28 | Time zone variety                     | TZ Pacific/Auckland, Asia/Kolkata and UTC           | same dates as EC-03 and EC-05              | identical results in every zone                                                           | STRK-03                 |
+| EC-29 | Clock moved backwards                 | S=5, LAD=Jun 10                                     | CHECK Jun 5                                | no change, no prompt, LAD stays Jun 10                                                    | STRK-03                 |
+| EC-30 | Clock backwards, then finish          | S=5, LAD=Jun 10                                     | FINISH win Jun 5                           | no Day Streak credit, LAD stays Jun 10, S=5                                               | STRK-02, STRK-03        |
+| EC-31 | Clock backwards across a month        | R=2026-07/2                                         | CHECK with today in June 2026              | no refill, `restores.month` does not regress                                              | STRK-03, STRK-08        |
+| EC-32 | Several games in one day              | S=4, LAD=Jun 2                                      | FINISH x3 on Jun 3                         | S=5, LAD=Jun 3 (+1 once)                                                                  | STRK-02                 |
+| EC-33 | A loss counts                         | S=4, LAD=Jun 2                                      | FINISH loss Jun 3                          | S=5                                                                                       | STRK-02                 |
+| EC-34 | Give Up counts                        | S=4, LAD=Jun 2                                      | FINISH Give Up Jun 3                       | S=5                                                                                       | STRK-02                 |
+| EC-35 | Forfeit counts                        | S=4, LAD=Jun 2                                      | FINISH Forfeit Jun 3                       | S=5 (owner decision 2026-10-01)                                                           | STRK-02                 |
+| EC-36 | A loss resets only its own Board      | WS a=3, b=2                                         | FINISH loss on a                           | a=0, b=2                                                                                  | STRK-01                 |
+| EC-37 | A missed day resets all Win Streaks   | WS a=3, b=2, S=5, LAD=Jun 1                         | CHECK Jun 3                                | a=0, b=0 at once, even if the player later declines or restores                           | STRK-05                 |
+| EC-38 | Restore never revives Win Streaks     | state after EC-37                                   | RESTORE Jun 3                              | WS stay 0                                                                                 | STRK-05, STRK-07        |
+| EC-39 | Midnight mid-game, active yesterday  | S=5, LAD=Jun 3, game started Jun 3 23:59            | FINISH win Jun 4                           | CHECK is a no-op (missed 0); credit for Jun 4: S=6, LAD=Jun 4                             | STRK-02, STRK-04        |
+| EC-40 | Midnight mid-game, break found at finish | S=5, LAD=Jun 1, game started Jun 3, tab never rechecked | FINISH win Jun 4                  | CHECK first (missed 2): WS reset, PENDING. Board result recorded, Day Streak credit deferred (R-RESTORE-7) | STRK-02, STRK-04 |
+| EC-41 | Longest only goes up                  | S=3, longest=8, LAD=Jun 2                           | FINISH win Jun 3                           | S=4, longest stays 8. Longest changes only when S exceeds it                              | STRK-02                 |
+| EC-42 | Decline keeps `longest`               | S=5, longest=9, EC-03 pending                       | DECLINE Jun 3                              | S=0, longest=9                                                                            | STRK-07                 |
+| EC-43 | Prompt text numbers                   | S=12, R=2026-06/1, LAD=Jun 1                        | CHECK Jun 3 produces PENDING               | text is "Your 12-day streak broke. Restore it? (2 left this month)"                       | STRK-06                 |
+| EC-44 | Corrupt `used` value                  | R month matches today, used=7                       | CHECK                                      | `restoresLeft` clamps to 0, never negative. Phase 4 validation also rejects it            | STRK-06, STRK-08        |
+
+### Open questions with stated defaults (owner may override)
+
+These are cases where the settled rules did not decide the answer. The spec uses the default shown. The owner can change any of them, and then the affected EC rows change with them.
+
+1. **A FINISH that itself reveals a broken streak (EC-40).** Default: record the Board result now, defer the Day Streak credit until the prompt is answered, then credit +1. Accepting gives LAD=yesterday and then today, so S+1. Declining gives S=0 and then S=1. Affects EC-40.
+2. **"K left this month" in the prompt (EC-43).** Default: K is the number of Restores left before this Restore is used. Affects EC-43, EC-03, EC-21.
+3. **A Restore answered in a later month than the gap (EC-22, EC-23).** Default: refill first on the answer date and count the Restore against the month of the answer date. Affects EC-22, EC-23.
+4. **A fresh Board with zero guesses cannot be abandoned (R-FORFEIT-6).** Default: this is an intended anti-farming consequence of the exactly-2-tries rule. Note that the research summary once wrote "2 or fewer tries", while REQUIREMENTS PLAY-07 and PLAY-08 say "exactly 2". The spec follows REQUIREMENTS.
+
+## 9. Statistics
+
+- R-STAT-1: Stats show games played, win rate, current and longest Win Streak, the guess distribution and the average number of guesses over won games only. Covers: STAT-01
+- R-STAT-2: Stats have tabs 4, 5, 6 and All. Normal and Wordubado are shown separately and are never mixed. Covers: STAT-02
+- R-STAT-3: The All tab shows totals only. Win Streaks appear only on the 4, 5 and 6 tabs. Covers: STAT-02
+- R-STAT-4: The Day Streak (current and longest) and "Restores left: N/3" are shown globally, not per tab. Covers: STAT-03
+- R-STAT-5: With zero games, stats show clean empty values. There is no division by zero and no NaN anywhere. Covers: STAT-04
+  - Why: win rate and average guesses divide by a count that is zero for a new player.
+
+## 10. Result and share
+
+- R-RESULT-1: When a game finishes the player sees whether they won or lost, the answer, attempts used, their stats and a Play again button. Covers: RSLT-01
+- R-RESULT-2: A "Show definition" button is hidden until clicked, in both Modes. Slang words use the curated definition bundled with the app. Common words are looked up from dictionaryapi.dev. On timeout, error or offline, the text "Definition unavailable" is shown. Covers: RSLT-02
+- R-SHARE-1: The share text starts with a header such as `Unlimited Wordle - Wordubado 5 - 4/6`, followed by the emoji grid and the site URL. A loss shows `X/6` style, using the attempts of that Board (`X/5`, `X/6` or `X/7`). Covers: RSLT-03
+- R-SHARE-2: In colour-blind mode the grid uses orange and blue squares instead of green and yellow. Covers: RSLT-03
+- R-SHARE-3: On phones that support it, Share opens the Web Share sheet. Otherwise the text is copied to the clipboard and a "Copied" toast is shown. Covers: RSLT-04
+
+## 11. Extras and UI rules
+
+- R-UI-1: The How-to-play modal opens automatically on the first visit and can be reopened from the header. Covers: UI-04
+- R-UI-2: Dark mode follows the system preference on the first visit, and there is no flash of the wrong theme while loading. Covers: UI-02
+- R-UI-3: A colour-blind (high-contrast) palette can be turned on. Covers: UI-03
+- R-UI-4: Under `prefers-reduced-motion`, the flip, pop and shake animations are disabled and reveal delays are shortened. The state change stays visible. Covers: UI-09
+- R-UI-5: Screen readers hear each guess result through an aria-live region, and tiles and keys have accessible labels. Covers: UI-07
+- R-UI-6: The whole game can be played with the keyboard alone. Covers: UI-08
+- R-UI-7: Modals trap focus, close on Esc and return focus to where it was. The one exception is the blocking Restore prompt, which can only be closed by answering it (R-RESTORE-12). Covers: UI-08, STRK-06
+- R-UI-8: The layout works at phone widths of 320 px and up, including the largest grid (6 letters by 7 rows). Covers: UI-06
+
+## 12. Resolved decisions log
+
+| Decision                                                                                       | Source                    | Date       |
+| ---------------------------------------------------------------------------------------------- | ------------------------- | ---------- |
+| Two Modes (Normal, Wordubado), three lengths with attempts = length + 1                        | plan.txt                  | 2026-10-01 |
+| Normal answers are common words; slang is a valid guess but never a Normal answer              | plan.txt                  | 2026-10-01 |
+| Wordubado answers are 75% slang and 25% common, chosen per game; answers fully random          | plan.txt                  | 2026-10-01 |
+| 6 Boards, each with its own saved game; switching never forfeits; refresh resumes              | plan.txt                  | 2026-10-01 |
+| Win Streak per Board; one global Day Streak; Missed Day definition                             | plan.txt                  | 2026-10-01 |
+| Restore: 3 per month, up to 4 missed days, one Restore covers the gap, never restores Win Streaks | plan.txt               | 2026-10-01 |
+| Clock moved backwards counts as 0 missed days                                                  | plan.txt                  | 2026-10-01 |
+| Stats tabs 4 / 5 / 6 / All, separate per Mode; share format; definitions; extras               | plan.txt                  | 2026-10-01 |
+| Give Up and Forfeit count as finished games for the Day Streak                                 | Owner decision            | 2026-10-01 |
+| Plurals and inflections excluded from Normal answers, still valid guesses                      | Owner decision            | 2026-10-01 |
+| A finished Board shows its grid with a result banner and Play again                            | Owner decision            | 2026-10-01 |
+| Two open tabs sync through the `storage` event                                                 | Owner decision            | 2026-10-01 |
+| Saved data uses explicit versioned storage with migrations (no Zustand persist middleware)     | Research resolution       | 2026-10-01 |
+| The blocklist applies to answers only; guesses stay permissive                                 | Research resolution       | 2026-10-01 |
+| Generated word JSON is committed and CI checks for drift                                       | Research resolution       | 2026-10-01 |
+| D-01: the missed-day check is idempotent                                                       | Phase 1 context           | 2026-10-01 |
+| D-02: a pending Restore prompt is blocking and persisted                                       | Phase 1 context           | 2026-10-01 |
+| D-03: monthly refill is lazy and runs before any eligibility check                             | Phase 1 context           | 2026-10-01 |
+| D-04: a game counts for the local date it finishes                                             | Phase 1 context           | 2026-10-01 |
+| D-05: clock moved backwards means missed = 0 and the last active date never moves earlier      | Phase 1 context           | 2026-10-01 |
+| D-06: Give Up and mid-game New game only at exactly 2 tries left, and they count for the Day Streak | Phase 1 context      | 2026-10-01 |
+| D-07: Restore logic is an explicit state machine plus an edge-case table                       | Phase 1 context           | 2026-10-01 |
+
+## 13. Out of scope
+
+- Hard mode.
+- Accounts, a server or a backend.
+- Cross-device sync.
+- PWA and offline install (planned for v2).
+- A daily shared puzzle (the same word for everyone). The Day Streak covers the daily habit instead.
