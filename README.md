@@ -2,6 +2,8 @@
 
 An endless Wordle in 4, 5 and 6 letters, with Normal and Wordubado modes.
 
+Live site: https://wordyday.vercel.app
+
 Requires Node 24 (see `.nvmrc`).
 
 Scripts: `npm run dev`, `lint`, `format`, `format:check`, `typecheck`, `test`, `test:watch`, `build`, `preview`.

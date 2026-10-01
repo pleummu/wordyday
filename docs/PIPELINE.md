@@ -169,3 +169,4 @@ CI runs the same commands in `.github/workflows/ci.yml` on every PR and push to 
 | Why was this tool chosen? What could go wrong? | `.planning/research/` |
 | What are the exact game rules? | `SPEC.md` (Phase 1) and `plan.txt` |
 | What does "Board" / "Restore" mean? | `GLOSSARY.md` (Phase 1) |
+| Where is the live site? | https://wordyday.vercel.app (also linked in `README.md`) |
