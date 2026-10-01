@@ -80,3 +80,65 @@
   background: var(--tile-absent);
   border-color: var(--tile-absent);
 }
+
+.keyboard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.kb-row {
+  display: flex;
+  gap: var(--space-1);
+}
+
+.key-spacer {
+  flex: 0.5;
+}
+
+.key {
+  flex: 1;
+  min-width: 0;
+  height: 40px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: var(--radius-key);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-family: inherit;
+  font-size: var(--font-size-label);
+  font-weight: 600;
+  line-height: 1.2;
+  touch-action: manipulation;
+  user-select: none;
+  cursor: pointer;
+}
+
+@media (min-height: 640px) {
+  .key {
+    height: 44px;
+  }
+}
+
+.key-wide {
+  flex: 1.5;
+}
+
+.key:active:not(:disabled) {
+  background: var(--color-key-pressed);
+}
+
+.key[data-state='correct'] {
+  background: var(--tile-correct);
+}
+
+.key[data-state='present'] {
+  background: var(--tile-present);
+}
+
+.key[data-state='absent'] {
+  background: var(--tile-absent);
+}
