@@ -109,19 +109,21 @@ The roadmap is a **vertical MVP**: you get something playable early, then each p
 | **Preview deploy** | Vercel | A unique URL for every PR | Lets you click-test before merging | 1 |
 | **Production deploy** | Vercel | Merging to `main` publishes the live site | n/a | 1 |
 
-### 4.3 Commands you'll use 🔜 (available after Phase 1)
+### 4.3 Commands you'll use
 
 ```bash
 npm run dev          # local dev server with hot reload
-npm run words        # regenerate word lists (Phase 2+)
+npm run words        # 🔜 regenerate word lists (Phase 2)
 npm run lint         # ESLint
 npm run format       # Prettier (write)  /  npm run format:check
-npm run typecheck    # tsc --noEmit
-npm test             # Vitest (watch)    /  npm run test:run (once)
+npm run typecheck    # tsc -b
+npm test             # Vitest, runs once  /  npm run test:watch (watch mode)
 npm run build        # production build to dist/
 npm run preview      # serve dist/ locally (what E2E tests run against)
-npm run e2e          # Playwright (Phase 8)
+npm run e2e          # 🔜 Playwright (Phase 8)
 ```
+
+CI runs the same commands in `.github/workflows/ci.yml` on every PR and push to main.
 
 > 🎓 **Key idea: the "shift-left" ladder.** Each stage is cheaper and faster than the next: the type checker catches in 1 s what a unit test catches in 1 ms of runtime, what E2E catches in 30 s, and what a user catches after it's live. Push every check as far *left* (early) as you can.
 
