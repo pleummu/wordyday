@@ -1,10 +1,11 @@
 ---
 phase: 2
 slug: playable-normal-game
-status: draft
+status: approved
 shadcn_initialized: false
 preset: none
 created: 2026-10-01
+reviewed_at: 2026-10-01
 ---
 
 # Phase 2 — UI Design Contract
@@ -50,8 +51,8 @@ Existing tokens `--space-1..4` (4, 8, 16, 32) are kept. Add the rest of the scal
 
 Exceptions (all intentional, all documented here):
 
-- Tile size is computed, not a token (see Layout). It is whatever fits, between 44 px and 62 px.
-- Key height is 44 px (touch target) on viewports at least 640 px tall and 40 px below that. Key min-width 28 px for letter keys on 320 px screens (10 keys + 9 gaps of 4 px must fit in 288 px content width: (288 - 36) / 10 = 25.2 px, so letter keys are `flex: 1` with no min-width below 25 px). Targets under 44 px on the shortest phones are accepted: WCAG 2.5.8 AA (24 px minimum) is satisfied.
+- Tile size is computed, not a token (see Layout). It is whatever fits, between 44 px and 62 px (62 px is a documented computed cap, not a spacing token). 40 px is a permitted floor on very short viewports (see Layout fit proof).
+- Key height is 44 px (touch target) on viewports at least 640 px tall and 40 px below that. Letter keys are `flex: 1` with no min-width (10 keys + 9 gaps of 4 px must fit in 288 px content width: (288 - 36) / 10 = 25.2 px per key at 320 px). Targets under 44 px on the shortest phones are accepted: WCAG 2.5.8 AA (24 px minimum) is satisfied.
 - Grid gap shrinks to 4 px (`--space-1`) always; it never uses 8 px so 6 columns fit 320 px.
 - Toast offset from top: 16 px (`--space-3`).
 
@@ -126,19 +127,21 @@ Soft shadows: allowed only on the toast (`0 4px 16px rgba(43,45,51,0.08)`) and t
 
 Use a flex column on `body > #root` with `min-height: 100dvh` (with `100vh` fallback declared first), `height: 100dvh` on the app shell, `overflow: hidden` is NOT used; the grid area is `flex: 1` and centres its content; the keyboard never scrolls off screen. Header is 48 px tall (`--space-6`). Page padding: 16 px at widths 320-479, 32 px at 480 and up. Desktop (min-width 768): add 64 px top padding.
 
+**Focal point:** the grid is the primary visual anchor; within it, the active row (or, during and just after a reveal, the last revealed row) draws the eye first. Header and keyboard are visually quieter (surface tones, no accent except the selected length segment).
+
 ### Length picker (Phase 2 scope)
 
 - A segmented control of three buttons labelled "4", "5", "6" with a visually hidden prefix, announced as "4 letters", "5 letters", "6 letters". Container is `role="radiogroup"` with `aria-label="Word length"`; each button `role="radio"` with `aria-checked`. Arrow Left/Right moves selection; Tab enters the group once.
 - Height 40 px, segment min-width 44 px, pill track `--color-surface`, selected segment filled `--color-accent` with `--color-text` text, weight 600 Label 14 px.
 - Switching length in Phase 2 starts a new game at that length immediately with no confirm (persistence and Boards arrive in Phase 4). Switching is disabled (`aria-disabled`, no-op) while a reveal animation is running.
-- Position: in the header row on widths 400 px and above (title left, picker right). Below 400 px the header wraps to two rows only if the title and picker do not fit (title 20 px "Unlimited Wordle" is about 168 px, picker 3 x 44 plus gaps = 140 px, total 308 px which exceeds the 288 px content width at 320). Contract: at widths under 400 px the title is centred on row 1 (height 32 px) and the picker is centred on row 2 (height 40 px). Combined header height at 320 px is 80 px (32 + 40 + 8 gap).
+- Position: in the header row on widths 400 px and above (title left, picker right). Below 400 px the header wraps to two rows only if the title and picker do not fit (title 20 px "Unlimited Wordle" is about 168 px, picker 3 x 44 plus 2 x 8 gaps = 148 px, total 316 px which exceeds the 288 px content width at 320). Contract: at widths under 400 px the title is centred on row 1 (height 32 px) and the picker is centred on row 2 (height 40 px). Combined header height at 320 px is 80 px (32 + 40 + 8 gap).
 
 ### Grid
 
 - Rows = attempts (5/6/7 for 4/5/6 letters), columns = word length. `role="grid"` with rows `role="row"`, tiles `role="gridcell"`; each tile `aria-label` e.g. "Row 2, column 3, letter A, correct" or "empty" (the full aria-live announcement is Phase 7 scope, but labels are required now because they are cheap).
 - Tile size is `--tile`, computed with CSS `min()`:
   `--tile: clamp(44px, min( (100% - (cols - 1) * 4px) / cols, (available-height - (rows - 1) * 4px) / rows ), 62px)`. Implementation may use a container-query-units or a small JS resize measure; the contract is the outcome: tiles are square, 44-62 px, gap 4 px, and the whole grid never exceeds its available area.
-- Fit proof for the worst case (6 letters x 7 rows, iPhone SE 320 x 568): content width 288 px gives (288 - 20) / 6 = 44.6 px tile, so 44 px. Grid height = 7 x 44 + 6 x 4 = 332 px. Budget: header 80 + gap 8 + grid 332 + gap 8 + keyboard (3 x 40 + 2 x 8 = 136) = 564 px of 568 px. Allowed vertical padding is therefore 2 px; page vertical padding is 0 below 600 px viewport height and keyboard key height is 40 px below 640 px height. If the available height is still less than needed, tile size may drop to 40 px as a last-resort floor only when `height < 568px`, to avoid scroll. Verify at 320 x 568 and 320 x 640 in Playwright/visual check.
+- Fit proof for the worst case (6 letters x 7 rows, iPhone SE 320 x 568): content width 288 px gives (288 - 20) / 6 = 44.6 px tile, so 44 px. Grid height = 7 x 44 + 6 x 4 = 332 px. Budget: header 80 + gap 8 + grid 332 + gap 8 + keyboard (3 x 40 + 2 x 8 = 136) = 564 px of 568 px. Allowed vertical padding is therefore 2 px; page vertical padding is 0 below 600 px viewport height and keyboard key height is 40 px below 640 px height. If the available height is still less than needed (real phones with browser chrome are often shorter than 568 px), tile size may drop to a 40 px floor to avoid scroll; 28 px tile letters at line-height 1 fit a 40 px tile. Verify no vertical scroll at 320 x 500, 320 x 568 and 320 x 640 in Playwright.
 - Empty tile: `--color-bg` fill, 2 px `--tile-empty-border`. Typed (pre-submit): 2 px `--tile-filled-border`. Submitted: filled with state colour, border 2 px same as fill.
 - Active row is the first row without a submitted guess. Only that row accepts typing and shakes.
 
@@ -166,7 +169,7 @@ Use a flex column on `body > #root` with `min-height: 100dvh` (with `100vh` fall
 
 ### Loading and error states
 
-- Word pools load per length on demand (lazy chunk). While loading, show an empty grid of the right size (normal empty tiles) and the keyboard disabled; no spinner. Typed letters are accepted into the active row only after load completes (ignore input before). If load takes over 400 ms, show the text "Loading words..." (Body 16 px, `--color-muted`) in the toast position.
+- Word pools load per length on demand (lazy chunk). While loading, show an empty grid of the right size (normal empty tiles) and the keyboard disabled; no spinner. Typed letters are accepted into the active row only after load completes (ignore input before). If load takes over 400 ms, show the text "Loading words..." (Body 16 px, `--color-text`; `--color-muted` #7a7f8a is only ~3.8:1 on the background, so it is not used for body text) in the toast position.
 - Load failure: replace the keyboard slot with a banner: "Couldn't load the word list. Check your connection and try again." and a "Try again" button (same style as Play again). Grid stays visible.
 
 ---
