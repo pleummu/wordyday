@@ -6,7 +6,7 @@ Vertical MVP: a playable game appears as early as possible (Phase 2), then each 
 
 ## Phases
 
-- [ ] **Phase 1: Foundation, Spec and CI Skeleton** - Scaffold, lint/test tooling, SPEC.md/GLOSSARY.md, baseline CI and Vercel previews
+- [x] **Phase 1: Foundation, Spec and CI Skeleton** - Scaffold, lint/test tooling, SPEC.md/GLOSSARY.md, baseline CI and Vercel previews (completed 2026-10-01)
 - [ ] **Phase 2: Playable Normal Game** - Play a correct, animated Normal game at 4/5/6 letters from a generated word pool
 - [ ] **Phase 3: Wordubado Mode and Slang** - Switch to Wordubado with owner-reviewed slang answers, plus slang as a valid Normal guess
 - [ ] **Phase 4: Six Boards and Persistence** - Six independent saved Boards that survive refresh, with safe, versioned storage
@@ -55,7 +55,7 @@ Plans:
 
 **Wave 6** *(blocked on Wave 5 completion)*
 
-- [ ] 01-06-PLAN.md — Owner verifies preview, merge PR 2, prove production deploy from main
+- [x] 01-06-PLAN.md — Owner verifies preview, merge PR 2, prove production deploy from main
 
 **Notes**: Baseline CI (lint, format, typecheck, unit, build) starts here; QA-04 is completed in Phase 8 after later phases add word-drift and E2E jobs. Research flag: confirm whether the scaffold installs TS 6 or 7 and typescript-eslint's peer range.
 
@@ -184,7 +184,7 @@ Plans:
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation, Spec and CI Skeleton | 5/6 | In Progress|  |
+| 1. Foundation, Spec and CI Skeleton | 6/6 | Complete   | 2026-10-01 |
 | 2. Playable Normal Game | 0/TBD | Not started | - |
 | 3. Wordubado Mode and Slang | 0/TBD | Not started | - |
 | 4. Six Boards and Persistence | 0/TBD | Not started | - |
