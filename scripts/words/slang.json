@@ -1,5 +1,11 @@
 [
   {
+    "word": "aight",
+    "definition": "A casual way of saying all right.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
     "word": "arse",
     "definition": "A British word for the backside, used as an insult.",
     "crude": true,
@@ -18,6 +24,12 @@
     "reviewed": false
   },
   {
+    "word": "banger",
+    "definition": "An excellent song.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
     "word": "barf",
     "definition": "To vomit, or an exclamation of disgust.",
     "crude": true,
@@ -30,8 +42,44 @@
     "reviewed": false
   },
   {
+    "word": "based",
+    "definition": "Confidently holding your own opinions regardless of popularity.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "basic",
+    "definition": "Mainstream and unoriginal.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "bestie",
+    "definition": "Best friend.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "bffls",
+    "definition": "Best friends for life.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
     "word": "bffs",
     "definition": "Best friends forever.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "bonks",
+    "definition": "Hits playfully, from a meme about sending someone to horny jail.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "boomer",
+    "definition": "Someone seen as out of touch with new trends.",
     "crude": false,
     "reviewed": false
   },
@@ -42,8 +90,26 @@
     "reviewed": false
   },
   {
+    "word": "booty",
+    "definition": "A casual word for the backside.",
+    "crude": true,
+    "reviewed": false
+  },
+  {
     "word": "bops",
     "definition": "Songs that are really good.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "bougie",
+    "definition": "Fancy or showy about taste.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "boujee",
+    "definition": "Fancy or luxurious in a showy way.",
     "crude": false,
     "reviewed": false
   },
@@ -72,6 +138,24 @@
     "reviewed": false
   },
   {
+    "word": "burnt",
+    "definition": "Exhausted or very upset.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "bussed",
+    "definition": "Past form of bus, as in delicious.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "bussin",
+    "definition": "Extremely good, especially of food.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
     "word": "butt",
     "definition": "A casual word for the backside, used in jokes.",
     "crude": true,
@@ -90,6 +174,48 @@
     "reviewed": false
   },
   {
+    "word": "chaos",
+    "definition": "Fun disorder, as in \"chaotic energy.\"",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "cheat",
+    "definition": "To use unfair hacks in a game.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "cheesy",
+    "definition": "Corny or overly sentimental.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "cheug",
+    "definition": "Short form of cheugy, meaning out of style.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "cheugy",
+    "definition": "Out of style or trying too hard.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "chill",
+    "definition": "Relaxed or easygoing.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "chonky",
+    "definition": "Cute and chubby, usually of animals.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
     "word": "clap",
     "definition": "To reply sharply, as in \"clap back.\"",
     "crude": false,
@@ -102,8 +228,26 @@
     "reviewed": false
   },
   {
+    "word": "clout",
+    "definition": "Influence or fame online.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "clowns",
+    "definition": "People who act foolish.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
     "word": "cook",
     "definition": "To do something impressively well, as in \"let him cook.\"",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "cooked",
+    "definition": "Doomed, as in \"we're cooked.\"",
     "crude": false,
     "reviewed": false
   },
@@ -122,6 +266,42 @@
   {
     "word": "cray",
     "definition": "Short for crazy.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "cringe",
+    "definition": "Embarrassing in a way that makes you wince.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "cringy",
+    "definition": "Embarrassing.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "cuffed",
+    "definition": "In a committed relationship.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "cursed",
+    "definition": "Strange and unsettling in a funny way.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "cutie",
+    "definition": "A cute, sweet person.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "dabbed",
+    "definition": "Did a celebratory arm pose.",
     "crude": false,
     "reviewed": false
   },
@@ -162,8 +342,32 @@
     "reviewed": false
   },
   {
+    "word": "delulu",
+    "definition": "Delusional, usually about a crush.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
     "word": "doge",
     "definition": "A meme featuring a Shiba Inu dog.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "doggo",
+    "definition": "A dog, in cute talk.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "doggos",
+    "definition": "Dogs, in cute talk.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "doomer",
+    "definition": "A person with a very pessimistic outlook.",
     "crude": false,
     "reviewed": false
   },
@@ -174,8 +378,26 @@
     "reviewed": false
   },
   {
+    "word": "doxing",
+    "definition": "Publishing private information online.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
     "word": "doxx",
     "definition": "To publish someone's private information online.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "doxxed",
+    "definition": "Had private information published online.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "drama",
+    "definition": "Conflict or gossip between people.",
     "crude": false,
     "reviewed": false
   },
@@ -186,8 +408,38 @@
     "reviewed": false
   },
   {
+    "word": "drippy",
+    "definition": "Stylish.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "dumbo",
+    "definition": "A silly or foolish person.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "dummy",
+    "definition": "A silly person, said fondly.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
     "word": "dunk",
     "definition": "To win an argument by humiliating the other side.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "dunked",
+    "definition": "Won an argument by humiliation.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "edging",
+    "definition": "Pushing something to the limit of acceptable.",
     "crude": false,
     "reviewed": false
   },
@@ -198,8 +450,50 @@
     "reviewed": false
   },
   {
+    "word": "emoji",
+    "definition": "A small picture used in messages.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "emojis",
+    "definition": "Small pictures used in messages.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "emote",
+    "definition": "A short animation or icon that shows a feeling.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
     "word": "epic",
     "definition": "Impressively great.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "extra",
+    "definition": "Over the top or dramatic.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "fanboy",
+    "definition": "A male superfan.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "fandom",
+    "definition": "A community of fans.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "fanfic",
+    "definition": "A story written by a fan.",
     "crude": false,
     "reviewed": false
   },
@@ -216,8 +510,26 @@
     "reviewed": false
   },
   {
+    "word": "feels",
+    "definition": "Strong emotions.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
     "word": "fire",
     "definition": "Excellent, as in \"that song is fire.\"",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "flame",
+    "definition": "To insult someone online.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "fleek",
+    "definition": "Perfectly styled, as in \"on fleek.\"",
     "crude": false,
     "reviewed": false
   },
@@ -228,14 +540,62 @@
     "reviewed": false
   },
   {
+    "word": "flexed",
+    "definition": "Showed off.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "floppa",
+    "definition": "A meme about a caracal cat.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "fluff",
+    "definition": "Soft, cute and wholesome.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
     "word": "fomo",
     "definition": "Fear of missing out.",
     "crude": false,
     "reviewed": false
   },
   {
+    "word": "frens",
+    "definition": "Friends, in cute meme talk.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "fresh",
+    "definition": "Stylish and new.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
     "word": "fwiw",
     "definition": "Short for \"for what it's worth.\"",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "gains",
+    "definition": "Muscle growth from exercise.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "gamer",
+    "definition": "A person who plays video games a lot.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "gamers",
+    "definition": "People who play video games a lot.",
     "crude": false,
     "reviewed": false
   },
@@ -252,8 +612,68 @@
     "reviewed": false
   },
   {
+    "word": "gaslit",
+    "definition": "Made to doubt your own memory or sanity.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "ghost",
+    "definition": "To cut off contact with someone suddenly.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "ghosts",
+    "definition": "Cuts off contact suddenly.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "glaze",
+    "definition": "To praise someone excessively.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "glitch",
+    "definition": "A small bug or error in a game or system.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "gloat",
+    "definition": "To show off about a win.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "glowed",
+    "definition": "Improved in appearance, as in glow up.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "goals",
+    "definition": "Something admired and aspired to.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
     "word": "goat",
     "definition": "The greatest of all time.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "goober",
+    "definition": "A silly person.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "grift",
+    "definition": "A dishonest scheme to make money.",
     "crude": false,
     "reviewed": false
   },
@@ -264,14 +684,80 @@
     "reviewed": false
   },
   {
+    "word": "grind",
+    "definition": "To work hard toward a goal.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "groovy",
+    "definition": "Fun or excellent, in an old-fashioned way.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "gucci",
+    "definition": "Good or fine, as in \"we're gucci.\"",
+    "crude": false,
+    "reviewed": false
+  },
+  {
     "word": "gyat",
     "definition": "An exclamation at someone's attractive figure.",
     "crude": true,
     "reviewed": false
   },
   {
+    "word": "hacks",
+    "definition": "Clever tips or tricks.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "hangry",
+    "definition": "Irritable because of hunger.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "hater",
+    "definition": "Someone who criticizes out of jealousy.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "hating",
+    "definition": "Criticizing out of jealousy.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
     "word": "heck",
     "definition": "A mild stand-in for hell.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "heist",
+    "definition": "A planned theft, used jokingly of any big win.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "hella",
+    "definition": "Very, a lot of.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "hodler",
+    "definition": "Someone who holds on to crypto, from a typo.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "hottie",
+    "definition": "An attractive person.",
     "crude": false,
     "reviewed": false
   },
@@ -282,8 +768,26 @@
     "reviewed": false
   },
   {
+    "word": "hyped",
+    "definition": "Very excited.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "hyping",
+    "definition": "Making people excited.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
     "word": "icky",
     "definition": "Gross or unpleasant.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "iconic",
+    "definition": "Memorable and admired.",
     "crude": false,
     "reviewed": false
   },
@@ -294,8 +798,68 @@
     "reviewed": false
   },
   {
+    "word": "irked",
+    "definition": "Annoyed.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "iykyk",
+    "definition": "Short for \"if you know, you know.\"",
+    "crude": false,
+    "reviewed": false
+  },
+  {
     "word": "jank",
     "definition": "Clunky or low quality, especially software.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "jelly",
+    "definition": "Jealous.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "jinxed",
+    "definition": "Cursed with bad luck.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "juicy",
+    "definition": "Full of exciting gossip.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "kappa",
+    "definition": "A sarcastic emote used on streams.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "karma",
+    "definition": "Good or bad results coming back around to you.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "kawaii",
+    "definition": "Cute, from Japanese.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "lamer",
+    "definition": "Someone who is uncool.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "legit",
+    "definition": "Genuine or really good.",
     "crude": false,
     "reviewed": false
   },
@@ -306,14 +870,38 @@
     "reviewed": false
   },
   {
+    "word": "lmfao",
+    "definition": "A strong form of laughing.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "lolcat",
+    "definition": "A cat picture with a funny caption.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
     "word": "lore",
     "definition": "The background story of a person, thing or event.",
     "crude": false,
     "reviewed": false
   },
   {
+    "word": "lowkey",
+    "definition": "Somewhat or secretly.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
     "word": "lurk",
     "definition": "To read online posts without joining in.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "lurks",
+    "definition": "Reads online posts without posting.",
     "crude": false,
     "reviewed": false
   },
@@ -330,8 +918,32 @@
     "reviewed": false
   },
   {
+    "word": "meming",
+    "definition": "Making memes.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "mewing",
+    "definition": "A jaw posture trend claiming to improve looks.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
     "word": "mids",
     "definition": "Mediocre things.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "mimic",
+    "definition": "To copy someone's style or voice.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "mogged",
+    "definition": "Outshone by someone better looking.",
     "crude": false,
     "reviewed": false
   },
@@ -348,8 +960,20 @@
     "reviewed": false
   },
   {
+    "word": "nerdy",
+    "definition": "Interested in studious or geeky things.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
     "word": "nerf",
     "definition": "To weaken something in a game.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "noice",
+    "definition": "A playful way of saying nice.",
     "crude": false,
     "reviewed": false
   },
@@ -360,8 +984,26 @@
     "reviewed": false
   },
   {
+    "word": "noobie",
+    "definition": "A beginner.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "noobs",
+    "definition": "Beginners at something.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
     "word": "nope",
     "definition": "An emphatic no.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "normie",
+    "definition": "An ordinary person who follows mainstream trends.",
     "crude": false,
     "reviewed": false
   },
@@ -372,8 +1014,26 @@
     "reviewed": false
   },
   {
+    "word": "nudes",
+    "definition": "Private revealing photos.",
+    "crude": true,
+    "reviewed": false
+  },
+  {
+    "word": "oofing",
+    "definition": "Making a noise of pain.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
     "word": "oomf",
     "definition": "One of my followers, a friend on social media.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "oomfs",
+    "definition": "Followers you like online.",
     "crude": false,
     "reviewed": false
   },
@@ -384,9 +1044,27 @@
     "reviewed": false
   },
   {
+    "word": "otaku",
+    "definition": "A devoted fan of anime.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "pings",
+    "definition": "Notifications.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
     "word": "poop",
     "definition": "A childish word for waste, often used as a joke.",
     "crude": true,
+    "reviewed": false
+  },
+  {
+    "word": "prank",
+    "definition": "A trick played for a joke.",
+    "crude": false,
     "reviewed": false
   },
   {
@@ -396,9 +1074,69 @@
     "reviewed": false
   },
   {
+    "word": "pumped",
+    "definition": "Very excited.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "pupper",
+    "definition": "A puppy, in cute talk.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "pwned",
+    "definition": "Defeated badly.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "pwning",
+    "definition": "Defeating badly.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "quirk",
+    "definition": "A strange, charming habit.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
     "word": "rage",
     "definition": "To be furious, as in \"rage quit.\"",
     "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "ragers",
+    "definition": "Angry players.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "rando",
+    "definition": "A random person.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "ratio",
+    "definition": "When replies to a post outnumber its likes, meaning it was disliked.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "ratios",
+    "definition": "Instances where replies outnumber likes.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "rawdog",
+    "definition": "To do something with no preparation.",
+    "crude": true,
     "reviewed": false
   },
   {
@@ -414,8 +1152,32 @@
     "reviewed": false
   },
   {
+    "word": "retcon",
+    "definition": "To change a story's past facts after the fact.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "rigged",
+    "definition": "Unfairly set up so one side wins.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
     "word": "rizz",
     "definition": "Charm and flirting skill.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "rizzed",
+    "definition": "Charmed someone with flirting skill.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "roasts",
+    "definition": "Humorous insults.",
     "crude": false,
     "reviewed": false
   },
@@ -426,8 +1188,80 @@
     "reviewed": false
   },
   {
+    "word": "sadboy",
+    "definition": "A moody, melancholy young man.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "salted",
+    "definition": "Made upset.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "salty",
+    "definition": "Bitter or upset, especially after losing.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "savage",
+    "definition": "Brutally honest or bold.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "scoop",
+    "definition": "The latest gossip.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "senpai",
+    "definition": "A respected older student, used by fans.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "shade",
+    "definition": "A subtle insult or disrespect.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "shades",
+    "definition": "Sunglasses or subtle insults.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "sheesh",
+    "definition": "An exclamation of surprise or admiration.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "shill",
+    "definition": "Someone who promotes something dishonestly.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
     "word": "ship",
     "definition": "To root for two people to be a couple.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "shook",
+    "definition": "Shocked or rattled.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "shred",
+    "definition": "To have clearly defined muscles, or to play very well.",
     "crude": false,
     "reviewed": false
   },
@@ -438,8 +1272,32 @@
     "reviewed": false
   },
   {
+    "word": "sigma",
+    "definition": "A self-reliant, independent type of man.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "sigmas",
+    "definition": "Sigma men.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
     "word": "simp",
     "definition": "Someone who is overly eager to please a crush.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "simped",
+    "definition": "Acted overly eager for a crush.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "skill",
+    "definition": "Ability, as in \"skill issue.\"",
     "crude": false,
     "reviewed": false
   },
@@ -456,8 +1314,26 @@
     "reviewed": false
   },
   {
+    "word": "slaps",
+    "definition": "Is excellent, said of a song.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
     "word": "slay",
     "definition": "To do something exceptionally well.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "slayed",
+    "definition": "Did something exceptionally well.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "slime",
+    "definition": "A person who acts shady.",
     "crude": false,
     "reviewed": false
   },
@@ -474,8 +1350,56 @@
     "reviewed": false
   },
   {
+    "word": "smurf",
+    "definition": "An experienced player on a fresh account.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "snack",
+    "definition": "An attractive person.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "snacks",
+    "definition": "Attractive people.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "snaked",
+    "definition": "Betrayed.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
     "word": "snap",
     "definition": "To do something impressively well.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "snaps",
+    "definition": "Photos sent on Snapchat.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "snark",
+    "definition": "Sarcastic, mocking comments.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "snatch",
+    "definition": "Slang for looking great, as in \"snatched.\"",
+    "crude": true,
+    "reviewed": false
+  },
+  {
+    "word": "snitch",
+    "definition": "To tell on someone.",
     "crude": false,
     "reviewed": false
   },
@@ -492,13 +1416,61 @@
     "reviewed": false
   },
   {
+    "word": "spicy",
+    "definition": "Controversial or a little risque.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "spooky",
+    "definition": "Eerie in a fun way.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "squad",
+    "definition": "A close group of friends.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "stack",
+    "definition": "A large amount of money.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
     "word": "stan",
     "definition": "An extremely devoted fan.",
     "crude": false,
     "reviewed": false
   },
   {
+    "word": "stoked",
+    "definition": "Very excited.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "stonks",
+    "definition": "A joke spelling of stocks.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
     "word": "suss",
+    "definition": "Suspicious.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "sussed",
+    "definition": "Figured out.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "sussy",
     "definition": "Suspicious.",
     "crude": false,
     "reviewed": false
@@ -510,8 +1482,56 @@
     "reviewed": false
   },
   {
+    "word": "sweat",
+    "definition": "A very try-hard gamer.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "swiped",
+    "definition": "Moved to the next profile on a dating app.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
     "word": "swol",
     "definition": "Muscular, from swollen.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "swole",
+    "definition": "Very muscular.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "tacky",
+    "definition": "Cheap and showy.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "takes",
+    "definition": "Opinions, as in \"hot takes.\"",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "thicc",
+    "definition": "Curvy, said admiringly.",
+    "crude": true,
+    "reviewed": false
+  },
+  {
+    "word": "tight",
+    "definition": "Excellent or cool.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "tiktok",
+    "definition": "A short-video app, also a verb for posting there.",
     "crude": false,
     "reviewed": false
   },
@@ -522,14 +1542,104 @@
     "reviewed": false
   },
   {
+    "word": "toxic",
+    "definition": "Harmful or unpleasant behaviour.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "toxics",
+    "definition": "Harmful people or behaviours.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "trash",
+    "definition": "Of very poor quality.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "trend",
+    "definition": "A thing many people are doing.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "troll",
+    "definition": "Someone who provokes people online.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "trolls",
+    "definition": "People who provoke others online.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "tryna",
+    "definition": "Short for trying to.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
     "word": "turd",
     "definition": "A crude word for waste, or an insult.",
     "crude": true,
     "reviewed": false
   },
   {
+    "word": "tweet",
+    "definition": "A short post on a social site.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "twerk",
+    "definition": "To dance with rapid hip movements.",
+    "crude": true,
+    "reviewed": false
+  },
+  {
+    "word": "unfun",
+    "definition": "Not enjoyable.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "vapid",
+    "definition": "Empty and shallow.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
     "word": "vibe",
     "definition": "The mood or atmosphere of a place or person.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "vibes",
+    "definition": "The mood or atmosphere of something.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "vibey",
+    "definition": "Having a good mood or atmosphere.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "vibing",
+    "definition": "Enjoying a relaxed mood.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "viral",
+    "definition": "Spreading quickly online.",
     "crude": false,
     "reviewed": false
   },
@@ -540,8 +1650,26 @@
     "reviewed": false
   },
   {
+    "word": "vlogs",
+    "definition": "Video blogs.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
     "word": "wack",
     "definition": "Bad or lame.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "wagmi",
+    "definition": "Short for \"we're all going to make it.\"",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "waifu",
+    "definition": "A fictional character someone adores.",
     "crude": false,
     "reviewed": false
   },
@@ -552,8 +1680,38 @@
     "reviewed": false
   },
   {
+    "word": "wasted",
+    "definition": "Defeated or very drunk.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
     "word": "weeb",
     "definition": "Someone obsessed with Japanese pop culture.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "weebs",
+    "definition": "Obsessed fans of Japanese culture.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "weirdo",
+    "definition": "A strange person.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "whack",
+    "definition": "Bad or lame.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "wifey",
+    "definition": "A partner or spouse, fondly.",
     "crude": false,
     "reviewed": false
   },
@@ -570,8 +1728,38 @@
     "reviewed": false
   },
   {
+    "word": "yapped",
+    "definition": "Talked on and on.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "yapper",
+    "definition": "Someone who talks a lot.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "yappy",
+    "definition": "Talking a lot.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
     "word": "yass",
     "definition": "An enthusiastic yes.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "yasss",
+    "definition": "An extra enthusiastic yes.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "yeehaw",
+    "definition": "A cheerful cowboy cry, used jokingly.",
     "crude": false,
     "reviewed": false
   },
@@ -582,8 +1770,50 @@
     "reviewed": false
   },
   {
+    "word": "yikes",
+    "definition": "An expression of awkward discomfort.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "yoink",
+    "definition": "To grab something quickly.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "yoinks",
+    "definition": "Grabs quickly.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
     "word": "yolo",
     "definition": "Short for \"you only live once.\"",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "zaddy",
+    "definition": "An attractive, stylish older man.",
+    "crude": true,
+    "reviewed": false
+  },
+  {
+    "word": "zonked",
+    "definition": "Extremely tired.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "zoomed",
+    "definition": "Moved fast or joined a video call.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "zoomer",
+    "definition": "A person from Generation Z.",
     "crude": false,
     "reviewed": false
   }
