@@ -5,6 +5,29 @@
   max-width: 480px;
   margin: 0 auto;
   padding: 0 var(--space-3);
+  gap: var(--space-2);
+  --tile-min: 40px;
+  --key-h: 40px;
+  --controls-h: 136px;
+}
+
+@media (min-height: 640px) {
+  .app {
+    --key-h: 44px;
+    --controls-h: 148px;
+  }
+}
+
+@media (min-height: 760px) {
+  .app {
+    gap: var(--space-5);
+  }
+}
+
+@media (min-width: 768px) and (min-height: 760px) {
+  .app {
+    padding-top: var(--space-7);
+  }
 }
 
 @media (min-width: 480px) {
@@ -16,6 +39,7 @@
 .board-area {
   flex: 1;
   min-height: 0;
+  container-type: size;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -23,10 +47,10 @@
 
 .grid {
   --tile: clamp(
-    40px,
-    calc(
-      (100vw - 2 * var(--space-3) - (var(--cols) - 1) * var(--space-1)) /
-        var(--cols)
+    var(--tile-min),
+    min(
+      (100cqw - (var(--cols) - 1) * 4px) / var(--cols),
+      (100cqh - (var(--rows) - 1) * 4px) / var(--rows)
     ),
     62px
   );
@@ -102,7 +126,7 @@
 .key {
   flex: 1;
   min-width: 0;
-  height: 40px;
+  height: var(--key-h);
   padding: 0;
   display: flex;
   align-items: center;
@@ -118,12 +142,6 @@
   touch-action: manipulation;
   user-select: none;
   cursor: pointer;
-}
-
-@media (min-height: 640px) {
-  .key {
-    height: 44px;
-  }
 }
 
 .key-wide {
@@ -219,11 +237,11 @@
 }
 
 .controls {
-  padding: var(--space-2) 0;
+  padding: 0;
 }
 
 .banner {
-  min-height: 136px;
+  min-height: var(--controls-h);
   padding: var(--space-3);
   display: flex;
   flex-direction: column;
@@ -267,6 +285,38 @@
   font-weight: 600;
   box-shadow: var(--shadow-button);
   cursor: pointer;
+}
+
+.banner-error {
+  margin: 0;
+}
+
+@media (max-height: 540px) {
+  .app {
+    --tile-min: 36px;
+    --key-h: 36px;
+    --controls-h: 124px;
+  }
+
+  .header {
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    height: var(--space-6);
+  }
+
+  .title {
+    font-size: var(--font-size-label);
+    font-weight: 600;
+  }
+
+  .length-option {
+    height: 36px;
+  }
+
+  .banner {
+    padding: var(--space-2);
+  }
 }
 
 .toast-layer {
