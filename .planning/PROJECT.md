@@ -12,7 +12,9 @@ A public, endless Wordle game on the web (deployed to Vercel). Players can choos
 
 ### Validated
 
-(None yet. Ship to validate.)
+- ✓ SPEC.md (corrected spec) and GLOSSARY.md (twelve terms): validated in Phase 1: Foundation, Spec and CI Skeleton
+- ✓ Vercel preview deploys for PRs and a production deploy from main (https://wordyday.vercel.app): validated in Phase 1
+- ✓ Tooling baseline: React + Vite + TypeScript 6.0.x, ESLint 10, Prettier, Vitest, Node 24, baseline GitHub Actions CI: validated in Phase 1
 
 ### Active
 
@@ -57,13 +59,13 @@ A public, endless Wordle game on the web (deployed to Vercel). Players can choos
 - [ ] Works at phone width
 
 **Docs and pipeline**
-- [ ] SPEC.md (corrected spec) and GLOSSARY.md (Board, Mode, Normal, Wordubado, Answer Pool, Guess Pool, Win Streak, Day Streak, Missed Day, Restore, Forfeit, Give Up)
+- [x] SPEC.md (corrected spec) and GLOSSARY.md (Board, Mode, Normal, Wordubado, Answer Pool, Guess Pool, Win Streak, Day Streak, Missed Day, Restore, Forfeit, Give Up)
 - [ ] Word-list build script (scripts/build-words.mjs) producing answer/guess pools for 4-6 letters
 - [ ] Curated slang.json (~80-150 words per length, with definitions; mild words allowed, never slurs or hate terms), reviewed by the owner
 - [ ] Vitest unit tests for scoring, answer picking, streaks/Restore and storage
 - [ ] Playwright end-to-end tests of full games
 - [ ] GitHub Actions CI: lint, typecheck, unit tests, E2E, build
-- [ ] Vercel preview deploys for PRs and a production deploy from main
+- [x] Vercel preview deploys for PRs and a production deploy from main
 - [ ] docs/PIPELINE.md: a learning guide to the phases, the GSD workflow and the build/test/deploy pipeline
 
 ### Out of Scope
@@ -122,4 +124,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-10-01 after initialization*
+*Last updated: 2026-10-01 after Phase 1 (Foundation, Spec and CI Skeleton) complete*
