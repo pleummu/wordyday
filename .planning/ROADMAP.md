@@ -35,7 +35,7 @@ Vertical MVP: a playable game appears as early as possible (Phase 2), then each 
 Plans:
 **Wave 1**
 
-- [ ] 01-01-PLAN.md — Scaffold React/Vite/TS 6 with ESLint 10, Prettier, Vitest; Unlimited Wordle placeholder page test-first
+- [x] 01-01-PLAN.md — Scaffold React/Vite/TS 6 with ESLint 10, Prettier, Vitest; Unlimited Wordle placeholder page test-first
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
@@ -184,7 +184,7 @@ Plans:
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation, Spec and CI Skeleton | 0/6 | Not started | - |
+| 1. Foundation, Spec and CI Skeleton | 1/6 | In Progress|  |
 | 2. Playable Normal Game | 0/TBD | Not started | - |
 | 3. Wordubado Mode and Slang | 0/TBD | Not started | - |
 | 4. Six Boards and Persistence | 0/TBD | Not started | - |
