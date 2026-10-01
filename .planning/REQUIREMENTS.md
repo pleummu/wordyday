@@ -7,12 +7,12 @@
 
 ### Gameplay (PLAY)
 
-- [ ] **PLAY-01**: User can play with 4, 5 or 6-letter words, getting 5, 6 or 7 attempts respectively
+- [x] **PLAY-01**: User can play with 4, 5 or 6-letter words, getting 5, 6 or 7 attempts respectively
 - [x] **PLAY-02**: User sees each guess scored correct/present/absent, with greens scored first and yellows limited by how many of that letter remain in the answer
 - [ ] **PLAY-03**: User can only submit guesses from the Guess Pool for that length; an invalid or too-short guess shakes the row, shows a toast and does not use an attempt
 - [x] **PLAY-04**: User can type with both the on-screen and the physical keyboard; keys keep their best state (green > yellow > gray)
 - [ ] **PLAY-05**: User sees tile pop (typing), flip (reveal) and shake (invalid) animations; input is blocked while a row is revealing; keyboard colours update after the flip finishes
-- [ ] **PLAY-06**: User sees the answer revealed when they lose
+- [x] **PLAY-06**: User sees the answer revealed when they lose
 - [ ] **PLAY-07**: User can only Give Up when exactly 2 tries are left; Give Up asks to confirm, reveals the answer and counts as a loss
 - [ ] **PLAY-08**: User can only press New game mid-game under the same rule (exactly 2 tries left), with the same confirm; it counts as a loss (forfeit). New game is always available once a game is finished
 
@@ -135,12 +135,12 @@
 | DOC-02 | Phase 1 | Complete |
 | QA-01 | Phase 1 | Complete |
 | QA-05 | Phase 1 | Complete |
-| PLAY-01 | Phase 2 | Pending |
+| PLAY-01 | Phase 2 | Complete |
 | PLAY-02 | Phase 2 | Complete |
 | PLAY-03 | Phase 2 | Pending |
 | PLAY-04 | Phase 2 | Complete |
 | PLAY-05 | Phase 2 | Pending |
-| PLAY-06 | Phase 2 | Pending |
+| PLAY-06 | Phase 2 | Complete |
 | QA-06 | Phase 2 | Pending |
 | UI-01 | Phase 2 | Pending |
 | UI-06 | Phase 2 | Pending |
