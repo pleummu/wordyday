@@ -43,7 +43,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 01-03-PLAN.md — GLOSSARY.md with the twelve terms, cross-linked with SPEC.md
+- [x] 01-03-PLAN.md — GLOSSARY.md with the twelve terms, cross-linked with SPEC.md
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
@@ -184,7 +184,7 @@ Plans:
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation, Spec and CI Skeleton | 2/6 | In Progress|  |
+| 1. Foundation, Spec and CI Skeleton | 3/6 | In Progress|  |
 | 2. Playable Normal Game | 0/TBD | Not started | - |
 | 3. Wordubado Mode and Slang | 0/TBD | Not started | - |
 | 4. Six Boards and Persistence | 0/TBD | Not started | - |
