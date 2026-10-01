@@ -76,16 +76,42 @@ Plans:
 **Plans**: 11 plans
 
 Plans:
+**Wave 1**
+
 - [ ] 02-01-PLAN.md — Pure scoring, pickAnswer and key merge, test-first (wave 1)
 - [ ] 02-02-PLAN.md — Draft slang.json with D-18 validation test (wave 1)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 02-03-PLAN.md — Word build script, lists and committed per-length pools (wave 2)
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
 - [ ] 02-04-PLAN.md — Owner review of Normal answers, exclude.txt (checkpoint, wave 3)
 - [ ] 02-05-PLAN.md — Playwright on the production build and failing win/lose E2E (wave 3)
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
 - [ ] 02-06-PLAN.md — Lazy pool loader and game store, test-first (wave 4)
+
+**Wave 5** *(blocked on Wave 4 completion)*
+
 - [ ] 02-07-PLAN.md — Playable UI: grid, keyboards, length picker, banner (wave 5)
+
+**Wave 6** *(blocked on Wave 5 completion)*
+
 - [ ] 02-08-PLAN.md — Toast, row-scoped shake, pop/flip/bounce and reduced motion (wave 6)
+
+**Wave 7** *(blocked on Wave 6 completion)*
+
 - [ ] 02-09-PLAN.md — 320 px fit with compact rule at <=540 px, loading and error states (wave 7)
+
+**Wave 8** *(blocked on Wave 7 completion)*
+
 - [ ] 02-10-PLAN.md — check:bundle, CI words and e2e jobs, PIPELINE.md (wave 8)
+
+**Wave 9** *(blocked on Wave 8 completion)*
+
 - [ ] 02-11-PLAN.md — PR with green CI and owner preview sign-off (checkpoint, wave 9)
 
 **UI hint**: yes
