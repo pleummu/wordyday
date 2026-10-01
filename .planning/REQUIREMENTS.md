@@ -81,7 +81,7 @@
 
 ### Docs (DOC)
 
-- [ ] **DOC-01**: SPEC.md: the corrected spec, including every owner decision and the full Restore state machine and edge-case table
+- [x] **DOC-01**: SPEC.md: the corrected spec, including every owner decision and the full Restore state machine and edge-case table
 - [ ] **DOC-02**: GLOSSARY.md: Board, Mode, Normal, Wordubado, Answer Pool, Guess Pool, Win Streak, Day Streak, Missed Day, Restore, Forfeit, Give Up
 - [ ] **DOC-03**: docs/PIPELINE.md: a learning guide to the phases, the GSD workflow (discuss → plan → execute → verify) and the code pipeline (words build → Vite → Vitest → Playwright → CI → Vercel), with "what you'll learn" notes
 
@@ -131,7 +131,7 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| DOC-01 | Phase 1 | Pending |
+| DOC-01 | Phase 1 | Complete |
 | DOC-02 | Phase 1 | Pending |
 | QA-01 | Phase 1 | Complete |
 | QA-05 | Phase 1 | Pending |

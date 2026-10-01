@@ -39,7 +39,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 01-02-PLAN.md — SPEC.md: ID-tagged rules, Restore state machine, EC-01..EC-44, owner-overridable defaults
+- [x] 01-02-PLAN.md — SPEC.md: ID-tagged rules, Restore state machine, EC-01..EC-44, owner-overridable defaults
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
@@ -184,7 +184,7 @@ Plans:
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation, Spec and CI Skeleton | 1/6 | In Progress|  |
+| 1. Foundation, Spec and CI Skeleton | 2/6 | In Progress|  |
 | 2. Playable Normal Game | 0/TBD | Not started | - |
 | 3. Wordubado Mode and Slang | 0/TBD | Not started | - |
 | 4. Six Boards and Persistence | 0/TBD | Not started | - |

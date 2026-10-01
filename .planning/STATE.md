@@ -4,13 +4,13 @@ milestone: v1.0
 milestone_name: milestone
 status: executing
 stopped_at: Phase 1 context gathered
-last_updated: "2026-10-01T11:26:45.174Z"
+last_updated: "2026-10-01T11:30:09.342Z"
 last_activity: 2026-10-01
 progress:
   total_phases: 8
   completed_phases: 0
   total_plans: 6
-  completed_plans: 1
+  completed_plans: 2
   percent: 0
 ---
 
@@ -26,11 +26,11 @@ See: .planning/PROJECT.md (updated 2026-10-01)
 ## Current Position
 
 Phase: 1 (Foundation, Spec and CI Skeleton) — EXECUTING
-Plan: 2 of 6
+Plan: 3 of 6
 Status: Ready to execute
 Last activity: 2026-10-01
 
-Progress: [██░░░░░░░░] 17%
+Progress: [███░░░░░░░] 33%
 
 ## Performance Metrics
 
@@ -49,6 +49,7 @@ Progress: [██░░░░░░░░] 17%
 ## Accumulated Context
 
 | Phase 01 P01 | 15min | 2 tasks | 20 files |
+| Phase 01 P02 | 20min | 2 tasks | 1 files |
 
 ### Decisions
 
@@ -57,6 +58,7 @@ Progress: [██░░░░░░░░] 17%
 - Roadmap: QA-02 (unit tests) completes in Phase 5; QA-04 (full CI) and QA-03 (E2E) complete in Phase 8; baseline CI starts in Phase 1
 - Zustand `persist` not used; explicit versioned `logic/storage.ts`
 - Blocklist applies to answers only; guesses stay permissive
+- [Phase 01-02]: SPEC.md open-question defaults adopted (EC-40 deferred credit, K left before use, refill on answer date, zero-guess board cannot be abandoned)
 
 ### Pending Todos
 
@@ -71,6 +73,6 @@ Progress: [██░░░░░░░░] 17%
 
 ## Session Continuity
 
-Last session: 2026-10-01T11:26:36.660Z
+Last session: 2026-10-01T11:29:58.483Z
 Stopped at: Phase 1 context gathered
 Resume file: None
