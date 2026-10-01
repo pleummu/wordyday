@@ -96,7 +96,7 @@ Plans:
 
 **Wave 5** *(blocked on Wave 4 completion)*
 
-- [ ] 02-07-PLAN.md — Playable UI: grid, keyboards, length picker, banner (wave 5)
+- [x] 02-07-PLAN.md — Playable UI: grid, keyboards, length picker, banner (wave 5)
 
 **Wave 6** *(blocked on Wave 5 completion)*
 
@@ -225,7 +225,7 @@ Plans:
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation, Spec and CI Skeleton | 6/6 | Complete    | 2026-10-01 |
-| 2. Playable Normal Game | 6/11 | In Progress|  |
+| 2. Playable Normal Game | 7/11 | In Progress|  |
 | 3. Wordubado Mode and Slang | 0/TBD | Not started | - |
 | 4. Six Boards and Persistence | 0/TBD | Not started | - |
 | 5. Stats, Streaks and Restore | 0/TBD | Not started | - |

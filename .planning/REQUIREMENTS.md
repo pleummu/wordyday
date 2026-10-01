@@ -67,7 +67,7 @@
 
 ### UI, Design and Accessibility (UI)
 
-- [ ] **UI-01**: The design is minimal, soft and light: airy palette, soft rounded tiles, gentle animations, generous white space
+- [x] **UI-01**: The design is minimal, soft and light: airy palette, soft rounded tiles, gentle animations, generous white space
 - [ ] **UI-02**: User can switch to dark mode (same soft feel); on first visit the theme follows the system preference; no theme flash on load
 - [ ] **UI-03**: User can turn on a colour-blind (high-contrast) palette
 - [ ] **UI-04**: User sees a How-to-play modal automatically on the first visit and can reopen it from the header
@@ -142,7 +142,7 @@
 | PLAY-05 | Phase 2 | Complete |
 | PLAY-06 | Phase 2 | Complete |
 | QA-06 | Phase 2 | Pending |
-| UI-01 | Phase 2 | Pending |
+| UI-01 | Phase 2 | Complete |
 | UI-06 | Phase 2 | Pending |
 | UI-09 | Phase 2 | Pending |
 | WORD-02 | Phase 2 | Complete |
