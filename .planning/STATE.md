@@ -4,13 +4,13 @@ milestone: v1.0
 milestone_name: milestone
 status: executing
 stopped_at: Phase 2 context gathered
-last_updated: "2026-10-01T16:53:26.392Z"
+last_updated: "2026-10-01T16:56:25.116Z"
 last_activity: 2026-10-01
 progress:
   total_phases: 8
   completed_phases: 1
   total_plans: 17
-  completed_plans: 11
+  completed_plans: 12
   percent: 13
 ---
 
@@ -26,11 +26,11 @@ See: .planning/PROJECT.md (updated 2026-10-01)
 ## Current Position
 
 Phase: 02 (playable-normal-game) — EXECUTING
-Plan: 6 of 11
+Plan: 7 of 11
 Status: Ready to execute
 Last activity: 2026-10-01
 
-Progress: [███████░░░] 65%
+Progress: [███████░░░] 71%
 
 ## Performance Metrics
 
@@ -49,6 +49,7 @@ Progress: [███████░░░] 65%
 | Phase 02 P03 | resumed | 2 tasks | 15 files |
 | Phase 02 P05 | 10min | 2 tasks | 9 files |
 | Phase 02 P04 | resumed | 3 tasks | 5 files |
+| Phase 02 P06 | 10min | 2 tasks | 10 files |
 
 ## Accumulated Context
 
@@ -65,6 +66,7 @@ Progress: [███████░░░] 65%
 - Zustand `persist` not used; explicit versioned `logic/storage.ts`
 - Blocklist applies to answers only; guesses stay permissive
 - [Phase 01-02]: SPEC.md open-question defaults adopted (EC-40 deferred credit, K left before use, refill on answer date, zero-guess board cannot be abandoned)
+- [Phase ?]: 02-06: reveal duration (length-1)*300+500 +50ms buffer; selectLength no-op for active length
 
 ### Pending Todos
 
@@ -79,6 +81,6 @@ Progress: [███████░░░] 65%
 
 ## Session Continuity
 
-Last session: 2026-10-01T16:53:26.387Z
+Last session: 2026-10-01T16:56:17.460Z
 Stopped at: Phase 2 context gathered
 Resume file: None
