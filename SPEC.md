@@ -4,6 +4,7 @@
 
 ## 0. How to read this spec
 
+- The capitalised terms (Board, Mode, Normal, Wordubado, Answer Pool, Guess Pool, Win Streak, Day Streak, Missed Day, Restore, Forfeit and Give Up) are defined in [GLOSSARY.md](GLOSSARY.md). Use them exactly as written.
 - Every rule has a stable ID of the form `R-<AREA>-<n>`, for example `R-SCORE-1` or `R-RESTORE-3`. Tests, plans and code comments cite these IDs.
 - IDs are stable. They are never renumbered. A rule that is removed stays in the file marked "Retired" so old references still make sense.
 - MUST means the game is wrong without it. SHOULD means a strong default that an owner decision can change.
