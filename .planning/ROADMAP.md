@@ -104,7 +104,7 @@ Plans:
 
 **Wave 7** *(blocked on Wave 6 completion)*
 
-- [ ] 02-09-PLAN.md — 320 px fit with compact rule at <=540 px, loading and error states (wave 7)
+- [x] 02-09-PLAN.md — 320 px fit with compact rule at <=540 px, loading and error states (wave 7)
 
 **Wave 8** *(blocked on Wave 7 completion)*
 
@@ -225,7 +225,7 @@ Plans:
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation, Spec and CI Skeleton | 6/6 | Complete    | 2026-10-01 |
-| 2. Playable Normal Game | 8/11 | In Progress|  |
+| 2. Playable Normal Game | 9/11 | In Progress|  |
 | 3. Wordubado Mode and Slang | 0/TBD | Not started | - |
 | 4. Six Boards and Persistence | 0/TBD | Not started | - |
 | 5. Stats, Streaks and Restore | 0/TBD | Not started | - |
