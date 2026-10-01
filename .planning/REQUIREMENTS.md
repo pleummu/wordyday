@@ -91,7 +91,7 @@
 - [ ] **QA-02**: Vitest unit tests cover scoring (ABBEY/BABES, SPEED/ERASE, triples, all lengths), the 75/25 split over 10,000 seeded draws, streaks/Restore (an edge-case table including DST, month boundary and clock moved backwards), forfeit rules, and storage (round-trip, migration, corrupt, throwing storage)
 - [ ] **QA-03**: Playwright E2E tests run against the production build: a full win and loss, invalid guess, resume after refresh, switching Boards, Give Up rule, the Restore prompt (fake clock), and an axe accessibility check, in desktop and mobile projects
 - [ ] **QA-04**: GitHub Actions CI on every PR and push to main runs lint, format check, typecheck, unit tests, build, E2E and the word-drift check
-- [ ] **QA-05**: Vercel deploys a preview for every PR and production from main
+- [x] **QA-05**: Vercel deploys a preview for every PR and production from main
 - [ ] **QA-06**: Production build succeeds, with the word pools kept out of the entry chunk
 
 ## v2 Requirements
@@ -134,7 +134,7 @@
 | DOC-01 | Phase 1 | Complete |
 | DOC-02 | Phase 1 | Complete |
 | QA-01 | Phase 1 | Complete |
-| QA-05 | Phase 1 | Pending |
+| QA-05 | Phase 1 | Complete |
 | PLAY-01 | Phase 2 | Pending |
 | PLAY-02 | Phase 2 | Pending |
 | PLAY-03 | Phase 2 | Pending |
