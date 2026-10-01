@@ -1,0 +1,590 @@
+[
+  {
+    "word": "arse",
+    "definition": "A British word for the backside, used as an insult.",
+    "crude": true,
+    "reviewed": false
+  },
+  {
+    "word": "bait",
+    "definition": "Obviously provocative or too easy to spot, as in \"that post is bait.\"",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "baka",
+    "definition": "A Japanese word for fool, used in anime fandom.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "barf",
+    "definition": "To vomit, or an exclamation of disgust.",
+    "crude": true,
+    "reviewed": false
+  },
+  {
+    "word": "bars",
+    "definition": "Impressive lyrics, as in \"that verse had bars.\"",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "bffs",
+    "definition": "Best friends forever.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "boop",
+    "definition": "A playful tap on the nose.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "bops",
+    "definition": "Songs that are really good.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "brah",
+    "definition": "A friendly term for a close friend.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "bruh",
+    "definition": "An exclamation of disbelief or disappointment.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "buff",
+    "definition": "To strengthen something, or very muscular.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "bump",
+    "definition": "To play a song loudly because it is good.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "butt",
+    "definition": "A casual word for the backside, used in jokes.",
+    "crude": true,
+    "reviewed": false
+  },
+  {
+    "word": "cack",
+    "definition": "British slang for rubbish or nonsense.",
+    "crude": true,
+    "reviewed": false
+  },
+  {
+    "word": "chad",
+    "definition": "A confident, attractive and successful man.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "clap",
+    "definition": "To reply sharply, as in \"clap back.\"",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "clip",
+    "definition": "A short video excerpt shared online.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "cook",
+    "definition": "To do something impressively well, as in \"let him cook.\"",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "cope",
+    "definition": "To justify a disappointment, usually said mockingly.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "crap",
+    "definition": "A mild word for rubbish or bad quality.",
+    "crude": true,
+    "reviewed": false
+  },
+  {
+    "word": "cray",
+    "definition": "Short for crazy.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "damn",
+    "definition": "A mild exclamation of surprise or annoyance.",
+    "crude": true,
+    "reviewed": false
+  },
+  {
+    "word": "dang",
+    "definition": "A mild stand-in for damn.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "dank",
+    "definition": "Excellent, especially of memes.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "darn",
+    "definition": "A mild stand-in for damn.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "dawg",
+    "definition": "A friendly word for a close friend.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "dead",
+    "definition": "Extremely amused, as in \"I'm dead.\"",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "doge",
+    "definition": "A meme featuring a Shiba Inu dog.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "dope",
+    "definition": "Excellent or very cool.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "doxx",
+    "definition": "To publish someone's private information online.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "drip",
+    "definition": "Stylish and expensive-looking clothes or jewelry.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "dunk",
+    "definition": "To win an argument by humiliating the other side.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "edgy",
+    "definition": "Deliberately provocative or dark.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "epic",
+    "definition": "Impressively great.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "fart",
+    "definition": "To release gas, used humorously in memes.",
+    "crude": true,
+    "reviewed": false
+  },
+  {
+    "word": "fave",
+    "definition": "Short for favourite.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "fire",
+    "definition": "Excellent, as in \"that song is fire.\"",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "flex",
+    "definition": "To show off.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "fomo",
+    "definition": "Fear of missing out.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "fwiw",
+    "definition": "Short for \"for what it's worth.\"",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "gang",
+    "definition": "A close group of friends, or a friendly greeting.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "gank",
+    "definition": "To ambush someone in a game.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "goat",
+    "definition": "The greatest of all time.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "grim",
+    "definition": "Unpleasant or bad, as in \"that's grim.\"",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "gyat",
+    "definition": "An exclamation at someone's attractive figure.",
+    "crude": true,
+    "reviewed": false
+  },
+  {
+    "word": "heck",
+    "definition": "A mild stand-in for hell.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "hype",
+    "definition": "Excitement, or to make people excited.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "icky",
+    "definition": "Gross or unpleasant.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "imho",
+    "definition": "Short for \"in my humble opinion.\"",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "jank",
+    "definition": "Clunky or low quality, especially software.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "lmao",
+    "definition": "Short for laughing hard.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "lore",
+    "definition": "The background story of a person, thing or event.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "lurk",
+    "definition": "To read online posts without joining in.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "main",
+    "definition": "The character or game someone plays the most.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "meme",
+    "definition": "An image or joke that spreads online.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "mids",
+    "definition": "Mediocre things.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "mood",
+    "definition": "A relatable feeling or situation.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "nepo",
+    "definition": "Short for nepotism, as in \"nepo baby.\"",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "nerf",
+    "definition": "To weaken something in a game.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "noob",
+    "definition": "A beginner who is bad at something.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "nope",
+    "definition": "An emphatic no.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "nsfw",
+    "definition": "Short for \"not safe for work.\"",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "oomf",
+    "definition": "One of my followers, a friend on social media.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "opps",
+    "definition": "Rivals or opponents.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "poop",
+    "definition": "A childish word for waste, often used as a joke.",
+    "crude": true,
+    "reviewed": false
+  },
+  {
+    "word": "puke",
+    "definition": "To vomit, often used for something disgusting.",
+    "crude": true,
+    "reviewed": false
+  },
+  {
+    "word": "rage",
+    "definition": "To be furious, as in \"rage quit.\"",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "rekt",
+    "definition": "Thoroughly defeated, from wrecked.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "reps",
+    "definition": "Repetitions of practice.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "rizz",
+    "definition": "Charm and flirting skill.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "rofl",
+    "definition": "Short for rolling on the floor laughing.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "ship",
+    "definition": "To root for two people to be a couple.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "sick",
+    "definition": "Excellent or impressive.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "simp",
+    "definition": "Someone who is overly eager to please a crush.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "skrt",
+    "definition": "A sound of excitement imitating screeching tires.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "slap",
+    "definition": "To be excellent, said of a song.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "slay",
+    "definition": "To do something exceptionally well.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "smdh",
+    "definition": "Short for \"shaking my damn head.\"",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "smol",
+    "definition": "Small and cute.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "snap",
+    "definition": "To do something impressively well.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "soft",
+    "definition": "Weak or overly sensitive.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "spam",
+    "definition": "Unwanted repeated messages.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "stan",
+    "definition": "An extremely devoted fan.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "suss",
+    "definition": "Suspicious.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "swag",
+    "definition": "Stylish confidence.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "swol",
+    "definition": "Muscular, from swollen.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "tilt",
+    "definition": "To get frustrated and play worse.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "turd",
+    "definition": "A crude word for waste, or an insult.",
+    "crude": true,
+    "reviewed": false
+  },
+  {
+    "word": "vibe",
+    "definition": "The mood or atmosphere of a place or person.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "vlog",
+    "definition": "A video blog.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "wack",
+    "definition": "Bad or lame.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "wank",
+    "definition": "A British crude insult for someone foolish.",
+    "crude": true,
+    "reviewed": false
+  },
+  {
+    "word": "weeb",
+    "definition": "Someone obsessed with Japanese pop culture.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "wild",
+    "definition": "Surprising or extreme.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "woke",
+    "definition": "Aware of social issues, also used mockingly.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "yass",
+    "definition": "An enthusiastic yes.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "yeet",
+    "definition": "To throw something with force.",
+    "crude": false,
+    "reviewed": false
+  },
+  {
+    "word": "yolo",
+    "definition": "Short for \"you only live once.\"",
+    "crude": false,
+    "reviewed": false
+  }
+]
