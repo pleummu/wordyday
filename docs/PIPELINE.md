@@ -103,8 +103,8 @@ The roadmap is a **vertical MVP**: you get something playable early, then each p
 | **Format** | Prettier | One consistent code style | Style arguments, noisy diffs | 1 |
 | **Unit tests** | Vitest | Tests pure logic in milliseconds | Scoring bugs (SPEED vs ERASE), streak and Restore edge cases, bad saved data | 1 → 5 |
 | **Build** | Vite | Bundles and minifies into `dist/`; word lists become separate lazy chunks | Import errors, oversized bundle | 1 |
-| **E2E tests** 🔜 | Playwright | Runs the *built* site in real Chromium (desktop + phone) and plays full games | Things that only break when everything is joined together | 2 (smoke) → 8 |
-| **Word drift** 🔜 | CI job | Re-runs the words build and fails if the result differs from what's committed | Someone editing the JSON by hand | 2 → 8 |
+| **E2E tests** ✅ | Playwright | Runs the *built* site in real Chromium (desktop + phone) and plays full games | Things that only break when everything is joined together | 2 → 8 |
+| **Word drift** ✅ | CI job | Re-runs the words build and fails if the result differs from what's committed | Someone editing the JSON by hand | 2 → 8 |
 | **CI** | GitHub Actions | Runs all of the above on every PR and push to `main` | Merging something that only worked on your machine | 1 → 8 |
 | **Preview deploy** | Vercel | A unique URL for every PR | Lets you click-test before merging | 1 |
 | **Production deploy** | Vercel | Merging to `main` publishes the live site | n/a | 1 |
@@ -113,17 +113,22 @@ The roadmap is a **vertical MVP**: you get something playable early, then each p
 
 ```bash
 npm run dev          # local dev server with hot reload
-npm run words        # 🔜 regenerate word lists (Phase 2)
+npm run build:words  # ✅ regenerate word lists (Phase 2)
 npm run lint         # ESLint
 npm run format       # Prettier (write)  /  npm run format:check
 npm run typecheck    # tsc -b
 npm test             # Vitest, runs once  /  npm run test:watch (watch mode)
 npm run build        # production build to dist/
 npm run preview      # serve dist/ locally (what E2E tests run against)
-npm run e2e          # 🔜 Playwright (Phase 8)
+npm run test:e2e     # ✅ Playwright against the production build (Phase 2)
+npm run check:bundle # ✅ after build: proves word lists stay out of the entry chunk
 ```
 
-CI runs the same commands in `.github/workflows/ci.yml` on every PR and push to main.
+CI runs the same commands in `.github/workflows/ci.yml` on every PR and push to main. It has three jobs that run in parallel:
+
+- **`check`** runs lint, format, typecheck, unit tests, the build and `check:bundle`. It catches broken code and any change that accidentally pulls the word lists into the first download.
+- **`words`** re-runs `npm run build:words` and fails if any generated file differs from what is committed (or a new file appears). It catches hand-edited word files.
+- **`e2e`** installs Chromium, runs Playwright against the production build and uploads the `playwright-report` artifact. It catches things that only break when the whole game is joined together.
 
 > 🎓 **Key idea: the "shift-left" ladder.** Each stage is cheaper and faster than the next: the type checker catches in 1 s what a unit test catches in 1 ms of runtime, what E2E catches in 30 s, and what a user catches after it's live. Push every check as far *left* (early) as you can.
 
