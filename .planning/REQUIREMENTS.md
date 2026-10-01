@@ -131,11 +131,73 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| (filled by roadmap) | | |
+| DOC-01 | Phase 1 | Pending |
+| DOC-02 | Phase 1 | Pending |
+| QA-01 | Phase 1 | Pending |
+| QA-05 | Phase 1 | Pending |
+| PLAY-01 | Phase 2 | Pending |
+| PLAY-02 | Phase 2 | Pending |
+| PLAY-03 | Phase 2 | Pending |
+| PLAY-04 | Phase 2 | Pending |
+| PLAY-05 | Phase 2 | Pending |
+| PLAY-06 | Phase 2 | Pending |
+| QA-06 | Phase 2 | Pending |
+| UI-01 | Phase 2 | Pending |
+| UI-06 | Phase 2 | Pending |
+| UI-09 | Phase 2 | Pending |
+| WORD-02 | Phase 2 | Pending |
+| WORD-05 | Phase 2 | Pending |
+| WORD-07 | Phase 2 | Pending |
+| WORD-09 | Phase 2 | Pending |
+| UI-05 | Phase 3 | Pending |
+| WORD-01 | Phase 3 | Pending |
+| WORD-03 | Phase 3 | Pending |
+| WORD-04 | Phase 3 | Pending |
+| WORD-06 | Phase 3 | Pending |
+| WORD-08 | Phase 3 | Pending |
+| PLAY-07 | Phase 4 | Pending |
+| PLAY-08 | Phase 4 | Pending |
+| SAVE-01 | Phase 4 | Pending |
+| SAVE-02 | Phase 4 | Pending |
+| SAVE-03 | Phase 4 | Pending |
+| SAVE-04 | Phase 4 | Pending |
+| SAVE-05 | Phase 4 | Pending |
+| SAVE-06 | Phase 4 | Pending |
+| SAVE-07 | Phase 4 | Pending |
+| SAVE-08 | Phase 4 | Pending |
+| SAVE-09 | Phase 4 | Pending |
+| UI-11 | Phase 4 | Pending |
+| QA-02 | Phase 5 | Pending |
+| STAT-01 | Phase 5 | Pending |
+| STAT-02 | Phase 5 | Pending |
+| STAT-03 | Phase 5 | Pending |
+| STAT-04 | Phase 5 | Pending |
+| STRK-01 | Phase 5 | Pending |
+| STRK-02 | Phase 5 | Pending |
+| STRK-03 | Phase 5 | Pending |
+| STRK-04 | Phase 5 | Pending |
+| STRK-05 | Phase 5 | Pending |
+| STRK-06 | Phase 5 | Pending |
+| STRK-07 | Phase 5 | Pending |
+| STRK-08 | Phase 5 | Pending |
+| RSLT-01 | Phase 6 | Pending |
+| RSLT-02 | Phase 6 | Pending |
+| RSLT-03 | Phase 6 | Pending |
+| RSLT-04 | Phase 6 | Pending |
+| UI-02 | Phase 7 | Pending |
+| UI-03 | Phase 7 | Pending |
+| UI-04 | Phase 7 | Pending |
+| UI-07 | Phase 7 | Pending |
+| UI-08 | Phase 7 | Pending |
+| UI-10 | Phase 7 | Pending |
+| DOC-03 | Phase 8 | Pending |
+| QA-03 | Phase 8 | Pending |
+| QA-04 | Phase 8 | Pending |
 
 **Coverage:**
 - v1 requirements: 62 total
-- Mapped to phases: 0 (pending roadmap)
+- Mapped to phases: 62
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-10-01*
