@@ -1,6 +1,7 @@
 // @vitest-environment jsdom
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react'
-import { afterEach, beforeEach, expect, it, vi } from 'vitest'
+import { afterEach, beforeAll, beforeEach, expect, it, vi } from 'vitest'
+import { stubDialog } from './test/stubDialog'
 import type { Pools } from './data/wordData'
 import type { WordLength } from './logic/boards'
 
@@ -20,6 +21,8 @@ vi.mock('./data/wordData', () => ({ loadPools }))
 
 import App from './App'
 import { useGameStore } from './state/gameStore'
+
+beforeAll(stubDialog)
 
 beforeEach(async () => {
   loadPools.mockReset()

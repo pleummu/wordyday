@@ -4,6 +4,7 @@ import Header from './components/Header'
 import Keyboard from './components/Keyboard'
 import LoadError from './components/LoadError'
 import LoadingNotice from './components/LoadingNotice'
+import SwitchConfirm from './components/SwitchConfirm'
 import Toast from './components/Toast'
 import { usePhysicalKeyboard } from './components/usePhysicalKeyboard'
 import { BOARD_CONFIG } from './logic/boards'
@@ -35,6 +36,7 @@ export default function App() {
   return (
     <div className="app" data-mode={mode}>
       <Toast toast={toast} onDismiss={dismissToast} />
+      <SwitchConfirm />
       <LoadingNotice active={status === 'loading'} />
       <Header />
       <main className="board-area">
