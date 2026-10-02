@@ -135,7 +135,7 @@ Plans:
 Plans:
 **Wave 1**
 
-- [ ] 03-01-PLAN.md — Auto-cut blocklist slang, cut-list review sheet, owner slang review (checkpoint), reviewed slang locked by tests
+- [x] 03-01-PLAN.md — Auto-cut blocklist slang, cut-list review sheet, owner slang review (checkpoint), reviewed slang locked by tests
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
@@ -252,7 +252,7 @@ Plans:
 |-------|----------------|--------|-----------|
 | 1. Foundation, Spec and CI Skeleton | 6/6 | Complete    | 2026-10-01 |
 | 2. Playable Normal Game | 11/11 | Complete   | 2026-10-01 |
-| 3. Wordubado Mode and Slang | 0/6 | Planned | - |
+| 3. Wordubado Mode and Slang | 1/6 | In Progress|  |
 | 4. Six Boards and Persistence | 0/TBD | Not started | - |
 | 5. Stats, Streaks and Restore | 0/TBD | Not started | - |
 | 6. Result Screen, Share and Definitions | 0/TBD | Not started | - |

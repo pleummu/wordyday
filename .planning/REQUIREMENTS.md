@@ -25,7 +25,7 @@
 - [x] **WORD-05**: Answers are fully random (repeats allowed)
 - [ ] **WORD-06**: User can open a Wordubado (i) popup that explains the mode and warns about mildly crude content
 - [x] **WORD-07**: A build script generates the answer and guess pools for 4-6 letters from `wordlist-english` with a blocklist; every answer and every slang word is also in the guess pool; generated JSON is committed and CI checks it hasn't drifted
-- [ ] **WORD-08**: `slang.json` holds ~80-150 curated words per length, each with a definition; mild words are allowed, slurs and hate terms never; owner-reviewed; validated by a unit test (length, non-empty definition, no duplicates, not blocklisted)
+- [x] **WORD-08**: `slang.json` holds ~80-150 curated words per length, each with a definition; mild words are allowed, slurs and hate terms never; owner-reviewed; validated by a unit test (length, non-empty definition, no duplicates, not blocklisted)
 - [x] **WORD-09**: Word pools are lazy-loaded per length (not in the initial bundle)
 
 ### Boards and Persistence (SAVE)
@@ -154,7 +154,7 @@
 | WORD-03 | Phase 3 | Pending |
 | WORD-04 | Phase 3 | Pending |
 | WORD-06 | Phase 3 | Pending |
-| WORD-08 | Phase 3 | Pending |
+| WORD-08 | Phase 3 | Complete |
 | PLAY-07 | Phase 4 | Pending |
 | PLAY-08 | Phase 4 | Pending |
 | SAVE-01 | Phase 4 | Pending |
