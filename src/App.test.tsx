@@ -6,11 +6,13 @@ import type { WordLength } from './logic/boards'
 
 const pools5: Pools = {
   answers: ['crane'],
-  guesses: new Set(['crane', 'house']),
+  slang: ['bruhs'],
+  guesses: new Set(['crane', 'house', 'bruhs']),
 }
 const pools4: Pools = {
   answers: ['kind'],
-  guesses: new Set(['kind', 'gold']),
+  slang: ['yeet'],
+  guesses: new Set(['kind', 'gold', 'yeet']),
 }
 
 const loadPools = vi.hoisted(() => vi.fn())

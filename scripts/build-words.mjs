@@ -10,7 +10,7 @@
 //   - scripts/words/exclude.txt     owner cut list, answers only (D-07)
 //   - scripts/words/extra-guesses.txt  real words missing from the source, guesses only (D-10)
 // Outputs (deterministic: sorted, no timestamps)
-//   - src/data/words-{4,5,6}.json   { answers, guesses } as space-joined strings
+//   - src/data/words-{4,5,6}.json   { answers, guesses, slang } as space-joined strings
 //   - scripts/words/slang-review.md owner review sheet for slang
 import { readFileSync, writeFileSync } from 'node:fs'
 import { gzipSync } from 'node:zlib'
@@ -22,6 +22,7 @@ import {
   parseCutList,
   parseList,
   renderSlangReview,
+  reviewedSlang,
   serialisePools,
 } from './words/lib.mjs'
 import { isProfane } from './words/profanity.mjs'
@@ -74,19 +75,22 @@ for (const length of LENGTHS) {
     exclude,
     isProfane,
   })
+  const slangAnswers = reviewedSlang(slangEntries, length)
   assertInvariants({
     length,
     answers,
     guesses,
     slang,
+    slangAnswers,
+    isProfane,
     blocklist,
     exclude,
     minAnswers: MIN_ANSWERS,
   })
-  const text = serialisePools({ answers, guesses })
+  const text = serialisePools({ answers, guesses, slang: slangAnswers })
   const gzip = gzipSync(Buffer.from(text)).length
   console.log(
-    `length ${length}: answers ${answers.length}, guesses ${guesses.length} (gzip ${(gzip / 1024).toFixed(1)} KB)`,
+    `length ${length}: answers ${answers.length}, guesses ${guesses.length}, slang ${slangAnswers.length} (gzip ${(gzip / 1024).toFixed(1)} KB)`,
   )
   for (const w of dropped.profanity) console.log(`obscenity drop: ${w}`)
   console.log(

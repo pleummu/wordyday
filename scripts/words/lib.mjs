@@ -99,6 +99,8 @@ export function assertInvariants({
   answers,
   guesses,
   slang,
+  slangAnswers = [],
+  isProfane = () => false,
   blocklist,
   exclude,
   minAnswers,
@@ -125,15 +127,33 @@ export function assertInvariants({
       fail(`slang "${w}" missing from the guess pool`)
     }
   }
+  const answerSet = new Set(answers)
+  for (const w of slangAnswers) {
+    if (w.length !== length) fail(`slang answer "${w}" has wrong length`)
+    if (!seen.has(w)) fail(`slang answer "${w}" missing from the guess pool`)
+    if (answerSet.has(w)) fail(`slang answer "${w}" is a Normal answer`)
+    if (blocklist.has(w)) fail(`slang answer "${w}" is in blocklist`)
+    if (isProfane(w)) fail(`slang answer "${w}" is profane`)
+  }
   if (answers.length < minAnswers) {
     fail(`only ${answers.length} answers, need at least ${minAnswers}`)
   }
 }
 
-export function serialisePools({ answers, guesses }) {
+export function reviewedSlang(entries, length) {
+  return entries
+    .filter((e) => e.reviewed === true && e.word.length === length)
+    .map((e) => e.word)
+    .sort()
+}
+
+export function serialisePools({ answers, guesses, slang }) {
   return (
-    JSON.stringify({ answers: answers.join(' '), guesses: guesses.join(' ') }) +
-    '\n'
+    JSON.stringify({
+      answers: answers.join(' '),
+      guesses: guesses.join(' '),
+      slang: slang.join(' '),
+    }) + '\n'
   )
 }
 

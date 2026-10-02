@@ -10,6 +10,7 @@ import {
   removeCut,
   markReviewed,
   renderSlangReview,
+  reviewedSlang,
 } from './lib.mjs'
 
 const ALL = new Set([
@@ -130,6 +131,8 @@ describe('assertInvariants', () => {
     answers: ['fine', 'good'],
     guesses: ['rare', 'slng'],
     slang: ['slng'],
+    slangAnswers: ['slng'],
+    isProfane: () => false,
     blocklist: new Set(['blok']),
     exclude: new Set(['excl']),
     minAnswers: 2,
@@ -168,13 +171,33 @@ describe('assertInvariants', () => {
     ).toThrow()
     expect(() => assertInvariants({ ...ok(), minAnswers: 3 })).toThrow()
   })
+  it('throws on bad slang answers', () => {
+    const bad = (slangAnswers, extra = {}) =>
+      expect(() =>
+        assertInvariants({ ...ok(), slangAnswers, ...extra }),
+      ).toThrow()
+    bad(['gone'])
+    bad(['fine'])
+    bad(['slng5'])
+    bad(['slng'], { blocklist: new Set(['slng']) })
+    bad(['slng'], { isProfane: (w) => w === 'slng' })
+  })
 })
 
 describe('serialisePools', () => {
   it('ends with one newline and round-trips', () => {
-    const t = serialisePools({ answers: ['a', 'b'], guesses: ['c'] })
+    const t = serialisePools({
+      answers: ['a', 'b'],
+      guesses: ['c'],
+      slang: ['d', 'e'],
+    })
     expect(t.endsWith('}\n')).toBe(true)
-    expect(JSON.parse(t)).toEqual({ answers: 'a b', guesses: 'c' })
+    expect(JSON.parse(t)).toEqual({
+      answers: 'a b',
+      guesses: 'c',
+      slang: 'd e',
+    })
+    expect(Object.keys(JSON.parse(t))).toEqual(['answers', 'guesses', 'slang'])
   })
 })
 
@@ -227,5 +250,21 @@ describe('slang review helpers', () => {
     expect(md).toContain('| arse | 4 | blocklist hit |')
     expect(md).not.toContain('keep/cut')
     expect(md).toContain('Reply with the words to cut')
+  })
+})
+
+describe('reviewedSlang', () => {
+  it('keeps reviewed words of the length, sorted', () => {
+    expect(
+      reviewedSlang(
+        [
+          { word: 'bruh', reviewed: true },
+          { word: 'yeet', reviewed: false },
+          { word: 'rizzy', reviewed: true },
+          { word: 'aight', reviewed: true },
+        ],
+        5,
+      ),
+    ).toEqual(['aight', 'rizzy'])
   })
 })

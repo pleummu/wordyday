@@ -7,11 +7,13 @@ import { PRAISE } from './copy'
 
 const pools5: Pools = {
   answers: ['crane', 'slate'],
-  guesses: new Set(['crane', 'slate', 'house', 'ghost']),
+  slang: ['bruhs'],
+  guesses: new Set(['crane', 'slate', 'house', 'ghost', 'bruhs']),
 }
 const pools4: Pools = {
   answers: ['kind', 'bold'],
-  guesses: new Set(['kind', 'bold']),
+  slang: ['yeet'],
+  guesses: new Set(['kind', 'bold', 'yeet']),
 }
 
 function setup(overrides: Partial<GameDeps> = {}, reduced = false) {

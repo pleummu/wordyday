@@ -60,7 +60,11 @@ beforeEach(() => {
     current: '',
     rows: [],
     answer: 'crane',
-    pools: { answers: ['crane'], guesses: new Set(['crane', 'house']) },
+    pools: {
+      answers: ['crane'],
+      slang: [],
+      guesses: new Set(['crane', 'house']),
+    },
   })
 })
 
