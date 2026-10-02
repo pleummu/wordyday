@@ -71,7 +71,7 @@
 - [ ] **UI-02**: User can switch to dark mode (same soft feel); on first visit the theme follows the system preference; no theme flash on load
 - [ ] **UI-03**: User can turn on a colour-blind (high-contrast) palette
 - [ ] **UI-04**: User sees a How-to-play modal automatically on the first visit and can reopen it from the header
-- [x] **UI-05**: The header has a mode toggle, length picker, and help/stats/settings buttons
+- [ ] **UI-05**: The header has a mode toggle, length picker, and help/stats/settings buttons
 - [x] **UI-06**: The layout works on phone widths (≥320 px) with the largest grid (6 letters × 7 rows), using a `dvh`-safe height
 - [ ] **UI-07**: Screen-reader users hear each guess result through an aria-live region; tiles and keys have accessible labels
 - [ ] **UI-08**: Modals trap focus, close on Esc and return focus; the whole game is playable by keyboard alone
@@ -149,7 +149,7 @@
 | WORD-05 | Phase 2 | Complete |
 | WORD-07 | Phase 2 | Complete |
 | WORD-09 | Phase 2 | Complete |
-| UI-05 | Phase 3 (mode switch + length picker), Phase 4 (settings button), Phase 5 (stats button), Phase 7 (help button); split per D-14 | Complete |
+| UI-05 | Phase 3 (mode switch + length picker), Phase 4 (settings button), Phase 5 (stats button), Phase 7 (help button); split per D-14 | Partial (Phase 3 part done; tick at Phase 7) |
 | WORD-01 | Phase 3 | Complete |
 | WORD-03 | Phase 3 | Complete |
 | WORD-04 | Phase 3 | Complete |
