@@ -125,12 +125,38 @@ Plans:
 **Requirements**: WORD-01, WORD-03, WORD-04, WORD-06, WORD-08, UI-05
 **Success Criteria** (what must be TRUE):
 
-  1. User can use the header mode toggle and length picker to switch between Normal and Wordubado at any length (header also has help/stats/settings buttons)
+  1. User can use the header mode switch and length picker to switch between Normal and Wordubado at any length (help, stats and settings buttons arrive with their screens: settings Phase 4, stats Phase 5, help Phase 7; D-14)
   2. In Wordubado, about 75% of answers are slang and 25% are common words; in Normal, a slang word is accepted as a guess but never appears as the answer
   3. User can open the Wordubado (i) popup and read what the mode is and the warning about mildly crude content
   4. Owner has reviewed slang.json (about 80-150 words per length, each with a definition, no slurs or hate terms) and the validation test passes
 
-**Plans**: TBD
+**Plans**: 6 plans
+
+Plans:
+**Wave 1**
+
+- [ ] 03-01-PLAN.md — Auto-cut blocklist slang, cut-list review sheet, owner slang review (checkpoint), reviewed slang locked by tests
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [ ] 03-02-PLAN.md — Failing Wordubado E2E, reviewed slang in the lazy chunk, 75/25 pick and store mode
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
+- [ ] 03-03-PLAN.md — Header "Wordubado" switch, lilac mode accent, two-row header at 320 px (E2E green)
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
+- [ ] 03-04-PLAN.md — "End this game?" confirm on a reusable native-dialog Modal, keyboard guard
+
+**Wave 5** *(blocked on Wave 4 completion)*
+
+- [ ] 03-05-PLAN.md — (i) button and "What's Wordubado?" popup, auto-open on first enable
+
+**Wave 6** *(blocked on Wave 5 completion)*
+
+- [ ] 03-06-PLAN.md — Slang bundle check, test hook gated out of production (WR-01), owner sign-off (checkpoint)
+
 **UI hint**: yes
 **Notes**: Human gate: owner review of slang.json. The 75/25 split is verified over 10,000 seeded draws.
 
@@ -226,7 +252,7 @@ Plans:
 |-------|----------------|--------|-----------|
 | 1. Foundation, Spec and CI Skeleton | 6/6 | Complete    | 2026-10-01 |
 | 2. Playable Normal Game | 11/11 | Complete   | 2026-10-01 |
-| 3. Wordubado Mode and Slang | 0/TBD | Not started | - |
+| 3. Wordubado Mode and Slang | 0/6 | Planned | - |
 | 4. Six Boards and Persistence | 0/TBD | Not started | - |
 | 5. Stats, Streaks and Restore | 0/TBD | Not started | - |
 | 6. Result Screen, Share and Definitions | 0/TBD | Not started | - |

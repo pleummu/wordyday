@@ -149,7 +149,7 @@
 | WORD-05 | Phase 2 | Complete |
 | WORD-07 | Phase 2 | Complete |
 | WORD-09 | Phase 2 | Complete |
-| UI-05 | Phase 3 | Pending |
+| UI-05 | Phase 3 (mode switch + length picker), Phase 4 (settings button), Phase 5 (stats button), Phase 7 (help button); split per D-14 | Pending |
 | WORD-01 | Phase 3 | Pending |
 | WORD-03 | Phase 3 | Pending |
 | WORD-04 | Phase 3 | Pending |
