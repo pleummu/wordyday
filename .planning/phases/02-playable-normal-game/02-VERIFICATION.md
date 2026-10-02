@@ -1,7 +1,7 @@
 ---
 phase: 02-playable-normal-game
 verified: 2026-10-02T00:00:00Z
-status: human_needed
+status: passed
 score: 5/5 roadmap success criteria verified (SC4 has one owner-decision caveat)
 overrides_applied: 0
 gaps: []
@@ -14,7 +14,7 @@ human_verification:
 # Phase 2: Playable Normal Game Verification Report
 
 **Phase Goal:** Users can play a complete, correctly scored Normal game at 4, 5 or 6 letters in the browser.
-**Status:** human_needed (all automated checks pass; one owner decision outstanding)
+**Status:** passed (owner accepted residual inflections on 2026-10-02; see 02-HUMAN-UAT.md)
 **Re-verification:** No, initial verification.
 
 Note: ROADMAP marks this phase `mode: mvp`, but the goal text is not in "As a..., I want..., so that..." form, so the user-story guard would not pass. I verified against the ROADMAP success criteria instead. This is a documentation inconsistency, not a code gap.
