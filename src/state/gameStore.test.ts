@@ -171,7 +171,7 @@ describe('valid submit and reveal lock (R-GUESS-3, R-GUESS-6)', () => {
     store.getState().submit()
     store.getState().typeLetter('a')
     store.getState().backspace()
-    store.getState().selectLength(4)
+    store.getState().requestSwitch({ length: 4 })
     expect(store.getState().current).toBe('')
     expect(store.getState().length).toBe(5)
     expect(loadPools).toHaveBeenCalledTimes(1)
@@ -258,7 +258,7 @@ describe('loading edge cases (R-POOL-4, D-12)', () => {
   })
 })
 
-describe('playAgain and selectLength', () => {
+describe('playAgain and requestSwitch', () => {
   it('playAgain resets the game', async () => {
     const { store } = await started()
     type(store, 'crane')
@@ -274,9 +274,9 @@ describe('playAgain and selectLength', () => {
     expect(s.shakeRow).toBe(-1)
   })
 
-  it('selectLength switches length', async () => {
+  it('requestSwitch switches length', async () => {
     const { store } = await started()
-    store.getState().selectLength(4)
+    store.getState().requestSwitch({ length: 4 })
     await vi.waitFor(() => expect(store.getState().status).toBe('playing'))
     expect(store.getState().length).toBe(4)
     expect(store.getState().answer).toBe('kind')
@@ -288,10 +288,76 @@ describe('playAgain and selectLength', () => {
     store.getState().submit()
     store.getState().finishReveal()
     type(store, 'ho')
-    store.getState().selectLength(5)
+    store.getState().requestSwitch({ length: 5 })
     expect(loadPools).toHaveBeenCalledTimes(1)
     expect(store.getState().rows).toHaveLength(1)
     expect(store.getState().current).toBe('ho')
     expect(store.getState().answer).toBe('crane')
+  })
+})
+
+describe('Wordubado mode (WORD-01, WORD-03, WORD-04)', () => {
+  it('defaults to normal', () => {
+    expect(setup().store.getState().mode).toBe('normal')
+  })
+
+  it('startGame(5, wordubado) picks a slang answer for rng 0', async () => {
+    const { store } = setup()
+    await store.getState().startGame(5, 'wordubado')
+    expect(store.getState().mode).toBe('wordubado')
+    expect(store.getState().answer).toBe('bruhs')
+  })
+
+  it('Normal games never answer with slang', async () => {
+    for (const r of [0.05, 0.25, 0.5, 0.75, 0.95]) {
+      const { store } = setup({ rng: () => r })
+      await store.getState().startGame(5, 'normal')
+      expect(pools5.answers).toContain(store.getState().answer)
+    }
+  })
+
+  it('requestSwitch changes mode keeping length, and length keeping mode', async () => {
+    const { store } = await started()
+    store.getState().requestSwitch({ mode: 'wordubado' })
+    await vi.waitFor(() => expect(store.getState().status).toBe('playing'))
+    expect(store.getState().mode).toBe('wordubado')
+    expect(store.getState().length).toBe(5)
+    store.getState().requestSwitch({ length: 4 })
+    await vi.waitFor(() => expect(store.getState().length).toBe(4))
+    await vi.waitFor(() => expect(store.getState().status).toBe('playing'))
+    expect(store.getState().mode).toBe('wordubado')
+    expect(store.getState().answer).toBe('yeet')
+  })
+
+  it('ignores a switch while revealing and a no-change switch', async () => {
+    const { store, loadPools } = await started()
+    store.getState().requestSwitch({ mode: 'normal' })
+    expect(loadPools).toHaveBeenCalledTimes(1)
+    type(store, 'house')
+    store.getState().submit()
+    store.getState().requestSwitch({ mode: 'wordubado' })
+    expect(store.getState().mode).toBe('normal')
+    expect(loadPools).toHaveBeenCalledTimes(1)
+  })
+
+  it('fast switching ends on the last request', async () => {
+    const { store } = setup()
+    store.getState().requestSwitch({ mode: 'wordubado' })
+    store.getState().requestSwitch({ length: 4 })
+    await vi.waitFor(() => expect(store.getState().status).toBe('playing'))
+    const s = store.getState()
+    expect(s.mode).toBe('wordubado')
+    expect(s.length).toBe(4)
+    expect(pools4.slang).toContain(s.answer)
+  })
+
+  it('a switch right after finishReveal starts a clean game', async () => {
+    const { store } = await started()
+    type(store, 'house')
+    store.getState().submit()
+    store.getState().finishReveal()
+    store.getState().requestSwitch({ mode: 'wordubado' })
+    await vi.waitFor(() => expect(store.getState().status).toBe('playing'))
+    expect(store.getState().rows).toEqual([])
   })
 })

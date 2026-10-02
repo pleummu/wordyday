@@ -2,13 +2,14 @@ import { create } from 'zustand'
 import { loadPools as defaultLoadPools, type Pools } from '../data/wordData'
 import { BOARD_CONFIG, type WordLength } from '../logic/boards'
 import { applyGuessToKeys, type KeyStates } from '../logic/keys'
-import { pickAnswer } from '../logic/pickAnswer'
+import { pickAnswer, pickWordubadoAnswer } from '../logic/pickAnswer'
 import { score, type TileState } from '../logic/score'
 import { NOT_ENOUGH_LETTERS, NOT_IN_WORD_LIST, PRAISE } from './copy'
 import { readTestAnswer } from './testHook'
 
 export type GameStatus =
   'loading' | 'error' | 'playing' | 'revealing' | 'won' | 'lost'
+export type Mode = 'normal' | 'wordubado'
 export type Row = { letters: string; states: TileState[] }
 export type Toast = { id: number; text: string; kind: 'error' | 'info' }
 export type SubmitResult = 'ok' | 'short' | 'invalid' | 'blocked'
@@ -21,6 +22,7 @@ export type GameDeps = {
 }
 
 export type GameState = {
+  mode: Mode
   length: WordLength
   answer: string
   rows: Row[]
@@ -32,8 +34,8 @@ export type GameState = {
   shakeRow: number
   pools: Pools | null
   loadToken: number
-  startGame(length: WordLength): Promise<void>
-  selectLength(length: WordLength): void
+  startGame(length: WordLength, mode?: Mode): Promise<void>
+  requestSwitch(next: { mode?: Mode; length?: WordLength }): void
   playAgain(): void
   retryLoad(): void
   typeLetter(letter: string): void
@@ -53,6 +55,7 @@ export function createGameStore(deps: GameDeps) {
   let toastSeq = 0
 
   return create<GameState>()((set, get) => ({
+    mode: 'normal',
     length: 5,
     answer: '',
     rows: [],
@@ -65,10 +68,11 @@ export function createGameStore(deps: GameDeps) {
     pools: null,
     loadToken: 0,
 
-    async startGame(length) {
+    async startGame(length, mode = get().mode) {
       const token = get().loadToken + 1
       set({
         loadToken: token,
+        mode,
         length,
         status: 'loading',
         rows: [],
@@ -82,7 +86,9 @@ export function createGameStore(deps: GameDeps) {
         if (get().loadToken !== token) return
         const answer =
           readTestAnswer(length, pools.guesses) ??
-          pickAnswer(pools.answers, deps.rng)
+          (mode === 'wordubado'
+            ? pickWordubadoAnswer(pools, deps.rng)
+            : pickAnswer(pools.answers, deps.rng))
         set({ pools, answer, status: 'playing' })
       } catch {
         if (get().loadToken !== token) return
@@ -90,19 +96,29 @@ export function createGameStore(deps: GameDeps) {
       }
     },
 
-    selectLength(length) {
-      const { status, length: active } = get()
+    requestSwitch(next) {
+      const { status, mode, length } = get()
+      const target = {
+        mode: next.mode ?? mode,
+        length: next.length ?? length,
+      }
       if (status === 'revealing') return
-      if (length === active && status !== 'error') return
-      void get().startGame(length)
+      if (
+        target.mode === mode &&
+        target.length === length &&
+        status !== 'error'
+      ) {
+        return
+      }
+      void get().startGame(target.length, target.mode)
     },
 
     playAgain() {
-      void get().startGame(get().length)
+      void get().startGame(get().length, get().mode)
     },
 
     retryLoad() {
-      void get().startGame(get().length)
+      void get().startGame(get().length, get().mode)
     },
 
     typeLetter(letter) {
