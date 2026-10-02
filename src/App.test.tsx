@@ -29,7 +29,8 @@ beforeEach(async () => {
   loadPools.mockImplementation((length: WordLength) =>
     Promise.resolve(length === 4 ? pools4 : pools5),
   )
-  await useGameStore.getState().startGame(5)
+  useGameStore.setState({ pendingSwitch: null, infoOpen: false })
+  await useGameStore.getState().startGame(5, 'normal')
   loadPools.mockClear()
 })
 
@@ -141,4 +142,17 @@ it('ignores physical keys while a switch is pending', async () => {
   const s = useGameStore.getState()
   expect(s.current).toBe('ho')
   expect(s.rows).toHaveLength(1)
+})
+
+it('ignores physical keys while the info popup is open', async () => {
+  render(<App />)
+  for (const k of 'ho') fireEvent.keyDown(window, { key: k })
+  act(() => {
+    useGameStore.getState().openInfo()
+  })
+  fireEvent.keyDown(window, { key: 'a' })
+  fireEvent.keyDown(window, { key: 'Enter' })
+  const s = useGameStore.getState()
+  expect(s.current).toBe('ho')
+  expect(s.rows).toHaveLength(0)
 })

@@ -14,6 +14,7 @@ export function usePhysicalKeyboard(): void {
       const store = useGameStore.getState()
       if (
         store.pendingSwitch !== null ||
+        store.infoOpen ||
         document.querySelector('dialog[open]') !== null
       ) {
         return

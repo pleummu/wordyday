@@ -36,6 +36,9 @@ export type GameState = {
   pools: Pools | null
   loadToken: number
   pendingSwitch: SwitchTarget | null
+  infoOpen: boolean
+  openInfo(): void
+  closeInfo(): void
   startGame(length: WordLength, mode?: Mode): Promise<void>
   requestSwitch(next: { mode?: Mode; length?: WordLength }): void
   confirmSwitch(): void
@@ -57,161 +60,183 @@ export function revealDurationMs(length: WordLength, reduced: boolean): number {
 
 export function createGameStore(deps: GameDeps) {
   let toastSeq = 0
+  let infoSeen = false
 
-  return create<GameState>()((set, get) => ({
-    mode: 'normal',
-    length: 5,
-    answer: '',
-    rows: [],
-    current: '',
-    status: 'loading',
-    keyStates: {},
-    toast: null,
-    shakeId: 0,
-    shakeRow: -1,
-    pools: null,
-    loadToken: 0,
-    pendingSwitch: null,
-
-    async startGame(length, mode = get().mode) {
-      const token = get().loadToken + 1
-      set({
-        loadToken: token,
-        mode,
-        length,
-        status: 'loading',
-        rows: [],
-        current: '',
-        keyStates: {},
-        toast: null,
-        shakeRow: -1,
-      })
-      try {
-        const pools = await deps.loadPools(length)
-        if (get().loadToken !== token) return
-        const answer =
-          readTestAnswer(length, pools.guesses) ??
-          (mode === 'wordubado'
-            ? pickWordubadoAnswer(pools, deps.rng)
-            : pickAnswer(pools.answers, deps.rng))
-        set({ pools, answer, status: 'playing' })
-      } catch {
-        if (get().loadToken !== token) return
-        set({ status: 'error' })
+  return create<GameState>()((set, get) => {
+    function autoOpenInfo(prevMode: Mode, nextMode: Mode) {
+      if (nextMode === 'wordubado' && prevMode !== 'wordubado' && !infoSeen) {
+        infoSeen = true
+        set({ infoOpen: true })
       }
-    },
+    }
 
-    requestSwitch(next) {
-      const { status, mode, length, rows } = get()
-      const target = {
-        mode: next.mode ?? mode,
-        length: next.length ?? length,
-      }
-      if (status === 'revealing') return
-      if (
-        target.mode === mode &&
-        target.length === length &&
-        status !== 'error'
-      ) {
-        return
-      }
-      if (rows.length > 0 && status === 'playing') {
-        set({ pendingSwitch: target })
-        return
-      }
-      void get().startGame(target.length, target.mode)
-    },
+    return {
+      mode: 'normal',
+      length: 5,
+      answer: '',
+      rows: [],
+      current: '',
+      status: 'loading',
+      keyStates: {},
+      toast: null,
+      shakeId: 0,
+      shakeRow: -1,
+      pools: null,
+      loadToken: 0,
+      pendingSwitch: null,
+      infoOpen: false,
 
-    confirmSwitch() {
-      const p = get().pendingSwitch
-      if (p === null) return
-      set({ pendingSwitch: null })
-      void get().startGame(p.length, p.mode)
-    },
+      openInfo() {
+        set({ infoOpen: true })
+      },
 
-    cancelSwitch() {
-      set({ pendingSwitch: null })
-    },
+      closeInfo() {
+        set({ infoOpen: false })
+      },
 
-    playAgain() {
-      void get().startGame(get().length, get().mode)
-    },
-
-    retryLoad() {
-      void get().startGame(get().length, get().mode)
-    },
-
-    typeLetter(letter) {
-      const { status, current, length, pendingSwitch } = get()
-      if (status !== 'playing' || pendingSwitch !== null) return
-      if (!/^[a-zA-Z]$/.test(letter)) return
-      if (current.length >= length) return
-      set({ current: current + letter.toLowerCase() })
-    },
-
-    backspace() {
-      const { status, current, pendingSwitch } = get()
-      if (status !== 'playing' || pendingSwitch !== null) return
-      if (current.length === 0) return
-      set({ current: current.slice(0, -1) })
-    },
-
-    submit() {
-      const { status, current, length, pools, answer, rows, shakeId } = get()
-      if (status !== 'playing' || pools === null) return 'blocked'
-      if (get().pendingSwitch !== null) return 'blocked'
-
-      const reject = (text: string): SubmitResult => {
+      async startGame(length, mode = get().mode) {
+        const token = get().loadToken + 1
         set({
-          toast: { id: ++toastSeq, text, kind: 'error' },
-          shakeId: shakeId + 1,
-          shakeRow: rows.length,
+          loadToken: token,
+          mode,
+          length,
+          status: 'loading',
+          rows: [],
+          current: '',
+          keyStates: {},
+          toast: null,
+          shakeRow: -1,
         })
-        return text === NOT_ENOUGH_LETTERS ? 'short' : 'invalid'
-      }
+        try {
+          const pools = await deps.loadPools(length)
+          if (get().loadToken !== token) return
+          const answer =
+            readTestAnswer(length, pools.guesses) ??
+            (mode === 'wordubado'
+              ? pickWordubadoAnswer(pools, deps.rng)
+              : pickAnswer(pools.answers, deps.rng))
+          set({ pools, answer, status: 'playing' })
+        } catch {
+          if (get().loadToken !== token) return
+          set({ status: 'error' })
+        }
+      },
 
-      if (current.length < length) return reject(NOT_ENOUGH_LETTERS)
-      if (!pools.guesses.has(current)) return reject(NOT_IN_WORD_LIST)
+      requestSwitch(next) {
+        const { status, mode, length, rows } = get()
+        const target = {
+          mode: next.mode ?? mode,
+          length: next.length ?? length,
+        }
+        if (status === 'revealing') return
+        if (
+          target.mode === mode &&
+          target.length === length &&
+          status !== 'error'
+        ) {
+          return
+        }
+        if (rows.length > 0 && status === 'playing') {
+          set({ pendingSwitch: target })
+          return
+        }
+        void get().startGame(target.length, target.mode)
+        autoOpenInfo(mode, target.mode)
+      },
 
-      set({
-        rows: [...rows, { letters: current, states: score(answer, current) }],
-        current: '',
-        status: 'revealing',
-      })
-      deps.setTimer(
-        () => get().finishReveal(),
-        revealDurationMs(length, deps.prefersReducedMotion()) +
-          REVEAL_BUFFER_MS,
-      )
-      return 'ok'
-    },
+      confirmSwitch() {
+        const p = get().pendingSwitch
+        if (p === null) return
+        const prevMode = get().mode
+        set({ pendingSwitch: null })
+        void get().startGame(p.length, p.mode)
+        autoOpenInfo(prevMode, p.mode)
+      },
 
-    finishReveal() {
-      const { status, rows, keyStates, length } = get()
-      if (status !== 'revealing') return
-      const last = rows[rows.length - 1]
-      const merged = applyGuessToKeys(keyStates, last.letters, last.states)
-      if (last.states.every((s) => s === 'correct')) {
+      cancelSwitch() {
+        set({ pendingSwitch: null })
+      },
+
+      playAgain() {
+        void get().startGame(get().length, get().mode)
+      },
+
+      retryLoad() {
+        void get().startGame(get().length, get().mode)
+      },
+
+      typeLetter(letter) {
+        const { status, current, length, pendingSwitch, infoOpen } = get()
+        if (status !== 'playing' || pendingSwitch !== null || infoOpen) return
+        if (!/^[a-zA-Z]$/.test(letter)) return
+        if (current.length >= length) return
+        set({ current: current + letter.toLowerCase() })
+      },
+
+      backspace() {
+        const { status, current, pendingSwitch, infoOpen } = get()
+        if (status !== 'playing' || pendingSwitch !== null || infoOpen) return
+        if (current.length === 0) return
+        set({ current: current.slice(0, -1) })
+      },
+
+      submit() {
+        const { status, current, length, pools, answer, rows, shakeId } = get()
+        if (status !== 'playing' || pools === null) return 'blocked'
+        if (get().pendingSwitch !== null || get().infoOpen) return 'blocked'
+
+        const reject = (text: string): SubmitResult => {
+          set({
+            toast: { id: ++toastSeq, text, kind: 'error' },
+            shakeId: shakeId + 1,
+            shakeRow: rows.length,
+          })
+          return text === NOT_ENOUGH_LETTERS ? 'short' : 'invalid'
+        }
+
+        if (current.length < length) return reject(NOT_ENOUGH_LETTERS)
+        if (!pools.guesses.has(current)) return reject(NOT_IN_WORD_LIST)
+
         set({
-          keyStates: merged,
-          status: 'won',
-          toast: {
-            id: ++toastSeq,
-            text: PRAISE[rows.length - 1] ?? PRAISE[PRAISE.length - 1],
-            kind: 'info',
-          },
+          rows: [...rows, { letters: current, states: score(answer, current) }],
+          current: '',
+          status: 'revealing',
         })
-      } else if (rows.length >= BOARD_CONFIG[length].attempts) {
-        set({ keyStates: merged, status: 'lost' })
-      } else {
-        set({ keyStates: merged, status: 'playing' })
-      }
-    },
+        deps.setTimer(
+          () => get().finishReveal(),
+          revealDurationMs(length, deps.prefersReducedMotion()) +
+            REVEAL_BUFFER_MS,
+        )
+        return 'ok'
+      },
 
-    dismissToast(id) {
-      if (get().toast?.id === id) set({ toast: null })
-    },
-  }))
+      finishReveal() {
+        const { status, rows, keyStates, length } = get()
+        if (status !== 'revealing') return
+        const last = rows[rows.length - 1]
+        const merged = applyGuessToKeys(keyStates, last.letters, last.states)
+        if (last.states.every((s) => s === 'correct')) {
+          set({
+            keyStates: merged,
+            status: 'won',
+            toast: {
+              id: ++toastSeq,
+              text: PRAISE[rows.length - 1] ?? PRAISE[PRAISE.length - 1],
+              kind: 'info',
+            },
+          })
+        } else if (rows.length >= BOARD_CONFIG[length].attempts) {
+          set({ keyStates: merged, status: 'lost' })
+        } else {
+          set({ keyStates: merged, status: 'playing' })
+        }
+      },
+
+      dismissToast(id) {
+        if (get().toast?.id === id) set({ toast: null })
+      },
+    }
+  })
 }
 
 const defaultDeps: GameDeps = {

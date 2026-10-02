@@ -442,3 +442,82 @@ describe('confirm before switching (D-09)', () => {
     expect(store.getState().submit()).toBe('blocked')
   })
 })
+
+describe('Wordubado info popup (D-16)', () => {
+  async function inProgress() {
+    const ctx = await started()
+    type(ctx.store, 'house')
+    ctx.store.getState().submit()
+    ctx.store.getState().finishReveal()
+    return ctx
+  }
+
+  it('openInfo and closeInfo toggle infoOpen', async () => {
+    const { store } = await started()
+    expect(store.getState().infoOpen).toBe(false)
+    store.getState().openInfo()
+    expect(store.getState().infoOpen).toBe(true)
+    store.getState().closeInfo()
+    expect(store.getState().infoOpen).toBe(false)
+  })
+
+  it('auto-opens on the first immediate enable only', async () => {
+    const { store } = await started()
+    store.getState().requestSwitch({ mode: 'wordubado' })
+    expect(store.getState().infoOpen).toBe(true)
+    store.getState().closeInfo()
+    store.getState().requestSwitch({ mode: 'normal' })
+    expect(store.getState().infoOpen).toBe(false)
+    store.getState().requestSwitch({ mode: 'wordubado' })
+    expect(store.getState().infoOpen).toBe(false)
+  })
+
+  it('waits for the confirm, then opens after confirmSwitch', async () => {
+    const { store } = await inProgress()
+    store.getState().requestSwitch({ mode: 'wordubado' })
+    expect(store.getState().infoOpen).toBe(false)
+    store.getState().confirmSwitch()
+    expect(store.getState().infoOpen).toBe(true)
+  })
+
+  it('cancelling shows nothing and a later first enable still opens', async () => {
+    const { store } = await inProgress()
+    store.getState().requestSwitch({ mode: 'wordubado' })
+    store.getState().cancelSwitch()
+    expect(store.getState().infoOpen).toBe(false)
+    store.getState().finishReveal()
+    store.getState().playAgain()
+    await vi.waitFor(() => expect(store.getState().status).toBe('playing'))
+    store.getState().requestSwitch({ mode: 'wordubado' })
+    expect(store.getState().infoOpen).toBe(true)
+  })
+
+  it('does not auto-open for Normal or length changes inside Wordubado', async () => {
+    const { store } = await started()
+    store.getState().requestSwitch({ mode: 'wordubado' })
+    store.getState().closeInfo()
+    await vi.waitFor(() => expect(store.getState().status).toBe('playing'))
+    store.getState().requestSwitch({ length: 4 })
+    expect(store.getState().infoOpen).toBe(false)
+    store.getState().requestSwitch({ mode: 'normal' })
+    expect(store.getState().infoOpen).toBe(false)
+  })
+
+  it('starts unseen in each new store', async () => {
+    const a = await started()
+    a.store.getState().requestSwitch({ mode: 'wordubado' })
+    const b = await started()
+    b.store.getState().requestSwitch({ mode: 'wordubado' })
+    expect(b.store.getState().infoOpen).toBe(true)
+  })
+
+  it('blocks input while open', async () => {
+    const { store } = await started()
+    type(store, 'hous')
+    store.getState().openInfo()
+    store.getState().typeLetter('e')
+    store.getState().backspace()
+    expect(store.getState().current).toBe('hous')
+    expect(store.getState().submit()).toBe('blocked')
+  })
+})
