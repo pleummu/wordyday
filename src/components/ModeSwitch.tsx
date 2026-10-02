@@ -15,7 +15,11 @@ export default function ModeSwitch({
       role="switch"
       aria-checked={checked}
       aria-disabled={disabled ? 'true' : undefined}
-      data-own-enter
+      onKeyDown={(e) => {
+        // Enter belongs to the game (submit the row); Space toggles the switch.
+        // Stopping the native Enter activation lets the global handler submit.
+        if (e.key === 'Enter') e.preventDefault()
+      }}
       className="mode-switch"
       onClick={(e) => {
         if (disabled) return

@@ -247,3 +247,25 @@ test('keys pressed while the popup is open do not reach the game', async ({
     page.getByRole('gridcell', { name: /^Row 1, column 1, empty/ }),
   ).toBeVisible()
 })
+
+test('Enter on the focused Wordubado switch submits the guess and keeps the mode; Space toggles', async ({
+  page,
+}) => {
+  await fixAnswers(page)
+  await page.goto('/')
+  await waitForReady(page)
+  const sw = wordubadoSwitch(page)
+  await sw.click()
+  await expect(sw).toHaveAttribute('aria-checked', 'true')
+  await dismissInfo(page)
+  await expect(sw).toBeFocused()
+
+  await guess(page, 'house', 1)
+  await expect(sw).toHaveAttribute('aria-checked', 'true')
+
+  await sw.focus()
+  await page.keyboard.press('Space')
+  await expect(
+    page.getByRole('dialog', { name: 'End this game?' }),
+  ).toBeVisible()
+})

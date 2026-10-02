@@ -45,9 +45,6 @@ export async function turnOnWordubado(
   await expect(sw).toHaveAttribute('aria-checked', 'true')
   if (firstTime) {
     await dismissInfo(page)
-    // Focus returns to the switch; blur so a following Enter submits the guess
-    // instead of toggling the switch (a keyboard user would do the same).
-    await page.evaluate(() => (document.activeElement as HTMLElement)?.blur())
   }
   await waitForReady(page)
 }

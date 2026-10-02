@@ -7,7 +7,11 @@ export default function InfoButton({ onOpen }: { onOpen: () => void }) {
       className="info-button"
       aria-label={ABOUT_WORDUBADO}
       aria-haspopup="dialog"
-      data-own-enter
+      onKeyDown={(e) => {
+        // Focus returns here when the popup closes; Enter then submits the
+        // guess (Space still opens the popup), same as the Wordubado switch.
+        if (e.key === 'Enter') e.preventDefault()
+      }}
       onClick={onOpen}
     >
       <svg

@@ -76,14 +76,35 @@ it('shows no help, stats or settings buttons and keeps an empty actions slot', (
   expect(slot?.childElementCount).toBe(0)
 })
 
-it('does not submit a guess when Enter is pressed on the focused switch', () => {
+it('Enter on the focused switch submits the guess and does not toggle', () => {
   render(<App />)
   for (const k of 'crane') fireEvent.keyDown(window, { key: k })
   const sw = getSwitch()
-  expect(sw.hasAttribute('data-own-enter')).toBe(true)
+  expect(sw.hasAttribute('data-own-enter')).toBe(false)
   sw.focus()
-  fireEvent.keyDown(sw, { key: 'Enter' })
-  expect(useGameStore.getState().rows).toHaveLength(0)
+  // fireEvent returns false when the event was default-prevented, which is
+  // what stops the browser from turning Enter into a click on the button.
+  const notPrevented = fireEvent.keyDown(sw, { key: 'Enter' })
+  expect(notPrevented).toBe(false)
+  expect(useGameStore.getState().rows).toHaveLength(1)
+  expect(useGameStore.getState().mode).toBe('normal')
+  expect(sw.getAttribute('aria-checked')).toBe('false')
+})
+
+it('Space on the focused switch is left to the browser so it still toggles', () => {
+  render(<App />)
+  const sw = getSwitch()
+  sw.focus()
+  expect(fireEvent.keyDown(sw, { key: ' ' })).toBe(true)
+})
+
+it('Enter on the focused (i) button submits the guess instead of reopening the popup', () => {
+  render(<App />)
+  for (const k of 'crane') fireEvent.keyDown(window, { key: k })
+  const info = screen.getByRole('button', { name: 'About Wordubado' })
+  info.focus()
+  expect(fireEvent.keyDown(info, { key: 'Enter' })).toBe(false)
+  expect(useGameStore.getState().rows).toHaveLength(1)
 })
 
 it('(i) button opens the Wordubado info popup', () => {
