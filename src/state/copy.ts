@@ -42,3 +42,11 @@ export function switchConfirmBody(
   }
   return `Switching to ${target.length} letters ${tail}`
 }
+
+export const ABOUT_WORDUBADO = 'About Wordubado'
+export const INFO_HEADING = "What's Wordubado?"
+export const INFO_BODY = [
+  'Wordle with the slang turned up. Most answers are slang, meme and Gen Z words, with a few everyday ones mixed in.',
+  'Heads up: some words are mildly crude.',
+] as const
+export const INFO_GOT_IT = 'Got it'

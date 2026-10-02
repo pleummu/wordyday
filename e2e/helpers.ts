@@ -36,10 +36,19 @@ export function slangWords(n: 4 | 5 | 6): string[] {
   return raw.slang.split(' ').filter(Boolean)
 }
 
-export async function turnOnWordubado(page: Page): Promise<void> {
+export async function turnOnWordubado(
+  page: Page,
+  { firstTime = true }: { firstTime?: boolean } = {},
+): Promise<void> {
   const sw = page.getByRole('switch', { name: 'Wordubado' })
   await sw.click()
   await expect(sw).toHaveAttribute('aria-checked', 'true')
+  if (firstTime) {
+    await dismissInfo(page)
+    // Focus returns to the switch; blur so a following Enter submits the guess
+    // instead of toggling the switch (a keyboard user would do the same).
+    await page.evaluate(() => (document.activeElement as HTMLElement)?.blur())
+  }
   await waitForReady(page)
 }
 
@@ -67,4 +76,14 @@ export async function guess(
 export async function selectLength(page: Page, n: number): Promise<void> {
   await page.getByRole('radio', { name: `${n} letters` }).click()
   await waitForReady(page)
+}
+
+export async function dismissInfo(page: Page): Promise<void> {
+  const dlg = page.getByRole('dialog', { name: "What's Wordubado?" })
+  await expect(dlg).toBeVisible()
+  await expect(
+    dlg.getByText('Heads up: some words are mildly crude.'),
+  ).toBeVisible()
+  await dlg.getByRole('button', { name: 'Got it' }).click()
+  await expect(dlg).toBeHidden()
 }

@@ -109,6 +109,7 @@ test('no vertical scroll at 320x500 in Wordubado with 6 letters', async ({
   await page.setViewportSize({ width: 320, height: 500 })
   await page.goto('/')
   await page.getByRole('switch', { name: 'Wordubado' }).click()
+  await page.getByRole('button', { name: 'Got it' }).click()
   await selectLength(page, 6)
   await expectNoScroll(page, 500)
 })

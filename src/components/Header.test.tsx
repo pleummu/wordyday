@@ -1,6 +1,7 @@
 // @vitest-environment jsdom
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react'
-import { afterEach, beforeEach, expect, it, vi } from 'vitest'
+import { afterEach, beforeAll, beforeEach, expect, it, vi } from 'vitest'
+import { stubDialog } from '../test/stubDialog'
 import type { Pools } from '../data/wordData'
 
 const pools: Pools = {
@@ -15,7 +16,10 @@ vi.mock('../data/wordData', () => ({ loadPools }))
 import App from '../App'
 import { useGameStore } from '../state/gameStore'
 
+beforeAll(stubDialog)
+
 beforeEach(async () => {
+  useGameStore.setState({ pendingSwitch: null, infoOpen: false })
   loadPools.mockReset()
   loadPools.mockImplementation(() => Promise.resolve(pools))
   await useGameStore.getState().startGame(5, 'normal')
@@ -80,4 +84,26 @@ it('does not submit a guess when Enter is pressed on the focused switch', () => 
   sw.focus()
   fireEvent.keyDown(sw, { key: 'Enter' })
   expect(useGameStore.getState().rows).toHaveLength(0)
+})
+
+it('(i) button opens the Wordubado info popup', () => {
+  render(<App />)
+  const info = screen.getByRole('button', { name: 'About Wordubado' })
+  expect(info.getAttribute('aria-haspopup')).toBe('dialog')
+  fireEvent.click(info)
+  expect(document.querySelectorAll('dialog[open]')).toHaveLength(1)
+  expect(
+    screen.getByRole('heading', { name: "What's Wordubado?" }),
+  ).toBeTruthy()
+  expect(
+    screen.getByText('Heads up: some words are mildly crude.'),
+  ).toBeTruthy()
+  expect(screen.getByText(/Wordle with the slang turned up/)).toBeTruthy()
+})
+
+it('Got it closes the popup', () => {
+  render(<App />)
+  fireEvent.click(screen.getByRole('button', { name: 'About Wordubado' }))
+  fireEvent.click(screen.getByRole('button', { name: 'Got it' }))
+  expect(useGameStore.getState().infoOpen).toBe(false)
 })

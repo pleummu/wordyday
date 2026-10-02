@@ -5,6 +5,7 @@ import {
   guess,
   selectLength,
   slangWords,
+  dismissInfo,
   turnOnWordubado,
   waitForReady,
 } from './helpers.ts'
@@ -73,6 +74,9 @@ async function startedGame(page: import('@playwright/test').Page) {
   await guess(page, 'house', 1)
 }
 
+const info = (page: import('@playwright/test').Page) =>
+  page.getByRole('dialog', { name: "What's Wordubado?" })
+
 const dialog = (page: import('@playwright/test').Page) =>
   page.getByRole('dialog', { name: 'End this game?' })
 
@@ -108,6 +112,11 @@ test('Start new game switches mode', async ({ page }) => {
   await wordubadoSwitch(page).click()
   await page.getByRole('button', { name: 'Start new game' }).click()
   await expect(dialog(page)).toBeHidden()
+  await expect(info(page)).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Got it' })).toBeFocused()
+  await page.getByRole('button', { name: 'Got it' }).click()
+  await expect(info(page)).toBeHidden()
+  await expect(wordubadoSwitch(page)).toBeFocused()
   await expect(wordubadoSwitch(page)).toHaveAttribute('aria-checked', 'true')
   await waitForReady(page)
   await expect(
@@ -138,6 +147,7 @@ test('no prompt with only typed letters', async ({ page }) => {
   await wordubadoSwitch(page).click()
   await expect(wordubadoSwitch(page)).toHaveAttribute('aria-checked', 'true')
   await expect(dialog(page)).toHaveCount(0)
+  await dismissInfo(page)
 })
 
 test('no prompt after the game is won', async ({ page }) => {
@@ -149,6 +159,7 @@ test('no prompt after the game is won', async ({ page }) => {
   await wordubadoSwitch(page).click()
   await expect(wordubadoSwitch(page)).toHaveAttribute('aria-checked', 'true')
   await expect(dialog(page)).toBeHidden()
+  await dismissInfo(page)
 })
 
 test('keys pressed while the dialog is open do not reach the game', async ({
@@ -174,4 +185,65 @@ test('focus returns to the switch after Esc', async ({ page }) => {
   await page.keyboard.press('Escape')
   await expect(dialog(page)).toBeHidden()
   await expect(wordubadoSwitch(page)).toBeFocused()
+})
+
+test('(i) opens the popup in Normal and Esc returns focus to (i)', async ({
+  page,
+}) => {
+  await fixAnswers(page)
+  await page.goto('/')
+  await waitForReady(page)
+  const button = page.getByRole('button', { name: 'About Wordubado' })
+  await button.click()
+  await expect(info(page)).toBeVisible()
+  await expect(
+    info(page).getByText('Heads up: some words are mildly crude.'),
+  ).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Got it' })).toBeFocused()
+  await page.keyboard.press('Escape')
+  await expect(info(page)).toBeHidden()
+  await expect(button).toBeFocused()
+  await expect(wordubadoSwitch(page)).toHaveAttribute('aria-checked', 'false')
+})
+
+test('popup auto-opens only on the first enable', async ({ page }) => {
+  await fixAnswers(page)
+  await page.goto('/')
+  await waitForReady(page)
+  await turnOnWordubado(page)
+  await wordubadoSwitch(page).click()
+  await expect(wordubadoSwitch(page)).toHaveAttribute('aria-checked', 'false')
+  await expect(info(page)).toHaveCount(0)
+  await waitForReady(page)
+  await wordubadoSwitch(page).click()
+  await expect(wordubadoSwitch(page)).toHaveAttribute('aria-checked', 'true')
+  await waitForReady(page)
+  await expect(info(page)).toBeHidden()
+})
+
+test('cancelling the confirm shows no popup', async ({ page }) => {
+  await startedGame(page)
+  await wordubadoSwitch(page).click()
+  await expect(dialog(page)).toBeVisible()
+  await expect(info(page)).toBeHidden()
+  await page.getByRole('button', { name: 'Keep playing' }).click()
+  await expect(dialog(page)).toBeHidden()
+  await expect(info(page)).toBeHidden()
+})
+
+test('keys pressed while the popup is open do not reach the game', async ({
+  page,
+}) => {
+  await fixAnswers(page)
+  await page.goto('/')
+  await waitForReady(page)
+  await page.getByRole('button', { name: 'About Wordubado' }).click()
+  await expect(info(page)).toBeVisible()
+  await page.keyboard.type('abc')
+  await page.keyboard.press('Backspace')
+  await page.keyboard.press('Escape')
+  await expect(info(page)).toBeHidden()
+  await expect(
+    page.getByRole('gridcell', { name: /^Row 1, column 1, empty/ }),
+  ).toBeVisible()
 })

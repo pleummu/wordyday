@@ -1,4 +1,5 @@
 import { useGameStore } from '../state/gameStore'
+import InfoButton from './InfoButton'
 import LengthPicker from './LengthPicker'
 import ModeSwitch from './ModeSwitch'
 
@@ -7,6 +8,7 @@ export default function Header() {
   const length = useGameStore((s) => s.length)
   const status = useGameStore((s) => s.status)
   const requestSwitch = useGameStore((s) => s.requestSwitch)
+  const openInfo = useGameStore((s) => s.openInfo)
   const busy = status === 'revealing'
   return (
     <header className="header">
@@ -25,6 +27,7 @@ export default function Header() {
               })
             }
           />
+          <InfoButton onOpen={openInfo} />
         </div>
         <LengthPicker
           value={length}
