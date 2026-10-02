@@ -12,6 +12,12 @@ export function usePhysicalKeyboard(): void {
         }
       }
       const store = useGameStore.getState()
+      if (
+        store.pendingSwitch !== null ||
+        document.querySelector('dialog[open]') !== null
+      ) {
+        return
+      }
       if (e.key === 'Enter') {
         e.preventDefault()
         if (!e.repeat) store.submit()

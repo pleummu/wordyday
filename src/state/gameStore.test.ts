@@ -357,7 +357,88 @@ describe('Wordubado mode (WORD-01, WORD-03, WORD-04)', () => {
     store.getState().submit()
     store.getState().finishReveal()
     store.getState().requestSwitch({ mode: 'wordubado' })
+    store.getState().confirmSwitch()
     await vi.waitFor(() => expect(store.getState().status).toBe('playing'))
     expect(store.getState().rows).toEqual([])
+  })
+})
+
+describe('confirm before switching (D-09)', () => {
+  async function inProgress() {
+    const ctx = await started()
+    type(ctx.store, 'house')
+    ctx.store.getState().submit()
+    ctx.store.getState().finishReveal()
+    return ctx
+  }
+
+  it('holds a mode or length switch as pendingSwitch', async () => {
+    const { store, loadPools } = await inProgress()
+    store.getState().requestSwitch({ mode: 'wordubado' })
+    expect(store.getState().pendingSwitch).toEqual({
+      mode: 'wordubado',
+      length: 5,
+    })
+    store.getState().cancelSwitch()
+    store.getState().requestSwitch({ length: 4 })
+    expect(store.getState().pendingSwitch).toEqual({
+      mode: 'normal',
+      length: 4,
+    })
+    expect(loadPools).toHaveBeenCalledTimes(1)
+  })
+
+  it('switches immediately with no submitted guess', async () => {
+    const { store } = await started()
+    type(store, 'ho')
+    store.getState().requestSwitch({ mode: 'wordubado' })
+    expect(store.getState().pendingSwitch).toBeNull()
+    expect(store.getState().mode).toBe('wordubado')
+  })
+
+  it('switches immediately after a win or loss', async () => {
+    const { store } = await started()
+    type(store, 'crane')
+    store.getState().submit()
+    store.getState().finishReveal()
+    expect(store.getState().status).toBe('won')
+    store.getState().requestSwitch({ length: 4 })
+    expect(store.getState().pendingSwitch).toBeNull()
+    expect(store.getState().length).toBe(4)
+  })
+
+  it('confirmSwitch starts the pending game', async () => {
+    const { store } = await inProgress()
+    store.getState().requestSwitch({ mode: 'wordubado' })
+    store.getState().confirmSwitch()
+    await vi.waitFor(() => expect(store.getState().status).toBe('playing'))
+    const s = store.getState()
+    expect(s.pendingSwitch).toBeNull()
+    expect(s.mode).toBe('wordubado')
+    expect(s.rows).toEqual([])
+  })
+
+  it('cancelSwitch leaves the game untouched', async () => {
+    const { store } = await inProgress()
+    type(store, 'ho')
+    store.getState().requestSwitch({ mode: 'wordubado' })
+    store.getState().cancelSwitch()
+    const s = store.getState()
+    expect(s.pendingSwitch).toBeNull()
+    expect(s.mode).toBe('normal')
+    expect(s.length).toBe(5)
+    expect(s.rows).toHaveLength(1)
+    expect(s.current).toBe('ho')
+    expect(s.answer).toBe('crane')
+  })
+
+  it('blocks typing, deleting and submitting while pending', async () => {
+    const { store } = await inProgress()
+    type(store, 'ho')
+    store.getState().requestSwitch({ mode: 'wordubado' })
+    store.getState().typeLetter('a')
+    store.getState().backspace()
+    expect(store.getState().current).toBe('ho')
+    expect(store.getState().submit()).toBe('blocked')
   })
 })

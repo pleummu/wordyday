@@ -119,3 +119,23 @@ it('shows a load error with Try again that recovers', async () => {
       .disabled,
   ).toBe(false)
 })
+
+it('ignores physical keys while a switch is pending', async () => {
+  render(<App />)
+  for (const k of 'house') fireEvent.keyDown(window, { key: k })
+  fireEvent.keyDown(window, { key: 'Enter' })
+  act(() => {
+    useGameStore.getState().finishReveal()
+  })
+  for (const k of 'ho') fireEvent.keyDown(window, { key: k })
+  act(() => {
+    useGameStore.getState().requestSwitch({ mode: 'wordubado' })
+  })
+  expect(useGameStore.getState().pendingSwitch).not.toBeNull()
+  fireEvent.keyDown(window, { key: 'a' })
+  fireEvent.keyDown(window, { key: 'Backspace' })
+  fireEvent.keyDown(window, { key: 'Enter' })
+  const s = useGameStore.getState()
+  expect(s.current).toBe('ho')
+  expect(s.rows).toHaveLength(1)
+})

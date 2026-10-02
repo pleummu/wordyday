@@ -12,6 +12,7 @@ export type GameStatus =
 export type Mode = 'normal' | 'wordubado'
 export type Row = { letters: string; states: TileState[] }
 export type Toast = { id: number; text: string; kind: 'error' | 'info' }
+export type SwitchTarget = { mode: Mode; length: WordLength }
 export type SubmitResult = 'ok' | 'short' | 'invalid' | 'blocked'
 
 export type GameDeps = {
@@ -34,8 +35,11 @@ export type GameState = {
   shakeRow: number
   pools: Pools | null
   loadToken: number
+  pendingSwitch: SwitchTarget | null
   startGame(length: WordLength, mode?: Mode): Promise<void>
   requestSwitch(next: { mode?: Mode; length?: WordLength }): void
+  confirmSwitch(): void
+  cancelSwitch(): void
   playAgain(): void
   retryLoad(): void
   typeLetter(letter: string): void
@@ -67,6 +71,7 @@ export function createGameStore(deps: GameDeps) {
     shakeRow: -1,
     pools: null,
     loadToken: 0,
+    pendingSwitch: null,
 
     async startGame(length, mode = get().mode) {
       const token = get().loadToken + 1
@@ -97,7 +102,7 @@ export function createGameStore(deps: GameDeps) {
     },
 
     requestSwitch(next) {
-      const { status, mode, length } = get()
+      const { status, mode, length, rows } = get()
       const target = {
         mode: next.mode ?? mode,
         length: next.length ?? length,
@@ -110,7 +115,22 @@ export function createGameStore(deps: GameDeps) {
       ) {
         return
       }
+      if (rows.length > 0 && status === 'playing') {
+        set({ pendingSwitch: target })
+        return
+      }
       void get().startGame(target.length, target.mode)
+    },
+
+    confirmSwitch() {
+      const p = get().pendingSwitch
+      if (p === null) return
+      set({ pendingSwitch: null })
+      void get().startGame(p.length, p.mode)
+    },
+
+    cancelSwitch() {
+      set({ pendingSwitch: null })
     },
 
     playAgain() {
@@ -122,22 +142,24 @@ export function createGameStore(deps: GameDeps) {
     },
 
     typeLetter(letter) {
-      const { status, current, length } = get()
-      if (status !== 'playing') return
+      const { status, current, length, pendingSwitch } = get()
+      if (status !== 'playing' || pendingSwitch !== null) return
       if (!/^[a-zA-Z]$/.test(letter)) return
       if (current.length >= length) return
       set({ current: current + letter.toLowerCase() })
     },
 
     backspace() {
-      const { status, current } = get()
-      if (status !== 'playing' || current.length === 0) return
+      const { status, current, pendingSwitch } = get()
+      if (status !== 'playing' || pendingSwitch !== null) return
+      if (current.length === 0) return
       set({ current: current.slice(0, -1) })
     },
 
     submit() {
       const { status, current, length, pools, answer, rows, shakeId } = get()
       if (status !== 'playing' || pools === null) return 'blocked'
+      if (get().pendingSwitch !== null) return 'blocked'
 
       const reject = (text: string): SubmitResult => {
         set({
