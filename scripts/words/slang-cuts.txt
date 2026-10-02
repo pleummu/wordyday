@@ -1,0 +1,8 @@
+# Cut slang words, one lowercase word per line, with the reason as a trailing comment:
+#   word  # blocklist hit
+#   word  # owner cut
+# Parsed by parseCutList (scripts/words/lib.mjs); read by scripts/build-words.mjs
+# (Already cut section of slang-review.md) and scripts/words/apply-slang-review.mjs.
+arse  # blocklist hit
+turd  # blocklist hit
+wank  # blocklist hit

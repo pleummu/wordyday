@@ -15,7 +15,8 @@
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "build:words": "node scripts/build-words.mjs",
-    "check:bundle": "node scripts/check-bundle.mjs"
+    "check:bundle": "node scripts/check-bundle.mjs",
+    "review:slang": "node scripts/words/apply-slang-review.mjs"
   },
   "dependencies": {
     "react": "^19.2.8",
