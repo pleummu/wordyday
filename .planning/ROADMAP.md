@@ -8,7 +8,7 @@ Vertical MVP: a playable game appears as early as possible (Phase 2), then each 
 
 - [x] **Phase 1: Foundation, Spec and CI Skeleton** - Scaffold, lint/test tooling, SPEC.md/GLOSSARY.md, baseline CI and Vercel previews (completed 2026-10-01)
 - [x] **Phase 2: Playable Normal Game** - Play a correct, animated Normal game at 4/5/6 letters from a generated word pool (completed 2026-10-01)
-- [ ] **Phase 3: Wordubado Mode and Slang** - Switch to Wordubado with owner-reviewed slang answers, plus slang as a valid Normal guess
+- [x] **Phase 3: Wordubado Mode and Slang** - Switch to Wordubado with owner-reviewed slang answers, plus slang as a valid Normal guess (completed 2026-10-02)
 - [ ] **Phase 4: Six Boards and Persistence** - Six independent saved Boards that survive refresh, with safe, versioned storage
 - [ ] **Phase 5: Stats, Streaks and Restore** - Win Streaks, Day Streak, monthly Restores and the statistics screen
 - [ ] **Phase 6: Result Screen, Share and Definitions** - Result modal with Play again, Show definition and Share
@@ -155,7 +155,7 @@ Plans:
 
 **Wave 6** *(blocked on Wave 5 completion)*
 
-- [ ] 03-06-PLAN.md — Slang bundle check, test hook gated out of production (WR-01), owner sign-off (checkpoint)
+- [x] 03-06-PLAN.md — Slang bundle check, test hook gated out of production (WR-01), owner sign-off (checkpoint)
 
 **UI hint**: yes
 **Notes**: Human gate: owner review of slang.json. The 75/25 split is verified over 10,000 seeded draws.
@@ -252,7 +252,7 @@ Plans:
 |-------|----------------|--------|-----------|
 | 1. Foundation, Spec and CI Skeleton | 6/6 | Complete    | 2026-10-01 |
 | 2. Playable Normal Game | 11/11 | Complete   | 2026-10-01 |
-| 3. Wordubado Mode and Slang | 5/6 | In Progress|  |
+| 3. Wordubado Mode and Slang | 6/6 | Complete   | 2026-10-02 |
 | 4. Six Boards and Persistence | 0/TBD | Not started | - |
 | 5. Stats, Streaks and Restore | 0/TBD | Not started | - |
 | 6. Result Screen, Share and Definitions | 0/TBD | Not started | - |
