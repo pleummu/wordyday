@@ -11,6 +11,7 @@ import { useGameStore } from './state/gameStore'
 
 export default function App() {
   usePhysicalKeyboard()
+  const mode = useGameStore((s) => s.mode)
   const length = useGameStore((s) => s.length)
   const rows = useGameStore((s) => s.rows)
   const current = useGameStore((s) => s.current)
@@ -32,7 +33,7 @@ export default function App() {
   }
 
   return (
-    <div className="app">
+    <div className="app" data-mode={mode}>
       <Toast toast={toast} onDismiss={dismissToast} />
       <LoadingNotice active={status === 'loading'} />
       <Header />
