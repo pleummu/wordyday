@@ -14,9 +14,14 @@ export default function SwitchConfirm() {
   const length = useGameStore((s) => s.length)
   const confirmSwitch = useGameStore((s) => s.confirmSwitch)
   const cancelSwitch = useGameStore((s) => s.cancelSwitch)
-  const [target, setTarget] = useState<SwitchTarget | null>(null)
-  if (pendingSwitch !== null && pendingSwitch !== target) {
-    setTarget(pendingSwitch)
+  // Snapshot of what was active and what was requested when the dialog opened,
+  // so the copy stays put while it animates closed after the store switches.
+  const [shown, setShown] = useState<{
+    active: SwitchTarget
+    target: SwitchTarget
+  } | null>(null)
+  if (pendingSwitch !== null && pendingSwitch !== shown?.target) {
+    setShown({ active: { mode, length }, target: pendingSwitch })
   }
 
   return (
@@ -31,7 +36,7 @@ export default function SwitchConfirm() {
         {CONFIRM_HEADING}
       </h2>
       <p id="switch-confirm-body" className="modal-body">
-        {target ? switchConfirmBody({ mode, length }, target) : ''}
+        {shown ? switchConfirmBody(shown.active, shown.target) : ''}
       </p>
       <div className="modal-actions">
         <button
