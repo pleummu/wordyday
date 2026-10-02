@@ -151,7 +151,7 @@ Plans:
 
 **Wave 5** *(blocked on Wave 4 completion)*
 
-- [ ] 03-05-PLAN.md — (i) button and "What's Wordubado?" popup, auto-open on first enable
+- [x] 03-05-PLAN.md — (i) button and "What's Wordubado?" popup, auto-open on first enable
 
 **Wave 6** *(blocked on Wave 5 completion)*
 
@@ -252,7 +252,7 @@ Plans:
 |-------|----------------|--------|-----------|
 | 1. Foundation, Spec and CI Skeleton | 6/6 | Complete    | 2026-10-01 |
 | 2. Playable Normal Game | 11/11 | Complete   | 2026-10-01 |
-| 3. Wordubado Mode and Slang | 4/6 | In Progress|  |
+| 3. Wordubado Mode and Slang | 5/6 | In Progress|  |
 | 4. Six Boards and Persistence | 0/TBD | Not started | - |
 | 5. Stats, Streaks and Restore | 0/TBD | Not started | - |
 | 6. Result Screen, Share and Definitions | 0/TBD | Not started | - |
