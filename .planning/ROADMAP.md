@@ -252,7 +252,7 @@ Plans:
 |-------|----------------|--------|-----------|
 | 1. Foundation, Spec and CI Skeleton | 6/6 | Complete    | 2026-10-01 |
 | 2. Playable Normal Game | 11/11 | Complete   | 2026-10-01 |
-| 3. Wordubado Mode and Slang | 6/6 | Complete   | 2026-10-02 |
+| 3. Wordubado Mode and Slang | 6/6 | Complete    | 2026-10-02 |
 | 4. Six Boards and Persistence | 0/TBD | Not started | - |
 | 5. Stats, Streaks and Restore | 0/TBD | Not started | - |
 | 6. Result Screen, Share and Definitions | 0/TBD | Not started | - |
