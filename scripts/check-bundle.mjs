@@ -35,18 +35,28 @@ if (startNames.size === 0) {
   process.exit(1)
 }
 
-const sentinels = {}
-for (const n of [4, 5, 6]) {
-  const { answers } = JSON.parse(
-    readFileSync(join('src', 'data', `words-${n}.json`), 'utf8'),
-  )
-  sentinels[n] = answers.split(' ').filter(Boolean).slice(0, 20).join(' ')
-}
-
 let failed = false
 const fail = (msg) => {
   console.error(`check:bundle FAILED: ${msg}`)
   failed = true
+}
+
+const sentinels = {}
+const slangSentinels = {}
+const slangCounts = {}
+for (const n of [4, 5, 6]) {
+  const { answers, slang } = JSON.parse(
+    readFileSync(join('src', 'data', `words-${n}.json`), 'utf8'),
+  )
+  sentinels[n] = answers.split(' ').filter(Boolean).slice(0, 20).join(' ')
+  const slangWords = (slang ?? '').split(' ').filter(Boolean)
+  slangCounts[n] = slangWords.length
+  if (slangWords.length === 0) {
+    fail(`no reviewed slang for ${n} letters.`)
+    slangSentinels[n] = undefined
+  } else {
+    slangSentinels[n] = slangWords.slice(0, 10).join(' ')
+  }
 }
 
 for (const name of startNames) {
@@ -54,6 +64,8 @@ for (const name of startNames) {
   for (const n of [4, 5, 6]) {
     if (text.includes(sentinels[n]))
       fail(`${name} (loaded at start) contains the ${n}-letter word pool.`)
+    if (slangSentinels[n] && text.includes(slangSentinels[n]))
+      fail(`${name} (loaded at start) contains the ${n}-letter slang list.`)
   }
 }
 
@@ -78,9 +90,18 @@ for (const f of names) {
   if (startNames.has(`assets/${f}`)) fail(`${f} is an entry/preload chunk.`)
 }
 
+for (const f of assets) {
+  if (readFileSync(join(dist, 'assets', f), 'utf8').includes('__WORDLE_TEST__'))
+    fail(
+      `the E2E test hook is in the production build (${f}); run npm run build, not build:e2e, before check:bundle.`,
+    )
+}
+
 if (failed) process.exit(1)
 
 console.log('check:bundle OK')
+for (const n of [4, 5, 6])
+  console.log(`  ${n}-letter slang: ${slangCounts[n]} words`)
 for (const n of [4, 5, 6]) {
   const kb = (statSync(join(dist, 'assets', found[n])).size / 1024).toFixed(1)
   console.log(`  ${n}-letter pool: assets/${found[n]} (${kb} KB)`)
