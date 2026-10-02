@@ -174,7 +174,31 @@ Plans:
   4. User with corrupt or hand-edited saved data, or with blocked/full localStorage, still gets a working site; two open tabs stay in sync
   5. User can reset all data from Settings after a confirm, and sees a note that progress is stored in this browser only
 
-**Plans**: TBD
+**Plans**: 7 plans
+
+Plans:
+
+**Wave 1**
+- [ ] 04-01-PLAN.md — Failing refresh/switch E2E; pure save schema, migration chain, guard, canForfeit (TDD)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+- [ ] 04-02-PLAN.md — Storage adapter, persisted store, resume on boot, submit-time outcome, reveal token (D-16), static restore in Grid/Banner
+
+**Wave 3** *(blocked on Wave 2 completion)*
+- [ ] 04-03-PLAN.md — Non-forfeiting switchBoard, remove switch confirm (D-05), saved popup flag (D-11), in-progress dot (D-12)
+
+**Wave 4** *(blocked on Wave 3 completion)*
+- [ ] 04-04-PLAN.md — Failing forfeit E2E; store giveUp/forfeitNewGame/dialog field; Modal native close fix (D-14)
+
+**Wave 5** *(blocked on Wave 4 completion)*
+- [ ] 04-05-PLAN.md — Give Up / New game row, confirms, gave-up banner, 320x500 layout cases
+
+**Wave 6** *(blocked on Wave 5 completion)*
+- [ ] 04-06-PLAN.md — Settings button and modal, browser-only note, Reset confirm and resetAll
+
+**Wave 7** *(blocked on Wave 6 completion)*
+- [ ] 04-07-PLAN.md — Corrupt/blocked storage toasts, cross-tab sync, safe chunk retry (D-15)
+
 **UI hint**: yes
 **Notes**: Schema versioning and the migration chain are settled here, before any streak data exists. A Modal primitive (focus trap, Esc, focus return) is built here for the confirm dialogs.
 
