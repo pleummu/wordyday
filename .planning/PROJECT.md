@@ -15,6 +15,13 @@ A public, endless Wordle game on the web (deployed to Vercel). Players can choos
 - ✓ SPEC.md (corrected spec) and GLOSSARY.md (twelve terms): validated in Phase 1: Foundation, Spec and CI Skeleton
 - ✓ Vercel preview deploys for PRs and a production deploy from main (https://wordyday.vercel.app): validated in Phase 1
 - ✓ Tooling baseline: React + Vite + TypeScript 6.0.x, ESLint 10, Prettier, Vitest, Node 24, baseline GitHub Actions CI: validated in Phase 1
+- ✓ Answers are fully random (repeats allowed): validated in Phase 2: Playable Normal Game
+- ✓ Standard scoring: greens first, then yellows limited by the remaining count of that letter: validated in Phase 2: Playable Normal Game
+- ✓ Keyboard keys keep their best state (green > yellow > gray); both the on-screen and physical keyboards work: validated in Phase 2: Playable Normal Game
+- ✓ An invalid or too-short guess makes the row shake and shows a toast, and does not use an attempt: validated in Phase 2: Playable Normal Game
+- ✓ Tile flip, pop and shake animations: validated in Phase 2: Playable Normal Game
+- ✓ Works at phone width: validated in Phase 2: Playable Normal Game
+- ✓ Word-list build script (scripts/build-words.mjs) producing answer/guess pools for 4-6 letters: validated in Phase 2: Playable Normal Game
 
 ### Active
 
@@ -22,11 +29,6 @@ A public, endless Wordle game on the web (deployed to Vercel). Players can choos
 - [ ] Two modes: Normal and Wordubado; three lengths: 4/5/6 letters with 5/6/7 attempts
 - [ ] Normal answers are common English words only; slang is a valid guess in Normal but never the answer
 - [ ] Wordubado answers are 75% slang and 25% common words, chosen per game; Wordubado has an (i) info popup
-- [ ] Answers are fully random (repeats allowed)
-- [ ] Standard scoring: greens first, then yellows limited by the remaining count of that letter
-- [ ] Keyboard keys keep their best state (green > yellow > gray); both the on-screen and physical keyboards work
-- [ ] An invalid or too-short guess makes the row shake and shows a toast, and does not use an attempt
-- [ ] Tile flip, pop and shake animations
 
 **Boards and persistence**
 - [ ] 6 Boards (2 modes × 3 lengths), each with its own saved in-progress game in localStorage
@@ -56,11 +58,9 @@ A public, endless Wordle game on the web (deployed to Vercel). Players can choos
 - [ ] Accessibility: screen-reader announcements of tile results, focus handling in modals, prefers-reduced-motion support
 - [ ] Answer pools are filtered with a blocklist (no obscure, offensive or crude answers in Normal)
 - [ ] Page title and description, link-preview (Open Graph) image, favicon
-- [ ] Works at phone width
 
 **Docs and pipeline**
 - [x] SPEC.md (corrected spec) and GLOSSARY.md (Board, Mode, Normal, Wordubado, Answer Pool, Guess Pool, Win Streak, Day Streak, Missed Day, Restore, Forfeit, Give Up)
-- [ ] Word-list build script (scripts/build-words.mjs) producing answer/guess pools for 4-6 letters
 - [ ] Curated slang.json (~80-150 words per length, with definitions; mild words allowed, never slurs or hate terms), reviewed by the owner
 - [ ] Vitest unit tests for scoring, answer picking, streaks/Restore and storage
 - [ ] Playwright end-to-end tests of full games
@@ -124,4 +124,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-10-01 after Phase 1 (Foundation, Spec and CI Skeleton) complete*
+*Last updated: 2026-10-02 after Phase 2 (Playable Normal Game) complete: playable, correctly scored Normal game at 4/5/6 letters (PR #3)*
