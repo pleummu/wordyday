@@ -147,7 +147,7 @@ Plans:
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
-- [ ] 03-04-PLAN.md — "End this game?" confirm on a reusable native-dialog Modal, keyboard guard
+- [x] 03-04-PLAN.md — "End this game?" confirm on a reusable native-dialog Modal, keyboard guard
 
 **Wave 5** *(blocked on Wave 4 completion)*
 
@@ -252,7 +252,7 @@ Plans:
 |-------|----------------|--------|-----------|
 | 1. Foundation, Spec and CI Skeleton | 6/6 | Complete    | 2026-10-01 |
 | 2. Playable Normal Game | 11/11 | Complete   | 2026-10-01 |
-| 3. Wordubado Mode and Slang | 3/6 | In Progress|  |
+| 3. Wordubado Mode and Slang | 4/6 | In Progress|  |
 | 4. Six Boards and Persistence | 0/TBD | Not started | - |
 | 5. Stats, Streaks and Restore | 0/TBD | Not started | - |
 | 6. Result Screen, Share and Definitions | 0/TBD | Not started | - |
