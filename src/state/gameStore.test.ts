@@ -1012,10 +1012,11 @@ describe('sync', () => {
       state: { boards, last, wordubadoInfoSeen: seen },
       version: SAVE_VERSION,
     })
-  const crane = (guesses: string[], outcome = 'playing') => ({
+  const crane = (guesses: string[], outcome = 'playing', id?: number) => ({
     answer: 'crane',
     guesses,
     outcome,
+    ...(id === undefined ? {} : { id }),
   })
 
   async function ready(extra: Partial<GameDeps> = {}) {
@@ -1027,7 +1028,10 @@ describe('sync', () => {
   it('replaces the visible Board and shows the other-tab toast', async () => {
     const { store } = await ready()
     type(store, 'hou')
-    store.getState().applyExternal(rawDoc({ 'normal-5': crane(['house']) }))
+    const id = store.getState().gameId
+    store
+      .getState()
+      .applyExternal(rawDoc({ 'normal-5': crane(['house'], 'playing', id) }))
     const s = store.getState()
     expect(s.rows.map((r) => r.letters)).toEqual(['house'])
     expect(s.current).toBe('')
@@ -1053,9 +1057,10 @@ describe('sync', () => {
   it('takes a finished outcome without finishing the game again', async () => {
     const onGameFinished = vi.fn()
     const { store } = await ready({ onGameFinished })
+    const id = store.getState().gameId
     store
       .getState()
-      .applyExternal(rawDoc({ 'normal-5': crane(['crane'], 'won') }))
+      .applyExternal(rawDoc({ 'normal-5': crane(['crane'], 'won', id) }))
     const s = store.getState()
     expect(s.status).toBe('won')
     expect(s.finishedInSession).toBe(false)
@@ -1075,6 +1080,26 @@ describe('sync', () => {
     await vi.waitFor(() => expect(store.getState().status).toBe('playing'))
   })
 
+  it('a different game with a higher id replaces the visible Board', async () => {
+    const { store } = await ready()
+    const id = store.getState().gameId
+    store.getState().applyExternal(
+      rawDoc({
+        'normal-5': {
+          answer: 'slate',
+          guesses: ['house'],
+          outcome: 'playing',
+          id: id + 5,
+        },
+      }),
+    )
+    const s = store.getState()
+    expect(s.answer).toBe('slate')
+    expect(s.gameId).toBe(id + 5)
+    expect(s.rows.map((r) => r.letters)).toEqual(['house'])
+    expect(s.toast?.text).toBe('Updated from your other tab.')
+  })
+
   it('ignores invalid text without a backup or toast', async () => {
     const { store, mem } = await ready()
     const before = store.getState()
@@ -1088,9 +1113,12 @@ describe('sync', () => {
     const { store, timers } = await ready()
     type(store, 'house')
     store.getState().submit()
+    const id = store.getState().gameId
     store
       .getState()
-      .applyExternal(rawDoc({ 'normal-5': crane(['ghost', 'house']) }))
+      .applyExternal(
+        rawDoc({ 'normal-5': crane(['ghost', 'house'], 'playing', id) }),
+      )
     expect(store.getState().status).toBe('revealing')
     expect(store.getState().rows).toHaveLength(1)
     timers[0].fn()

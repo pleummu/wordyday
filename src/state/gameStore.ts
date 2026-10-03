@@ -12,6 +12,7 @@ import {
   emptySave,
   gameIdOf,
   maxGameId,
+  mergeBoards,
   sameGame,
   migrateSave,
   canForfeit,
@@ -176,6 +177,7 @@ export function createGameStore(deps: GameDeps) {
   let toastSeq = 0
   let storageToastShown = false
   let clock = 0
+  let resetFloor = -1
 
   return create<GameState>()(
     persist(
@@ -307,6 +309,7 @@ export function createGameStore(deps: GameDeps) {
           },
 
           resetAll() {
+            resetFloor = Math.max(clock, maxGameId(get().boards), get().gameId)
             deps.storage.removeItem(SAVE_KEY)
             // The board-less document that follows is the reset itself; other
             // tabs already got the key-removal event.
@@ -368,41 +371,69 @@ export function createGameStore(deps: GameDeps) {
             const read = deps.storage.read(raw)
             if (read === 'invalid' || read === 'newer') return
             const doc = read ?? emptySave()
-            // Echo guard: our own write-back of this exact text is deduped.
-            deps.storage.markSeen(raw)
-            const state = get()
-            const mine = docFromState(state)
-            let same = mine.wordubadoInfoSeen === doc.wordubadoInfoSeen
-            for (const k of BOARD_KEYS) {
-              if (!same) break
-              if (!sameGame(mine.boards[k], doc.boards[k])) same = false
-            }
-            // Nothing new: do not set (a set would write our own `last` back
-            // and the two tabs would ping-pong).
-            if (same) return
-            const key = boardKey(state.mode, state.length)
-            const theirs = doc.boards[key]
-            const base = {
-              boards: doc.boards,
-              wordubadoInfoSeen: doc.wordubadoInfoSeen,
-            }
-            // One set per sync so storage only ever sees the final document.
-            if (sameGame(viewToSaved(state) ?? undefined, theirs)) {
-              set(base)
-              return
-            }
-            const toast = {
+            const toast = () => ({
               id: ++toastSeq,
               text: OTHER_TAB_TOAST,
               kind: 'info' as const,
+            })
+            const closeConfirms = (d: DialogName | null) =>
+              d === 'giveUp' || d === 'newGame' ? null : d
+
+            // Only a reset starts a fresh game from the outside. Games with an
+            // id at or below the highest one seen so far are pre-reset.
+            if (raw === null) {
+              const s0 = get()
+              resetFloor = Math.max(clock, maxGameId(s0.boards), s0.gameId)
+              deps.storage.markSeen(raw)
+              set({
+                boards: {},
+                wordubadoInfoSeen: false,
+                answer: '',
+                rows: [],
+                current: '',
+                status: 'loading',
+                gameId: 0,
+                pendingExternal: undefined,
+                dialog: closeConfirms(s0.dialog),
+              })
+              void get().startGame(s0.length, s0.mode)
+              set({ toast: toast() })
+              return
             }
+
+            // Echo guard: our own write-back of this exact text is deduped.
+            deps.storage.markSeen(raw)
+            clock = Math.max(clock, maxGameId(doc.boards))
+            const state = get()
+            const mine = docFromState(state).boards
+            const merged = mergeBoards(mine, doc.boards, resetFloor)
+            const seen = state.wordubadoInfoSeen || doc.wordubadoInfoSeen
+            let changedForMe = seen !== state.wordubadoInfoSeen
+            let behindThem = seen !== doc.wordubadoInfoSeen
+            for (const k of BOARD_KEYS) {
+              if (!sameGame(merged[k], mine[k])) changedForMe = true
+              if (!sameGame(merged[k], doc.boards[k])) behindThem = true
+            }
+            // Nothing to do for either side: no set, so no ping-pong.
+            if (!changedForMe && !behindThem) return
+
+            const base = { boards: merged, wordubadoInfoSeen: seen }
+            const key = boardKey(state.mode, state.length)
+            const next = merged[key]
+            // We are ahead, or only other Boards changed: one silent set. The
+            // persist write carries the merged document to the other tab.
+            if (!changedForMe || sameGame(next, mine[key])) {
+              set(base)
+              return
+            }
+            // The Board this tab shows changed (next is defined here).
             const loaded =
               state.pools !== null &&
               (state.status === 'playing' || isFinished(state.status))
-            if (theirs && loaded) {
-              const rows: Row[] = theirs.guesses.map((g) => ({
+            if (next && loaded) {
+              const rows: Row[] = next.guesses.map((g) => ({
                 letters: g,
-                states: score(theirs.answer, g),
+                states: score(next.answer, g),
               }))
               let keyStates: KeyStates = {}
               for (const r of rows) {
@@ -412,24 +443,21 @@ export function createGameStore(deps: GameDeps) {
                 ...base,
                 loadToken: state.loadToken + 1,
                 pendingExternal: undefined,
-                answer: theirs.answer,
-                gameId: gameIdOf(theirs),
+                answer: next.answer,
+                gameId: gameIdOf(next),
                 rows,
                 keyStates,
                 current: '',
-                status: theirs.outcome,
+                status: next.outcome,
                 finishedInSession: false,
                 shakeRow: -1,
-                toast,
-                dialog:
-                  state.dialog === 'giveUp' || state.dialog === 'newGame'
-                    ? null
-                    : state.dialog,
+                toast: toast(),
+                dialog: closeConfirms(state.dialog),
               })
               return
             }
-            // Clear the live view in the same set so the old answer is not
-            // written back under this Board.
+            // Loading or error: clear the live view in the same set so the old
+            // answer is not written back, then load the merged Board.
             set({
               ...base,
               answer: '',
@@ -437,9 +465,8 @@ export function createGameStore(deps: GameDeps) {
               current: '',
               status: 'loading',
             })
-            if (theirs) void loadBoard()
-            else void get().startGame(state.length, state.mode)
-            set({ toast })
+            void loadBoard()
+            set({ toast: toast() })
           },
 
           giveUp() {

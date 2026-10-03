@@ -212,7 +212,12 @@ describe('two tabs', () => {
     const before = b.store.getState()
     b.store.getState().applyExternal(
       rawDoc({
-        'wordubado-4': { answer: 'yeet', guesses: [], outcome: 'playing', id: 50 },
+        'wordubado-4': {
+          answer: 'yeet',
+          guesses: [],
+          outcome: 'playing',
+          id: 50,
+        },
       }),
     )
     const s = b.store.getState()
@@ -300,7 +305,10 @@ describe('two tabs', () => {
 
   it('Reset floor ignores pre-reset games afterwards', async () => {
     const { b, a, settle } = await twoTabs()
-    const preMax = Math.max(a.store.getState().gameId, b.store.getState().gameId)
+    const preMax = Math.max(
+      a.store.getState().gameId,
+      b.store.getState().gameId,
+    )
     a.store.getState().resetAll()
     await settle()
     b.store.getState().applyExternal(
