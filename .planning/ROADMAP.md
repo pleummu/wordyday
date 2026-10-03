@@ -9,7 +9,7 @@ Vertical MVP: a playable game appears as early as possible (Phase 2), then each 
 - [x] **Phase 1: Foundation, Spec and CI Skeleton** - Scaffold, lint/test tooling, SPEC.md/GLOSSARY.md, baseline CI and Vercel previews (completed 2026-10-01)
 - [x] **Phase 2: Playable Normal Game** - Play a correct, animated Normal game at 4/5/6 letters from a generated word pool (completed 2026-10-01)
 - [x] **Phase 3: Wordubado Mode and Slang** - Switch to Wordubado with owner-reviewed slang answers, plus slang as a valid Normal guess (completed 2026-10-02)
-- [ ] **Phase 4: Six Boards and Persistence** - Six independent saved Boards that survive refresh, with safe, versioned storage
+- [x] **Phase 4: Six Boards and Persistence** - Six independent saved Boards that survive refresh, with safe, versioned storage (completed 2026-10-03)
 - [ ] **Phase 5: Stats, Streaks and Restore** - Win Streaks, Day Streak, monthly Restores and the statistics screen
 - [ ] **Phase 6: Result Screen, Share and Definitions** - Result modal with Play again, Show definition and Share
 - [ ] **Phase 7: Themes, Accessibility and Polish** - Dark/colour-blind themes, how-to-play, screen-reader and keyboard support, metadata
@@ -197,7 +197,7 @@ Plans:
 - [x] 04-06-PLAN.md — Settings button and modal, browser-only note, Reset confirm and resetAll
 
 **Wave 7** *(blocked on Wave 6 completion)*
-- [ ] 04-07-PLAN.md — Corrupt/blocked storage toasts, cross-tab sync, safe chunk retry (D-15)
+- [x] 04-07-PLAN.md — Corrupt/blocked storage toasts, cross-tab sync, safe chunk retry (D-15)
 
 **UI hint**: yes
 **Notes**: Schema versioning and the migration chain are settled here, before any streak data exists. A Modal primitive (focus trap, Esc, focus return) is built here for the confirm dialogs.
@@ -277,7 +277,7 @@ Plans:
 | 1. Foundation, Spec and CI Skeleton | 6/6 | Complete    | 2026-10-01 |
 | 2. Playable Normal Game | 11/11 | Complete   | 2026-10-01 |
 | 3. Wordubado Mode and Slang | 6/6 | Complete    | 2026-10-02 |
-| 4. Six Boards and Persistence | 6/7 | In Progress|  |
+| 4. Six Boards and Persistence | 7/7 | Complete   | 2026-10-03 |
 | 5. Stats, Streaks and Restore | 0/TBD | Not started | - |
 | 6. Result Screen, Share and Definitions | 0/TBD | Not started | - |
 | 7. Themes, Accessibility and Polish | 0/TBD | Not started | - |

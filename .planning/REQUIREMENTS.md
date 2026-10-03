@@ -37,7 +37,7 @@
 - [x] **SAVE-05**: Saved data has a version number and a migration chain from the first release
 - [x] **SAVE-06**: Corrupt or hand-edited saved data never white-screens the site: it is validated on load, backed up under a separate key, and the app starts fresh
 - [x] **SAVE-07**: The app still works (in memory) when localStorage is unavailable or full
-- [ ] **SAVE-08**: Two open tabs stay in sync via the `storage` event
+- [x] **SAVE-08**: Two open tabs stay in sync via the `storage` event
 - [x] **SAVE-09**: User can reset all data (games, stats, streaks, Restores) from Settings after a confirm
 
 ### Streaks and Restore (STRK)
@@ -164,7 +164,7 @@
 | SAVE-05 | Phase 4 | Complete |
 | SAVE-06 | Phase 4 | Complete |
 | SAVE-07 | Phase 4 | Complete |
-| SAVE-08 | Phase 4 | Pending |
+| SAVE-08 | Phase 4 | Complete |
 | SAVE-09 | Phase 4 | Complete |
 | UI-11 | Phase 4 | Complete |
 | QA-02 | Phase 5 | Pending |
