@@ -2,6 +2,7 @@ import { boardKey, type SavedGame } from '../logic/save'
 import type { WordLength } from '../logic/boards'
 import { useGameStore } from '../state/gameStore'
 import InfoButton from './InfoButton'
+import SettingsButton from './SettingsButton'
 import LengthPicker from './LengthPicker'
 import ModeSwitch from './ModeSwitch'
 
@@ -22,7 +23,9 @@ export default function Header() {
     <header className="header">
       <div className="header-top">
         <h1 className="title">Unlimited Wordle</h1>
-        <div className="header-actions" />
+        <div className="header-actions">
+          <SettingsButton />
+        </div>
       </div>
       <div className="header-controls">
         <div className="mode-group">

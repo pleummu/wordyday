@@ -311,8 +311,51 @@
   }
 }
 
-.header-actions {
-  display: none;
+.settings-button {
+  display: inline-grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--color-text);
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+}
+
+.settings-button:hover {
+  background: var(--color-surface);
+}
+
+.settings-button:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+.settings-button svg {
+  width: 18px;
+  height: 18px;
+}
+
+@media (min-width: 400px) {
+  .settings-button {
+    width: 44px;
+    height: 44px;
+  }
+}
+
+@media (max-width: 399px) {
+  .header-top {
+    position: relative;
+  }
+
+  .header-actions {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+  }
 }
 
 .length-picker {
@@ -507,6 +550,11 @@
 
   .info-button {
     width: 36px;
+  }
+
+  .settings-button {
+    width: 36px;
+    height: 36px;
   }
 
   .banner {
@@ -722,6 +770,18 @@ dialog.modal[data-closing] {
 
 .modal-button[data-variant='secondary'] {
   background: var(--color-surface);
+}
+
+.modal-button[data-variant='danger'] {
+  background: var(--color-danger);
+  color: var(--color-bg);
+}
+
+.modal-button[data-variant='danger-outline'] {
+  background: transparent;
+  border: 1px solid var(--color-danger);
+  color: var(--color-danger);
+  min-width: 128px;
 }
 
 .modal-button:focus-visible {

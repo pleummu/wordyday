@@ -7,6 +7,8 @@ import Keyboard from './components/Keyboard'
 import LoadError from './components/LoadError'
 import LoadingNotice from './components/LoadingNotice'
 import NewGameConfirm from './components/NewGameConfirm'
+import ResetConfirm from './components/ResetConfirm'
+import SettingsModal from './components/SettingsModal'
 import Toast from './components/Toast'
 import WordubadoInfo from './components/WordubadoInfo'
 import { usePhysicalKeyboard } from './components/usePhysicalKeyboard'
@@ -50,6 +52,8 @@ export default function App() {
       <WordubadoInfo />
       <GiveUpConfirm />
       <NewGameConfirm />
+      <SettingsModal />
+      <ResetConfirm />
       <LoadingNotice active={status === 'loading'} />
       <Header />
       <main className="board-area">
