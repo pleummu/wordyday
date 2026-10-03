@@ -335,6 +335,17 @@
   font-weight: 600;
   line-height: 1.2;
   cursor: pointer;
+  position: relative;
+}
+
+.length-dot {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-text);
 }
 
 .length-option[aria-checked='true'] {

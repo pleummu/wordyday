@@ -31,7 +31,6 @@ beforeEach(async () => {
   )
   localStorage.clear()
   useGameStore.setState({
-    pendingSwitch: null,
     infoOpen: false,
     boards: {},
     finishedInSession: false,
@@ -130,24 +129,21 @@ it('shows a load error with Try again that recovers', async () => {
   ).toBe(false)
 })
 
-it('ignores physical keys while a switch is pending', async () => {
+it('switching mid-game keeps the Normal game and shows only the popup', async () => {
   render(<App />)
   for (const k of 'house') fireEvent.keyDown(window, { key: k })
   fireEvent.keyDown(window, { key: 'Enter' })
   act(() => {
     useGameStore.getState().finishReveal()
   })
-  for (const k of 'ho') fireEvent.keyDown(window, { key: k })
   act(() => {
-    useGameStore.getState().requestSwitch({ mode: 'wordubado' })
+    useGameStore.getState().switchBoard({ mode: 'wordubado' })
   })
-  expect(useGameStore.getState().pendingSwitch).not.toBeNull()
-  fireEvent.keyDown(window, { key: 'a' })
-  fireEvent.keyDown(window, { key: 'Backspace' })
-  fireEvent.keyDown(window, { key: 'Enter' })
-  const s = useGameStore.getState()
-  expect(s.current).toBe('ho')
-  expect(s.rows).toHaveLength(1)
+  expect(useGameStore.getState().boards['normal-5']?.guesses).toEqual(['house'])
+  const dialogs = screen.getAllByRole('dialog')
+  expect(dialogs).toHaveLength(1)
+  expect(dialogs[0].getAttribute('aria-labelledby')).toBeTruthy()
+  expect(screen.getByText("What's Wordubado?")).toBeTruthy()
 })
 
 it('ignores physical keys while the info popup is open', async () => {

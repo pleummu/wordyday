@@ -25,23 +25,7 @@ export function winHeading(n: number, max: number): string {
   return `You got it in ${n} of ${max}`
 }
 
-export const CONFIRM_HEADING = 'End this game?'
-export const CONFIRM_START = 'Start new game'
 export const CONFIRM_KEEP = 'Keep playing'
-
-type ModeLength = { mode: 'normal' | 'wordubado'; length: number }
-
-export function switchConfirmBody(
-  active: ModeLength,
-  target: ModeLength,
-): string {
-  const tail = 'ends your current game and starts a new one.'
-  if (target.mode !== active.mode) {
-    const name = target.mode === 'wordubado' ? 'Wordubado' : 'Normal'
-    return `Switching to ${name} ${tail}`
-  }
-  return `Switching to ${target.length} letters ${tail}`
-}
 
 export const ABOUT_WORDUBADO = 'About Wordubado'
 export const INFO_HEADING = "What's Wordubado?"

@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { useGameStore } from '../state/gameStore'
+import { isInputBlocked, useGameStore } from '../state/gameStore'
 
 export function usePhysicalKeyboard(): void {
   useEffect(() => {
@@ -13,8 +13,7 @@ export function usePhysicalKeyboard(): void {
       }
       const store = useGameStore.getState()
       if (
-        store.pendingSwitch !== null ||
-        store.infoOpen ||
+        isInputBlocked(store) ||
         document.querySelector('dialog[open]') !== null
       ) {
         return

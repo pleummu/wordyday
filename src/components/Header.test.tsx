@@ -21,7 +21,6 @@ beforeAll(stubDialog)
 beforeEach(async () => {
   localStorage.clear()
   useGameStore.setState({
-    pendingSwitch: null,
     infoOpen: false,
     boards: {},
     finishedInSession: false,

@@ -1,3 +1,5 @@
+import { boardKey, type SavedGame } from '../logic/save'
+import type { WordLength } from '../logic/boards'
 import { useGameStore } from '../state/gameStore'
 import InfoButton from './InfoButton'
 import LengthPicker from './LengthPicker'
@@ -7,8 +9,14 @@ export default function Header() {
   const mode = useGameStore((s) => s.mode)
   const length = useGameStore((s) => s.length)
   const status = useGameStore((s) => s.status)
-  const requestSwitch = useGameStore((s) => s.requestSwitch)
+  const switchBoard = useGameStore((s) => s.switchBoard)
+  const boards = useGameStore((s) => s.boards)
   const openInfo = useGameStore((s) => s.openInfo)
+  const inProgress: Partial<Record<WordLength, boolean>> = {}
+  for (const n of [4, 5, 6] as const) {
+    const g: SavedGame | undefined = boards[boardKey(mode, n)]
+    inProgress[n] = g?.outcome === 'playing' && g.guesses.length > 0
+  }
   const busy = status === 'revealing'
   return (
     <header className="header">
@@ -22,7 +30,7 @@ export default function Header() {
             checked={mode === 'wordubado'}
             disabled={busy}
             onToggle={() =>
-              requestSwitch({
+              switchBoard({
                 mode: mode === 'wordubado' ? 'normal' : 'wordubado',
               })
             }
@@ -31,8 +39,9 @@ export default function Header() {
         </div>
         <LengthPicker
           value={length}
+          inProgress={inProgress}
           disabled={busy}
-          onChange={(n) => requestSwitch({ length: n })}
+          onChange={(n) => switchBoard({ length: n })}
         />
       </div>
     </header>
