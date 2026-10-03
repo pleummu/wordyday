@@ -1,6 +1,9 @@
 import { describe, expect, it, vi } from 'vitest'
 import { createSaveStorage, type StorageNotice } from './storage'
-import { createMemoryStorage, createThrowingStorage } from '../test/storageDoubles'
+import {
+  createMemoryStorage,
+  createThrowingStorage,
+} from '../test/storageDoubles'
 import { emptySave, SAVE_KEY, SAVE_VERSION } from '../logic/save'
 
 const NAME = SAVE_KEY
@@ -24,12 +27,23 @@ describe('createSaveStorage getItem', () => {
   it('returns a valid v1 document', () => {
     const mem = createMemoryStorage({ [NAME]: envelope(emptySave()) })
     const s = createSaveStorage(() => mem)
-    expect(s.getItem(NAME)).toEqual({ state: emptySave(), version: SAVE_VERSION })
+    expect(s.getItem(NAME)).toEqual({
+      state: emptySave(),
+      version: SAVE_VERSION,
+    })
   })
 
   it.each([
     ['not json', 'not json'],
-    ['tampered outcome', envelope({ ...emptySave(), boards: { 'normal-5': { answer: 'crane', guesses: [], outcome: 'won' } } })],
+    [
+      'tampered outcome',
+      envelope({
+        ...emptySave(),
+        boards: {
+          'normal-5': { answer: 'crane', guesses: [], outcome: 'won' },
+        },
+      }),
+    ],
     ['version 2', envelope(emptySave(), 2)],
   ])('backs up %s and notices corrupt once', (_n, raw) => {
     const mem = createMemoryStorage({ [NAME]: raw })
@@ -51,7 +65,9 @@ describe('createSaveStorage getItem', () => {
     const s = createSaveStorage(() => null)
     const got = notices(s)
     expect(s.getItem(NAME)).toBeNull()
-    expect(() => s.setItem(NAME, { state: emptySave(), version: 1 })).not.toThrow()
+    expect(() =>
+      s.setItem(NAME, { state: emptySave(), version: 1 }),
+    ).not.toThrow()
     expect(got).toEqual([])
   })
 })
