@@ -21,13 +21,15 @@ export type SaveStorage = PersistStorage<SaveDoc> & {
   isOk(): boolean
   onNotice(fn: (n: StorageNotice) => void): () => void
   markSeen(raw: string | null): void
-  read(raw: string | null): SaveDoc | null | 'invalid'
+  read(raw: string | null): SaveDoc | null | 'invalid' | 'newer'
+  isReadOnly(): boolean
 }
 
 export function createSaveStorage(getArea: () => Storage | null): SaveStorage {
   let lastRaw: string | null = null
   let ok = true
   let failedEmitted = false
+  let readOnly = false
   const queue: StorageNotice[] = []
   const listeners = new Set<(n: StorageNotice) => void>()
 
@@ -55,6 +57,12 @@ export function createSaveStorage(getArea: () => Storage | null): SaveStorage {
     }
   }
 
+  // A newer build's document: keep it untouched for the rest of the session (CR-01).
+  function goReadOnly() {
+    readOnly = true
+    fail()
+  }
+
   return {
     getItem(name) {
       const a = area()
@@ -76,6 +84,10 @@ export function createSaveStorage(getArea: () => Storage | null): SaveStorage {
         lastRaw = raw
         return { state: res.doc, version: SAVE_VERSION }
       }
+      if (res.reason === 'newer') {
+        goReadOnly()
+        return null
+      }
       try {
         a.setItem(name + CORRUPT_SUFFIX, raw)
       } catch {
@@ -86,6 +98,7 @@ export function createSaveStorage(getArea: () => Storage | null): SaveStorage {
     },
 
     setItem(name, value) {
+      if (readOnly) return
       const raw = JSON.stringify(value)
       if (raw === lastRaw) return
       const a = area()
@@ -106,6 +119,7 @@ export function createSaveStorage(getArea: () => Storage | null): SaveStorage {
     },
 
     removeItem(name) {
+      if (readOnly) return
       lastRaw = null
       const a = area()
       if (a === null) return
@@ -118,6 +132,7 @@ export function createSaveStorage(getArea: () => Storage | null): SaveStorage {
     },
 
     isOk: () => ok,
+    isReadOnly: () => readOnly,
 
     onNotice(fn) {
       listeners.add(fn)
@@ -134,7 +149,12 @@ export function createSaveStorage(getArea: () => Storage | null): SaveStorage {
     read(raw) {
       if (raw === null) return emptySave()
       const res = loadSave(raw)
-      return res.ok ? res.doc : 'invalid'
+      if (res.ok) return res.doc
+      if (res.reason === 'newer') {
+        goReadOnly()
+        return 'newer'
+      }
+      return 'invalid'
     },
   }
 }

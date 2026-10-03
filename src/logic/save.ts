@@ -161,25 +161,29 @@ export function validateSave(x: unknown): SaveDoc | null {
   }
 }
 
-export function loadSave(
-  raw: string,
-): { ok: true; doc: SaveDoc } | { ok: false } {
+export type LoadResult =
+  { ok: true; doc: SaveDoc } | { ok: false; reason: 'invalid' | 'newer' }
+
+// 'newer' (written by a later build) must never be backed up or overwritten (CR-01).
+export function loadSave(raw: string): LoadResult {
   try {
     const env: unknown = JSON.parse(raw)
-    if (!isObject(env)) return { ok: false }
+    if (!isObject(env)) return { ok: false, reason: 'invalid' }
     const { version, state } = env
+    if (typeof version === 'number' && Number.isInteger(version)) {
+      if (version > SAVE_VERSION) return { ok: false, reason: 'newer' }
+    }
     if (
       typeof version !== 'number' ||
       !Number.isInteger(version) ||
       version < 1 ||
-      version > SAVE_VERSION ||
       !isObject(state)
     ) {
-      return { ok: false }
+      return { ok: false, reason: 'invalid' }
     }
     const doc = validateSave(migrateSave(state, version))
-    return doc ? { ok: true, doc } : { ok: false }
+    return doc ? { ok: true, doc } : { ok: false, reason: 'invalid' }
   } catch {
-    return { ok: false }
+    return { ok: false, reason: 'invalid' }
   }
 }

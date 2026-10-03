@@ -357,7 +357,7 @@ export function createGameStore(deps: GameDeps) {
               return
             }
             const read = deps.storage.read(raw)
-            if (read === 'invalid') return
+            if (read === 'invalid' || read === 'newer') return
             const doc = read ?? emptySave()
             // Echo guard: our own write-back of this exact text is deduped.
             deps.storage.markSeen(raw)
