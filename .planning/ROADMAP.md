@@ -185,7 +185,7 @@ Plans:
 - [x] 04-02-PLAN.md — Storage adapter, persisted store, resume on boot, submit-time outcome, reveal token (D-16), static restore in Grid/Banner
 
 **Wave 3** *(blocked on Wave 2 completion)*
-- [ ] 04-03-PLAN.md — Non-forfeiting switchBoard, remove switch confirm (D-05), saved popup flag (D-11), in-progress dot (D-12)
+- [x] 04-03-PLAN.md — Non-forfeiting switchBoard, remove switch confirm (D-05), saved popup flag (D-11), in-progress dot (D-12)
 
 **Wave 4** *(blocked on Wave 3 completion)*
 - [ ] 04-04-PLAN.md — Failing forfeit E2E; store giveUp/forfeitNewGame/dialog field; Modal native close fix (D-14)
@@ -277,7 +277,7 @@ Plans:
 | 1. Foundation, Spec and CI Skeleton | 6/6 | Complete    | 2026-10-01 |
 | 2. Playable Normal Game | 11/11 | Complete   | 2026-10-01 |
 | 3. Wordubado Mode and Slang | 6/6 | Complete    | 2026-10-02 |
-| 4. Six Boards and Persistence | 2/7 | In Progress|  |
+| 4. Six Boards and Persistence | 3/7 | In Progress|  |
 | 5. Stats, Streaks and Restore | 0/TBD | Not started | - |
 | 6. Result Screen, Share and Definitions | 0/TBD | Not started | - |
 | 7. Themes, Accessibility and Polish | 0/TBD | Not started | - |

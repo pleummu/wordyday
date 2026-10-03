@@ -4,13 +4,13 @@ milestone: v1.0
 milestone_name: milestone
 status: executing
 stopped_at: Completed 04-02-PLAN.md
-last_updated: "2026-10-03T15:28:16.475Z"
+last_updated: "2026-10-03T15:31:54.799Z"
 last_activity: 2026-10-03
 progress:
   total_phases: 8
   completed_phases: 3
   total_plans: 30
-  completed_plans: 25
+  completed_plans: 26
   percent: 38
 ---
 
@@ -26,11 +26,11 @@ See: .planning/PROJECT.md (updated 2026-10-01)
 ## Current Position
 
 Phase: 04 (six-boards-and-persistence) — EXECUTING
-Plan: 3 of 7
+Plan: 4 of 7
 Status: Ready to execute
 Last activity: 2026-10-03
 
-Progress: [████████░░] 83%
+Progress: [█████████░] 87%
 
 ## Performance Metrics
 
@@ -58,6 +58,7 @@ Progress: [████████░░] 83%
 | 02 | 11 | - | - |
 | 3 | 6 | - | - |
 | Phase 04 P02 | 25min | 3 tasks | 13 files |
+| Phase 04 P03 | 20min | 3 tasks | 14 files |
 
 ## Accumulated Context
 
@@ -77,6 +78,7 @@ Progress: [████████░░] 83%
 - [Phase ?]: 02-06: reveal duration (length-1)*300+500 +50ms buffer; selectLength no-op for active length
 - [Phase ?]: 02-09: Try again after failed chunk import reloads the page (browser caches failed dynamic import); reload lives in wordData.loadPools
 - [Phase 04]: Validation lives in storage adapter and merge, not persist migrate — persist only calls migrate on version mismatch
+- [Phase 04]: switchBoard folds live view into boards before switching — boards only refreshed on hydrate/load; persist overlays live board
 
 ### Pending Todos
 
@@ -91,6 +93,6 @@ Progress: [████████░░] 83%
 
 ## Session Continuity
 
-Last session: 2026-10-03T15:28:16.469Z
+Last session: 2026-10-03T15:31:54.787Z
 Stopped at: Completed 04-02-PLAN.md
 Resume file: None

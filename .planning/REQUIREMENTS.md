@@ -31,7 +31,7 @@
 ### Boards and Persistence (SAVE)
 
 - [x] **SAVE-01**: User has 6 independent Boards (2 modes × 3 lengths), each with its own saved game
-- [ ] **SAVE-02**: User can switch mode or length without forfeiting, and returns to the same game later
+- [x] **SAVE-02**: User can switch mode or length without forfeiting, and returns to the same game later
 - [x] **SAVE-03**: User can refresh the page and resume the in-progress game (submitted guesses only; a half-typed row is discarded)
 - [x] **SAVE-04**: User returning to a finished Board sees the finished grid with a result banner and Play again; a new game starts only on Play again
 - [x] **SAVE-05**: Saved data has a version number and a migration chain from the first release
@@ -158,7 +158,7 @@
 | PLAY-07 | Phase 4 | Pending |
 | PLAY-08 | Phase 4 | Pending |
 | SAVE-01 | Phase 4 | Complete |
-| SAVE-02 | Phase 4 | Pending |
+| SAVE-02 | Phase 4 | Complete |
 | SAVE-03 | Phase 4 | Complete |
 | SAVE-04 | Phase 4 | Complete |
 | SAVE-05 | Phase 4 | Complete |
