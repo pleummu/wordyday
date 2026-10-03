@@ -463,6 +463,7 @@ describe('boards', () => {
       answer: 'crane',
       guesses: ['house'],
       outcome: 'playing',
+      id: 1,
     })
     store.getState().switchBoard({ length: 5 })
     await vi.waitFor(() => expect(store.getState().status).toBe('playing'))
@@ -1039,7 +1040,7 @@ describe('sync', () => {
     const before = store.getState().answer
     store.getState().applyExternal(
       rawDoc({
-        'normal-5': { answer: before, guesses: [], outcome: 'playing' },
+        'normal-5': { answer: before, guesses: [], outcome: 'playing', id: 1 },
         'wordubado-4': { answer: 'yeet', guesses: [], outcome: 'playing' },
       }),
     )

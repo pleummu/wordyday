@@ -10,6 +10,9 @@ import {
   SAVE_VERSION,
   boardKey,
   emptySave,
+  gameIdOf,
+  maxGameId,
+  sameGame,
   migrateSave,
   canForfeit,
   resolveOutcome,
@@ -78,6 +81,7 @@ export type GameState = {
   shakeRow: number
   pools: Pools | null
   loadToken: number
+  gameId: number
   infoOpen: boolean
   dialog: DialogName | null
   boards: Partial<Record<BoardKey, SavedGame>>
@@ -138,16 +142,7 @@ function viewToSaved(s: GameState): SavedGame | null {
     s.status === 'revealing'
       ? resolveOutcome(s.answer, guesses, ATTEMPTS(s.length))
       : (s.status as 'playing' | 'won' | 'lost' | 'gave-up')
-  return { answer: s.answer, guesses, outcome }
-}
-
-function sameGame(a: SavedGame | undefined, b: SavedGame | undefined): boolean {
-  if (!a || !b) return !a && !b
-  return (
-    a.answer === b.answer &&
-    a.outcome === b.outcome &&
-    a.guesses.join(',') === b.guesses.join(',')
-  )
+  return { answer: s.answer, guesses, outcome, id: s.gameId }
 }
 
 function docFromState(s: GameState): SaveDoc {
@@ -180,12 +175,19 @@ function mergeDocIntoState(persisted: unknown, current: GameState): GameState {
 export function createGameStore(deps: GameDeps) {
   let toastSeq = 0
   let storageToastShown = false
+  let clock = 0
 
   return create<GameState>()(
     persist(
       (set, get) => {
         function finishGame(key: BoardKey, outcome: FinishedOutcome) {
           deps.onGameFinished?.(key, outcome)
+        }
+
+        // Higher than any id this tab has seen, including during an await.
+        function nextGameId(): number {
+          clock = Math.max(clock, maxGameId(get().boards), get().gameId) + 1
+          return clock
         }
 
         function autoOpenInfo(prevMode: Mode, nextMode: Mode) {
@@ -204,6 +206,7 @@ export function createGameStore(deps: GameDeps) {
           const saved = get().boards[boardKey(mode, length)]
           set({
             loadToken: token,
+            pendingExternal: undefined,
             status: 'loading',
             rows: [],
             current: '',
@@ -230,6 +233,7 @@ export function createGameStore(deps: GameDeps) {
             set({
               pools,
               answer: saved.answer,
+              gameId: gameIdOf(saved),
               rows,
               keyStates,
               status: saved.outcome,
@@ -253,6 +257,7 @@ export function createGameStore(deps: GameDeps) {
           shakeRow: -1,
           pools: null,
           loadToken: 0,
+          gameId: 0,
           infoOpen: false,
           dialog: null,
           boards: {},
@@ -303,7 +308,11 @@ export function createGameStore(deps: GameDeps) {
 
           resetAll() {
             deps.storage.removeItem(SAVE_KEY)
+            // The board-less document that follows is the reset itself; other
+            // tabs already got the key-removal event.
             set({
+              pendingExternal: undefined,
+              gameId: 0,
               boards: {},
               wordubadoInfoSeen: false,
               dialog: null,
@@ -402,7 +411,9 @@ export function createGameStore(deps: GameDeps) {
               set({
                 ...base,
                 loadToken: state.loadToken + 1,
+                pendingExternal: undefined,
                 answer: theirs.answer,
+                gameId: gameIdOf(theirs),
                 rows,
                 keyStates,
                 current: '',
@@ -441,19 +452,45 @@ export function createGameStore(deps: GameDeps) {
 
           forfeitNewGame() {
             set({ dialog: null })
-            const { status, rows, length, mode, boards } = get()
+            const { status, rows, length, mode, boards, answer, gameId } = get()
             if (!canForfeit(status, rows.length, ATTEMPTS(length))) return
             finishGame(boardKey(mode, length), 'forfeit')
-            const rest = { ...boards }
-            delete rest[boardKey(mode, length)]
-            set({ boards: rest })
+            // The snapshot is the forfeited game stored as finished so it can
+            // never be replayed or re-finished; Phase 5 counts it from the
+            // seam, not from this outcome.
+            set({
+              boards: {
+                ...boards,
+                [boardKey(mode, length)]: {
+                  answer,
+                  guesses: rows.map((r) => r.letters),
+                  outcome: 'gave-up',
+                  id: gameId,
+                },
+              },
+              answer: '',
+              rows: [],
+              current: '',
+              status: 'loading',
+            })
             void get().startGame(length, mode)
           },
 
           async startGame(length, mode = get().mode) {
             const token = get().loadToken + 1
+            const state = get()
+            const prev = viewToSaved(state)
             set({
+              ...(prev
+                ? {
+                    boards: {
+                      ...state.boards,
+                      [boardKey(state.mode, state.length)]: prev,
+                    },
+                  }
+                : {}),
               loadToken: token,
+              pendingExternal: undefined,
               mode,
               length,
               status: 'loading',
@@ -473,7 +510,12 @@ export function createGameStore(deps: GameDeps) {
                 (mode === 'wordubado'
                   ? pickWordubadoAnswer(pools, deps.rng)
                   : pickAnswer(pools.answers, deps.rng))
-              set({ pools, answer, status: 'playing' })
+              set({
+                pools,
+                answer,
+                gameId: nextGameId(),
+                status: 'playing',
+              })
             } catch {
               if (get().loadToken !== token) return
               set({ status: 'error' })
