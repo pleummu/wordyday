@@ -202,7 +202,7 @@ Plans:
 **Gap closure** *(from 04-VERIFICATION.md: CR-01, CR-02 + WR-01, WR-03, WR-04, WR-07)*
 
 **Wave 8**
-- [ ] 04-08-PLAN.md — Newer-version saves are kept: distinct 'newer' result, read-only storage session (CR-01)
+- [x] 04-08-PLAN.md — Newer-version saves are kept: distinct 'newer' result, read-only storage session (CR-01)
 
 **Wave 9** *(blocked on Wave 8 completion)*
 - [ ] 04-09-PLAN.md — Game ids and symmetric per-Board merge rules in save.ts (TDD)
@@ -294,7 +294,7 @@ Plans:
 | 1. Foundation, Spec and CI Skeleton | 6/6 | Complete    | 2026-10-01 |
 | 2. Playable Normal Game | 11/11 | Complete   | 2026-10-01 |
 | 3. Wordubado Mode and Slang | 6/6 | Complete    | 2026-10-02 |
-| 4. Six Boards and Persistence | 7/7 | Complete   | 2026-10-03 |
+| 4. Six Boards and Persistence | 8/12 | In Progress|  |
 | 5. Stats, Streaks and Restore | 0/TBD | Not started | - |
 | 6. Result Screen, Share and Definitions | 0/TBD | Not started | - |
 | 7. Themes, Accessibility and Polish | 0/TBD | Not started | - |
