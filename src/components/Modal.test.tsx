@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { cleanup, fireEvent, render, screen } from '@testing-library/react'
+import { act, cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { afterEach, beforeAll, expect, it, vi } from 'vitest'
 import { stubDialog } from '../test/stubDialog'
 import Modal from './Modal'
@@ -98,4 +98,44 @@ it('does not steal focus when focus has moved elsewhere', () => {
   opener.focus()
   rerender(<Sample open={false} />)
   expect(document.activeElement).toBe(opener)
+})
+
+it('a native close event while the prop is open calls onClose once', () => {
+  const onClose = vi.fn()
+  render(<Sample open onClose={onClose} />)
+  document.querySelector('dialog')!.dispatchEvent(new Event('close'))
+  expect(onClose).toHaveBeenCalledTimes(1)
+})
+
+it('a programmatic close does not call onClose', () => {
+  const onClose = vi.fn()
+  const { rerender } = render(<Sample open onClose={onClose} />)
+  rerender(<Sample open={false} onClose={onClose} />)
+  expect(document.querySelector('dialog')!.hasAttribute('open')).toBe(false)
+  expect(onClose).not.toHaveBeenCalled()
+})
+
+it('animated close finishes after 120 ms without calling onClose', () => {
+  vi.useFakeTimers()
+  try {
+    vi.stubGlobal('matchMedia', () => ({ matches: false }))
+    const onClose = vi.fn()
+    const { rerender } = render(<Sample open={false} onClose={onClose} />)
+    const opener = screen.getByText('opener')
+    opener.focus()
+    rerender(<Sample open onClose={onClose} />)
+    rerender(<Sample open={false} onClose={onClose} />)
+    const dialog = document.querySelector('dialog')!
+    expect(dialog.hasAttribute('data-closing')).toBe(true)
+    act(() => {
+      vi.advanceTimersByTime(120)
+    })
+    expect(dialog.hasAttribute('open')).toBe(false)
+    expect(dialog.hasAttribute('data-closing')).toBe(false)
+    expect(document.activeElement).toBe(opener)
+    expect(onClose).not.toHaveBeenCalled()
+  } finally {
+    vi.useRealTimers()
+    vi.stubGlobal('matchMedia', () => ({ matches: true }))
+  }
 })
