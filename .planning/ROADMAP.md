@@ -191,7 +191,7 @@ Plans:
 - [x] 04-04-PLAN.md — Failing forfeit E2E; store giveUp/forfeitNewGame/dialog field; Modal native close fix (D-14)
 
 **Wave 5** *(blocked on Wave 4 completion)*
-- [ ] 04-05-PLAN.md — Give Up / New game row, confirms, gave-up banner, 320x500 layout cases
+- [x] 04-05-PLAN.md — Give Up / New game row, confirms, gave-up banner, 320x500 layout cases
 
 **Wave 6** *(blocked on Wave 5 completion)*
 - [ ] 04-06-PLAN.md — Settings button and modal, browser-only note, Reset confirm and resetAll
@@ -277,7 +277,7 @@ Plans:
 | 1. Foundation, Spec and CI Skeleton | 6/6 | Complete    | 2026-10-01 |
 | 2. Playable Normal Game | 11/11 | Complete   | 2026-10-01 |
 | 3. Wordubado Mode and Slang | 6/6 | Complete    | 2026-10-02 |
-| 4. Six Boards and Persistence | 4/7 | In Progress|  |
+| 4. Six Boards and Persistence | 5/7 | In Progress|  |
 | 5. Stats, Streaks and Restore | 0/TBD | Not started | - |
 | 6. Result Screen, Share and Definitions | 0/TBD | Not started | - |
 | 7. Themes, Accessibility and Polish | 0/TBD | Not started | - |
