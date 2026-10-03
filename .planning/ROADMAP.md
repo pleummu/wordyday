@@ -174,7 +174,7 @@ Plans:
   4. User with corrupt or hand-edited saved data, or with blocked/full localStorage, still gets a working site; two open tabs stay in sync
   5. User can reset all data from Settings after a confirm, and sees a note that progress is stored in this browser only
 
-**Plans**: 7 plans
+**Plans**: 12 plans (5 gap closure)
 
 Plans:
 
@@ -198,6 +198,23 @@ Plans:
 
 **Wave 7** *(blocked on Wave 6 completion)*
 - [x] 04-07-PLAN.md — Corrupt/blocked storage toasts, cross-tab sync, safe chunk retry (D-15)
+
+**Gap closure** *(from 04-VERIFICATION.md: CR-01, CR-02 + WR-01, WR-03, WR-04, WR-07)*
+
+**Wave 8**
+- [ ] 04-08-PLAN.md — Newer-version saves are kept: distinct 'newer' result, read-only storage session (CR-01)
+
+**Wave 9** *(blocked on Wave 8 completion)*
+- [ ] 04-09-PLAN.md — Game ids and symmetric per-Board merge rules in save.ts (TDD)
+
+**Wave 10** *(blocked on Wave 9 completion)*
+- [ ] 04-10-PLAN.md — Store assigns ids, never writes board-less or stale docs, drops deferred docs on reset (WR-01, WR-03)
+
+**Wave 11** *(blocked on Wave 10 completion)*
+- [ ] 04-11-PLAN.md — applyExternal on mergeBoards, two-tab harness tests (CR-02, WR-04)
+
+**Wave 12** *(blocked on Wave 11 completion)*
+- [ ] 04-12-PLAN.md — Two-tab E2E with the answer fixed only in tab A, newer-save E2E, no sleeps, owner two-tab check (WR-07)
 
 **UI hint**: yes
 **Notes**: Schema versioning and the migration chain are settled here, before any streak data exists. A Modal primitive (focus trap, Esc, focus return) is built here for the confirm dialogs.
