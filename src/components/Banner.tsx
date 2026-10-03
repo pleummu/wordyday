@@ -8,7 +8,8 @@ import {
 } from '../state/copy'
 
 type BannerProps = {
-  status: 'won' | 'lost'
+  status: 'won' | 'lost' | 'gave-up'
+  autoFocus: boolean
   answer: string
   attemptsUsed: number
   maxAttempts: number
@@ -17,6 +18,7 @@ type BannerProps = {
 
 export default function Banner({
   status,
+  autoFocus,
   answer,
   attemptsUsed,
   maxAttempts,
@@ -24,7 +26,9 @@ export default function Banner({
 }: BannerProps) {
   const button = useRef<HTMLButtonElement>(null)
   useEffect(() => {
-    button.current?.focus()
+    if (autoFocus) button.current?.focus()
+    // Focus only on mount: a restored game must not steal focus.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
   const won = status === 'won'
   return (

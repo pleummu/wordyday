@@ -9,7 +9,7 @@ import Toast from './components/Toast'
 import WordubadoInfo from './components/WordubadoInfo'
 import { usePhysicalKeyboard } from './components/usePhysicalKeyboard'
 import { BOARD_CONFIG } from './logic/boards'
-import { useGameStore } from './state/gameStore'
+import { isFinished, useGameStore } from './state/gameStore'
 
 export default function App() {
   usePhysicalKeyboard()
@@ -26,6 +26,7 @@ export default function App() {
   const dismissToast = useGameStore((s) => s.dismissToast)
   const playAgain = useGameStore((s) => s.playAgain)
   const retryLoad = useGameStore((s) => s.retryLoad)
+  const finishedInSession = useGameStore((s) => s.finishedInSession)
 
   function onKey(key: string) {
     const store = useGameStore.getState()
@@ -49,12 +50,14 @@ export default function App() {
           status={status}
           shakeId={shakeId}
           shakeRow={shakeRow}
+          celebrate={finishedInSession}
         />
       </main>
       <div className="controls">
-        {status === 'won' || status === 'lost' ? (
+        {isFinished(status) ? (
           <Banner
-            status={status}
+            status={status as 'won' | 'lost' | 'gave-up'}
+            autoFocus={finishedInSession}
             answer={answer}
             attemptsUsed={rows.length}
             maxAttempts={BOARD_CONFIG[length].attempts}
