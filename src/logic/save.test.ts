@@ -6,10 +6,18 @@ import {
   boardKey,
   canForfeit,
   emptySave,
+  gameIdOf,
   loadSave,
+  maxGameId,
+  mergeBoard,
+  mergeBoards,
   migrateSave,
+  pickGame,
   resolveOutcome,
+  sameGame,
   validateSave,
+  type Outcome,
+  type SavedGame,
 } from './save'
 
 // Phase 5's v1 -> v2 migration test must feed this fixture through the chain.
@@ -260,5 +268,160 @@ describe('loadSave', () => {
       ok: true,
       doc: V1_FIXTURE,
     })
+  })
+})
+
+const g = (
+  id: number | undefined,
+  answer: string,
+  guesses: string[],
+  outcome: Outcome,
+): SavedGame => {
+  const game: SavedGame = { answer, guesses, outcome }
+  if (id !== undefined) game.id = id
+  return game
+}
+
+describe('game ids', () => {
+  it('round-trips a valid id and leaves id-less games alone', () => {
+    const withId = {
+      answer: 'crane',
+      guesses: ['house'],
+      outcome: 'playing',
+      id: 3,
+    }
+    expect(
+      validateSave(withBoard('normal-5', withId))?.boards['normal-5'],
+    ).toEqual(withId)
+    expect(validateSave(clone())).toEqual(V1_FIXTURE)
+    const noId = validateSave(clone())?.boards['normal-5']
+    expect(noId && 'id' in noId).toBe(false)
+  })
+
+  it.each([-1, 1.5, '3', null, Number.MAX_SAFE_INTEGER + 1, NaN])(
+    'rejects bad id %s',
+    (id) => {
+      const bad = { answer: 'crane', guesses: [], outcome: 'playing', id }
+      expect(validateSave(withBoard('normal-5', bad))).toBeNull()
+    },
+  )
+
+  it('gameIdOf defaults to 0', () => {
+    expect(gameIdOf(g(undefined, 'crane', [], 'playing'))).toBe(0)
+    expect(gameIdOf(g(4, 'crane', [], 'playing'))).toBe(4)
+  })
+
+  it('sameGame compares id, answer, outcome and guesses', () => {
+    const a = g(1, 'crane', ['house'], 'playing')
+    expect(sameGame(undefined, undefined)).toBe(true)
+    expect(sameGame(a, undefined)).toBe(false)
+    expect(sameGame(undefined, a)).toBe(false)
+    expect(sameGame(a, g(1, 'crane', ['house'], 'playing'))).toBe(true)
+    expect(sameGame(a, g(2, 'crane', ['house'], 'playing'))).toBe(false)
+    expect(sameGame(a, g(1, 'slate', ['house'], 'playing'))).toBe(false)
+    expect(sameGame(a, g(1, 'crane', ['house'], 'gave-up'))).toBe(false)
+    expect(sameGame(a, g(1, 'crane', [], 'playing'))).toBe(false)
+  })
+
+  it('maxGameId is the highest id, 0 when empty', () => {
+    expect(maxGameId({})).toBe(0)
+    expect(
+      maxGameId({
+        'normal-4': g(2, 'yeet', [], 'playing'),
+        'normal-5': g(9, 'crane', [], 'playing'),
+        'normal-6': g(undefined, 'planet', [], 'playing'),
+      }),
+    ).toBe(9)
+  })
+})
+
+const CASES: [string, SavedGame, SavedGame, SavedGame][] = (() => {
+  const c1 = g(1, 'crane', [], 'playing')
+  const c2 = g(2, 'crane', [], 'playing')
+  const s2 = g(2, 'slate', ['house'], 'playing')
+  const w1 = g(1, 'crane', ['house', 'crane'], 'won')
+  const p1 = g(1, 'crane', ['house'], 'playing')
+  const p1b = g(1, 'crane', ['house', 'ghost'], 'playing')
+  const gu = g(1, 'crane', ['house'], 'gave-up')
+  const c2b = g(2, 'crane', [], 'playing')
+  const s2b = g(2, 'slate', [], 'playing')
+  const n1 = g(undefined, 'crane', ['house'], 'playing')
+  const n2 = g(undefined, 'crane', ['house', 'ghost'], 'playing')
+  return [
+    ['higher id wins', c1, c2, c2],
+    ['new game beats old finished game', s2, w1, s2],
+    ['finished beats playing', p1, w1, w1],
+    ['more guesses wins', p1b, p1, p1b],
+    ['finished never goes back to playing', gu, p1b, gu],
+    ['lower answer wins at same id', c2b, s2b, c2b],
+    ['no ids: more guesses', n1, n2, n2],
+  ]
+})()
+
+describe('pickGame', () => {
+  it.each(CASES)('%s', (_n, a, b, expected) => {
+    expect(pickGame(a, b)).toEqual(expected)
+    expect(pickGame(b, a)).toEqual(expected)
+  })
+
+  it('is symmetric for every ordered pair and idempotent', () => {
+    const all = CASES.flatMap(([, a, b]) => [a, b])
+    for (const a of all) {
+      expect(pickGame(a, a)).toBe(a)
+      for (const b of all) {
+        expect(sameGame(pickGame(a, b), pickGame(b, a))).toBe(true)
+      }
+    }
+  })
+
+  it('breaks a full tie by the outcome/guesses string', () => {
+    const a = g(1, 'crane', ['house'], 'gave-up')
+    const b = g(1, 'crane', ['house'], 'gave-up')
+    expect(pickGame(a, b)).toBe(a)
+  })
+})
+
+describe('mergeBoard', () => {
+  const A = g(7, 'crane', [], 'playing')
+  const B3 = g(3, 'slate', [], 'playing')
+  const B6 = g(6, 'slate', [], 'playing')
+  it('keeps mine when theirs is missing (CR-02)', () => {
+    expect(mergeBoard(A, undefined)).toBe(A)
+  })
+  it('ignores theirs at or below the floor', () => {
+    expect(mergeBoard(undefined, B3, 5)).toBeUndefined()
+    expect(
+      mergeBoard(undefined, g(5, 'slate', [], 'playing'), 5),
+    ).toBeUndefined()
+    expect(mergeBoard(undefined, B6, 5)).toBe(B6)
+    expect(mergeBoard(A, B3, 5)).toBe(A)
+  })
+  it('picks between both', () => {
+    expect(mergeBoard(B3, A)).toBe(A)
+  })
+})
+
+describe('mergeBoards', () => {
+  it('merges per Board in BOARD_KEYS order without mutating inputs', () => {
+    const mine = {
+      'wordubado-4': g(1, 'yeet', [], 'playing'),
+      'normal-5': g(1, 'crane', [], 'playing'),
+    }
+    const theirs = {
+      'normal-6': g(1, 'planet', [], 'playing'),
+      'normal-5': g(2, 'slate', [], 'playing'),
+    }
+    const before = structuredClone({ mine, theirs })
+    const out = mergeBoards(mine, theirs)
+    expect(Object.keys(out)).toEqual(['normal-5', 'normal-6', 'wordubado-4'])
+    expect(out['normal-5']?.answer).toBe('slate')
+    expect(out['normal-6']?.answer).toBe('planet')
+    expect(out['wordubado-4']?.answer).toBe('yeet')
+    expect({ mine, theirs }).toEqual(before)
+  })
+  it('applies the floor and drops empty keys', () => {
+    expect(
+      mergeBoards({}, { 'normal-4': g(2, 'yeet', [], 'playing') }, 2),
+    ).toEqual({})
   })
 })
