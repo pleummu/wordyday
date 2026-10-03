@@ -58,7 +58,11 @@ export function createSaveStorage(getArea: () => Storage | null): SaveStorage {
   return {
     getItem(name) {
       const a = area()
-      if (a === null) return null
+      if (a === null) {
+        // Blocked storage (area unavailable) is a storage failure, not silence (SAVE-07).
+        fail()
+        return null
+      }
       let raw: string | null
       try {
         raw = a.getItem(name)
@@ -85,7 +89,10 @@ export function createSaveStorage(getArea: () => Storage | null): SaveStorage {
       const raw = JSON.stringify(value)
       if (raw === lastRaw) return
       const a = area()
-      if (a === null) return
+      if (a === null) {
+        fail()
+        return
+      }
       try {
         a.setItem(name, raw)
         lastRaw = raw

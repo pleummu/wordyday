@@ -61,14 +61,15 @@ describe('createSaveStorage getItem', () => {
     expect(got).toEqual(['storage-failed'])
   })
 
-  it('treats a null area as silent in-memory', () => {
+  it('treats a null area (blocked storage) as one storage failure', () => {
     const s = createSaveStorage(() => null)
     const got = notices(s)
     expect(s.getItem(NAME)).toBeNull()
     expect(() =>
       s.setItem(NAME, { state: emptySave(), version: 1 }),
     ).not.toThrow()
-    expect(got).toEqual([])
+    expect(got).toEqual(['storage-failed'])
+    expect(s.isOk()).toBe(false)
   })
 })
 

@@ -21,6 +21,9 @@ import {
 import { score, type TileState } from '../logic/score'
 import {
   ALL_DATA_RESET,
+  CORRUPT_TOAST,
+  LONG_TOAST_MS,
+  STORAGE_FAILED_TOAST,
   NOT_ENOUGH_LETTERS,
   NOT_IN_WORD_LIST,
   PRAISE,
@@ -43,7 +46,12 @@ export function isFinished(status: GameStatus): boolean {
 }
 export type { Mode } from '../logic/boards'
 export type Row = { letters: string; states: TileState[] }
-export type Toast = { id: number; text: string; kind: 'error' | 'info' }
+export type Toast = {
+  id: number
+  text: string
+  kind: 'error' | 'info'
+  lifeMs?: number
+}
 export type SubmitResult = 'ok' | 'short' | 'invalid' | 'blocked'
 
 export type GameDeps = {
@@ -158,6 +166,7 @@ function mergeDocIntoState(persisted: unknown, current: GameState): GameState {
 
 export function createGameStore(deps: GameDeps) {
   let toastSeq = 0
+  let storageToastShown = false
 
   return create<GameState>()(
     persist(
@@ -299,8 +308,31 @@ export function createGameStore(deps: GameDeps) {
           },
 
           applyStorageNotice(n) {
-            if (n === 'storage-failed') set({ storageOk: false })
-            else if (n === 'storage-recovered') set({ storageOk: true })
+            if (n === 'storage-failed') {
+              set({ storageOk: false })
+              if (!storageToastShown) {
+                storageToastShown = true
+                set({
+                  toast: {
+                    id: ++toastSeq,
+                    text: STORAGE_FAILED_TOAST,
+                    kind: 'info',
+                    lifeMs: LONG_TOAST_MS,
+                  },
+                })
+              }
+            } else if (n === 'storage-recovered') {
+              set({ storageOk: true })
+            } else {
+              set({
+                toast: {
+                  id: ++toastSeq,
+                  text: CORRUPT_TOAST,
+                  kind: 'info',
+                  lifeMs: LONG_TOAST_MS,
+                },
+              })
+            }
           },
 
           giveUp() {

@@ -55,3 +55,10 @@ export const RESET_BODY =
 export const CANCEL = 'Cancel'
 export const RESET = 'Reset'
 export const ALL_DATA_RESET = 'All data reset'
+
+export const CORRUPT_TOAST =
+  "We couldn't read your saved games, so we started fresh."
+export const STORAGE_FAILED_TOAST =
+  "Saving isn't working in this browser. Your progress will be lost when you close this tab."
+export const OTHER_TAB_TOAST = 'Updated from your other tab.'
+export const LONG_TOAST_MS = 4000

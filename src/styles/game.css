@@ -583,7 +583,8 @@
   font-size: var(--font-size-label);
   font-weight: 600;
   line-height: 1.2;
-  animation: toast-life 1860ms var(--ease-soft) both;
+  animation: toast-life calc(var(--toast-life, 1860) * 1ms) var(--ease-soft)
+    both;
 }
 
 .toast[data-kind='error'] {
