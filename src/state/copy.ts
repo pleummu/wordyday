@@ -42,3 +42,16 @@ export const GIVE_UP_BODY = 'This counts as a loss. Reveal the answer?'
 export const NEW_GAME_HEADING = 'New game?'
 export const NEW_GAME_BODY = 'This counts as a loss. Start a new game?'
 export const GAVE_UP_BODY = 'You gave up. Ready for another?'
+export const SETTINGS = 'Settings'
+export const SETTINGS_NOTE =
+  'Your progress is saved in this browser only. Clearing site data or using another device starts fresh.'
+export const STORAGE_OFF_NOTE =
+  "Saving isn't working in this browser right now, so this session won't be kept."
+export const RESET_MY_DATA = 'Reset my data'
+export const CLOSE = 'Close'
+export const RESET_HEADING = 'Reset all data?'
+export const RESET_BODY =
+  "This clears every game, your stats, streaks and Restores. It can't be undone."
+export const CANCEL = 'Cancel'
+export const RESET = 'Reset'
+export const ALL_DATA_RESET = 'All data reset'

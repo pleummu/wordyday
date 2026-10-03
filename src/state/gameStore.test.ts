@@ -889,3 +889,114 @@ describe('forfeit', () => {
     expect(onGameFinished).toHaveBeenCalledWith('normal-5', 'won')
   })
 })
+
+describe('reset', () => {
+  it('returns to a first visit and clears every trace', async () => {
+    const { store, mem } = setup()
+    mem.setItem(SAVE_KEY + ':corrupt', 'junk')
+    await store.getState().startGame(4, 'wordubado')
+    store.setState({
+      wordubadoInfoSeen: true,
+      boards: {
+        'normal-5': { answer: 'crane', guesses: [], outcome: 'playing' },
+      },
+    })
+    store.getState().resetAll()
+    await vi.waitFor(() => expect(store.getState().status).toBe('playing'))
+    const s = store.getState()
+    expect(s.dialog).toBeNull()
+    expect(s.infoOpen).toBe(false)
+    expect(s.mode).toBe('normal')
+    expect(s.length).toBe(5)
+    expect(s.boards).toEqual({})
+    expect(s.wordubadoInfoSeen).toBe(false)
+    expect(s.toast?.text).toBe('All data reset')
+    expect(s.toast?.kind).toBe('info')
+    expect(mem.getItem(SAVE_KEY + ':corrupt')).toBeNull()
+    const doc = JSON.parse(mem.getItem(SAVE_KEY)!)
+    expect(doc.state.last).toEqual({ mode: 'normal', length: 5 })
+    expect(doc.state.wordubadoInfoSeen).toBe(false)
+    expect(Object.keys(doc.state.boards)).toEqual(['normal-5'])
+  })
+
+  it('never writes the old answer under normal-5', async () => {
+    const { store, mem } = setup()
+    await store.getState().startGame(4, 'wordubado')
+    const writes: string[] = []
+    const orig = mem.setItem.bind(mem)
+    mem.setItem = (k: string, v: string) => {
+      writes.push(v)
+      orig(k, v)
+    }
+    const old = store.getState().answer
+    store.getState().resetAll()
+    await vi.waitFor(() => expect(store.getState().status).toBe('playing'))
+    for (const w of writes) {
+      const g = JSON.parse(w).state.boards['normal-5']
+      if (g) expect(g.answer).not.toBe(old)
+    }
+  })
+
+  it('an old reveal timer does nothing after reset', async () => {
+    const { store, timers } = await started()
+    type(store, 'house')
+    store.getState().submit()
+    store.getState().resetAll()
+    await vi.waitFor(() => expect(store.getState().status).toBe('playing'))
+    timers[0].fn()
+    expect(store.getState().status).toBe('playing')
+    expect(store.getState().rows).toHaveLength(0)
+  })
+})
+
+describe('settings', () => {
+  it('opens while revealing and when finished', async () => {
+    const { store } = await started()
+    type(store, 'house')
+    store.getState().submit()
+    expect(store.getState().status).toBe('revealing')
+    store.getState().openSettings()
+    expect(store.getState().dialog).toBe('settings')
+    store.getState().closeDialog()
+    store.setState({ status: 'won' })
+    store.getState().openSettings()
+    expect(store.getState().dialog).toBe('settings')
+  })
+
+  it('does nothing if another dialog or the info popup is open', async () => {
+    const { store } = await started()
+    store.setState({ dialog: 'giveUp' })
+    store.getState().openSettings()
+    expect(store.getState().dialog).toBe('giveUp')
+    store.setState({ dialog: null, infoOpen: true })
+    store.getState().openSettings()
+    expect(store.getState().dialog).toBeNull()
+  })
+
+  it('openReset and cancelReset move between dialogs', async () => {
+    const { store } = await started()
+    store.getState().openReset()
+    expect(store.getState().dialog).toBeNull()
+    store.getState().openSettings()
+    expect(store.getState().settingsFocus).toBe('close')
+    store.getState().openReset()
+    expect(store.getState().dialog).toBe('reset')
+    store.getState().cancelReset()
+    expect(store.getState().dialog).toBe('settings')
+    expect(store.getState().settingsFocus).toBe('reset')
+    store.getState().closeDialog()
+    store.getState().openSettings()
+    expect(store.getState().settingsFocus).toBe('close')
+  })
+
+  it('storageOk follows storage notices', async () => {
+    const { store } = await started()
+    expect(store.getState().storageOk).toBe(true)
+    store.getState().applyStorageNotice('storage-failed')
+    expect(store.getState().storageOk).toBe(false)
+    store.getState().applyStorageNotice('corrupt')
+    expect(store.getState().storageOk).toBe(false)
+    store.getState().applyStorageNotice('storage-recovered')
+    expect(store.getState().storageOk).toBe(true)
+  })
+})

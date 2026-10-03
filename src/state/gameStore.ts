@@ -19,8 +19,18 @@ import {
   type SavedGame,
 } from '../logic/save'
 import { score, type TileState } from '../logic/score'
-import { NOT_ENOUGH_LETTERS, NOT_IN_WORD_LIST, PRAISE } from './copy'
-import { createSaveStorage, getLocalStorage, type SaveStorage } from './storage'
+import {
+  ALL_DATA_RESET,
+  NOT_ENOUGH_LETTERS,
+  NOT_IN_WORD_LIST,
+  PRAISE,
+} from './copy'
+import {
+  createSaveStorage,
+  getLocalStorage,
+  type SaveStorage,
+  type StorageNotice,
+} from './storage'
 import { readTestAnswer } from './testHook'
 
 export type GameStatus =
@@ -64,11 +74,18 @@ export type GameState = {
   boards: Partial<Record<BoardKey, SavedGame>>
   wordubadoInfoSeen: boolean
   finishedInSession: boolean
+  storageOk: boolean
+  settingsFocus: 'close' | 'reset'
   resume(): Promise<void>
   openInfo(): void
   closeInfo(): void
   openDialog(name: 'giveUp' | 'newGame'): void
   closeDialog(): void
+  openSettings(): void
+  openReset(): void
+  cancelReset(): void
+  resetAll(): void
+  applyStorageNotice(n: StorageNotice): void
   giveUp(): void
   forfeitNewGame(): void
   startGame(length: WordLength, mode?: Mode): Promise<void>
@@ -219,6 +236,8 @@ export function createGameStore(deps: GameDeps) {
           boards: {},
           wordubadoInfoSeen: false,
           finishedInSession: false,
+          storageOk: deps.storage.isOk(),
+          settingsFocus: 'close',
 
           async resume() {
             await loadBoard()
@@ -241,6 +260,47 @@ export function createGameStore(deps: GameDeps) {
 
           closeDialog() {
             set({ dialog: null })
+          },
+
+          openSettings() {
+            const { dialog, infoOpen } = get()
+            if (dialog !== null || infoOpen) return
+            set({ dialog: 'settings', settingsFocus: 'close' })
+          },
+
+          openReset() {
+            if (get().dialog !== 'settings') return
+            set({ dialog: 'reset' })
+          },
+
+          cancelReset() {
+            if (get().dialog !== 'reset') return
+            set({ dialog: 'settings', settingsFocus: 'reset' })
+          },
+
+          resetAll() {
+            deps.storage.removeItem(SAVE_KEY)
+            set({
+              boards: {},
+              wordubadoInfoSeen: false,
+              dialog: null,
+              infoOpen: false,
+              mode: 'normal',
+              length: 5,
+              status: 'loading',
+              answer: '',
+              rows: [],
+              current: '',
+            })
+            void get().startGame(5, 'normal')
+            set({
+              toast: { id: ++toastSeq, text: ALL_DATA_RESET, kind: 'info' },
+            })
+          },
+
+          applyStorageNotice(n) {
+            if (n === 'storage-failed') set({ storageOk: false })
+            else if (n === 'storage-recovered') set({ storageOk: true })
           },
 
           giveUp() {
