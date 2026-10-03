@@ -179,7 +179,7 @@ describe('valid submit and reveal lock (R-GUESS-3, R-GUESS-6)', () => {
     store.getState().submit()
     store.getState().typeLetter('a')
     store.getState().backspace()
-    store.getState().requestSwitch({ length: 4 })
+    store.getState().switchBoard({ length: 4 })
     expect(store.getState().current).toBe('')
     expect(store.getState().length).toBe(5)
     expect(loadPools).toHaveBeenCalledTimes(1)
@@ -266,7 +266,7 @@ describe('loading edge cases (R-POOL-4, D-12)', () => {
   })
 })
 
-describe('playAgain and requestSwitch', () => {
+describe('playAgain and switchBoard', () => {
   it('playAgain resets the game', async () => {
     const { store } = await started()
     type(store, 'crane')
@@ -282,9 +282,9 @@ describe('playAgain and requestSwitch', () => {
     expect(s.shakeRow).toBe(-1)
   })
 
-  it('requestSwitch switches length', async () => {
+  it('switchBoard switches length', async () => {
     const { store } = await started()
-    store.getState().requestSwitch({ length: 4 })
+    store.getState().switchBoard({ length: 4 })
     await vi.waitFor(() => expect(store.getState().status).toBe('playing'))
     expect(store.getState().length).toBe(4)
     expect(store.getState().answer).toBe('kind')
@@ -296,7 +296,7 @@ describe('playAgain and requestSwitch', () => {
     store.getState().submit()
     store.getState().finishReveal()
     type(store, 'ho')
-    store.getState().requestSwitch({ length: 5 })
+    store.getState().switchBoard({ length: 5 })
     expect(loadPools).toHaveBeenCalledTimes(1)
     expect(store.getState().rows).toHaveLength(1)
     expect(store.getState().current).toBe('ho')
@@ -324,13 +324,13 @@ describe('Wordubado mode (WORD-01, WORD-03, WORD-04)', () => {
     }
   })
 
-  it('requestSwitch changes mode keeping length, and length keeping mode', async () => {
+  it('switchBoard changes mode keeping length, and length keeping mode', async () => {
     const { store } = await started()
-    store.getState().requestSwitch({ mode: 'wordubado' })
+    store.getState().switchBoard({ mode: 'wordubado' })
     await vi.waitFor(() => expect(store.getState().status).toBe('playing'))
     expect(store.getState().mode).toBe('wordubado')
     expect(store.getState().length).toBe(5)
-    store.getState().requestSwitch({ length: 4 })
+    store.getState().switchBoard({ length: 4 })
     await vi.waitFor(() => expect(store.getState().length).toBe(4))
     await vi.waitFor(() => expect(store.getState().status).toBe('playing'))
     expect(store.getState().mode).toBe('wordubado')
@@ -339,19 +339,19 @@ describe('Wordubado mode (WORD-01, WORD-03, WORD-04)', () => {
 
   it('ignores a switch while revealing and a no-change switch', async () => {
     const { store, loadPools } = await started()
-    store.getState().requestSwitch({ mode: 'normal' })
+    store.getState().switchBoard({ mode: 'normal' })
     expect(loadPools).toHaveBeenCalledTimes(1)
     type(store, 'house')
     store.getState().submit()
-    store.getState().requestSwitch({ mode: 'wordubado' })
+    store.getState().switchBoard({ mode: 'wordubado' })
     expect(store.getState().mode).toBe('normal')
     expect(loadPools).toHaveBeenCalledTimes(1)
   })
 
   it('fast switching ends on the last request', async () => {
     const { store } = setup()
-    store.getState().requestSwitch({ mode: 'wordubado' })
-    store.getState().requestSwitch({ length: 4 })
+    store.getState().switchBoard({ mode: 'wordubado' })
+    store.getState().switchBoard({ length: 4 })
     await vi.waitFor(() => expect(store.getState().status).toBe('playing'))
     const s = store.getState()
     expect(s.mode).toBe('wordubado')
@@ -364,102 +364,13 @@ describe('Wordubado mode (WORD-01, WORD-03, WORD-04)', () => {
     type(store, 'house')
     store.getState().submit()
     store.getState().finishReveal()
-    store.getState().requestSwitch({ mode: 'wordubado' })
-    store.getState().confirmSwitch()
+    store.getState().switchBoard({ mode: 'wordubado' })
     await vi.waitFor(() => expect(store.getState().status).toBe('playing'))
     expect(store.getState().rows).toEqual([])
   })
 })
 
-describe('confirm before switching (D-09)', () => {
-  async function inProgress() {
-    const ctx = await started()
-    type(ctx.store, 'house')
-    ctx.store.getState().submit()
-    ctx.store.getState().finishReveal()
-    return ctx
-  }
-
-  it('holds a mode or length switch as pendingSwitch', async () => {
-    const { store, loadPools } = await inProgress()
-    store.getState().requestSwitch({ mode: 'wordubado' })
-    expect(store.getState().pendingSwitch).toEqual({
-      mode: 'wordubado',
-      length: 5,
-    })
-    store.getState().cancelSwitch()
-    store.getState().requestSwitch({ length: 4 })
-    expect(store.getState().pendingSwitch).toEqual({
-      mode: 'normal',
-      length: 4,
-    })
-    expect(loadPools).toHaveBeenCalledTimes(1)
-  })
-
-  it('switches immediately with no submitted guess', async () => {
-    const { store } = await started()
-    type(store, 'ho')
-    store.getState().requestSwitch({ mode: 'wordubado' })
-    expect(store.getState().pendingSwitch).toBeNull()
-    expect(store.getState().mode).toBe('wordubado')
-  })
-
-  it('switches immediately after a win or loss', async () => {
-    const { store } = await started()
-    type(store, 'crane')
-    store.getState().submit()
-    store.getState().finishReveal()
-    expect(store.getState().status).toBe('won')
-    store.getState().requestSwitch({ length: 4 })
-    expect(store.getState().pendingSwitch).toBeNull()
-    expect(store.getState().length).toBe(4)
-  })
-
-  it('confirmSwitch starts the pending game', async () => {
-    const { store } = await inProgress()
-    store.getState().requestSwitch({ mode: 'wordubado' })
-    store.getState().confirmSwitch()
-    await vi.waitFor(() => expect(store.getState().status).toBe('playing'))
-    const s = store.getState()
-    expect(s.pendingSwitch).toBeNull()
-    expect(s.mode).toBe('wordubado')
-    expect(s.rows).toEqual([])
-  })
-
-  it('cancelSwitch leaves the game untouched', async () => {
-    const { store } = await inProgress()
-    type(store, 'ho')
-    store.getState().requestSwitch({ mode: 'wordubado' })
-    store.getState().cancelSwitch()
-    const s = store.getState()
-    expect(s.pendingSwitch).toBeNull()
-    expect(s.mode).toBe('normal')
-    expect(s.length).toBe(5)
-    expect(s.rows).toHaveLength(1)
-    expect(s.current).toBe('ho')
-    expect(s.answer).toBe('crane')
-  })
-
-  it('blocks typing, deleting and submitting while pending', async () => {
-    const { store } = await inProgress()
-    type(store, 'ho')
-    store.getState().requestSwitch({ mode: 'wordubado' })
-    store.getState().typeLetter('a')
-    store.getState().backspace()
-    expect(store.getState().current).toBe('ho')
-    expect(store.getState().submit()).toBe('blocked')
-  })
-})
-
-describe('Wordubado info popup (D-16)', () => {
-  async function inProgress() {
-    const ctx = await started()
-    type(ctx.store, 'house')
-    ctx.store.getState().submit()
-    ctx.store.getState().finishReveal()
-    return ctx
-  }
-
+describe('Wordubado info popup (D-11)', () => {
   it('openInfo and closeInfo toggle infoOpen', async () => {
     const { store } = await started()
     expect(store.getState().infoOpen).toBe(false)
@@ -469,54 +380,57 @@ describe('Wordubado info popup (D-16)', () => {
     expect(store.getState().infoOpen).toBe(false)
   })
 
-  it('auto-opens on the first immediate enable only', async () => {
+  it('auto-opens on the first switch to Wordubado only', async () => {
     const { store } = await started()
-    store.getState().requestSwitch({ mode: 'wordubado' })
+    store.getState().switchBoard({ mode: 'wordubado' })
     expect(store.getState().infoOpen).toBe(true)
+    expect(store.getState().wordubadoInfoSeen).toBe(true)
     store.getState().closeInfo()
-    store.getState().requestSwitch({ mode: 'normal' })
+    store.getState().switchBoard({ mode: 'normal' })
     expect(store.getState().infoOpen).toBe(false)
-    store.getState().requestSwitch({ mode: 'wordubado' })
+    store.getState().switchBoard({ mode: 'wordubado' })
     expect(store.getState().infoOpen).toBe(false)
   })
 
-  it('waits for the confirm, then opens after confirmSwitch', async () => {
-    const { store } = await inProgress()
-    store.getState().requestSwitch({ mode: 'wordubado' })
-    expect(store.getState().infoOpen).toBe(false)
-    store.getState().confirmSwitch()
-    expect(store.getState().infoOpen).toBe(true)
-  })
-
-  it('cancelling shows nothing and a later first enable still opens', async () => {
-    const { store } = await inProgress()
-    store.getState().requestSwitch({ mode: 'wordubado' })
-    store.getState().cancelSwitch()
-    expect(store.getState().infoOpen).toBe(false)
-    store.getState().finishReveal()
-    store.getState().playAgain()
-    await vi.waitFor(() => expect(store.getState().status).toBe('playing'))
-    store.getState().requestSwitch({ mode: 'wordubado' })
-    expect(store.getState().infoOpen).toBe(true)
-  })
-
-  it('does not auto-open for Normal or length changes inside Wordubado', async () => {
+  it('does not auto-open for length changes inside Wordubado', async () => {
     const { store } = await started()
-    store.getState().requestSwitch({ mode: 'wordubado' })
+    store.getState().switchBoard({ mode: 'wordubado' })
     store.getState().closeInfo()
     await vi.waitFor(() => expect(store.getState().status).toBe('playing'))
-    store.getState().requestSwitch({ length: 4 })
-    expect(store.getState().infoOpen).toBe(false)
-    store.getState().requestSwitch({ mode: 'normal' })
+    store.getState().switchBoard({ length: 4 })
     expect(store.getState().infoOpen).toBe(false)
   })
 
-  it('starts unseen in each new store', async () => {
-    const a = await started()
-    a.store.getState().requestSwitch({ mode: 'wordubado' })
-    const b = await started()
-    b.store.getState().requestSwitch({ mode: 'wordubado' })
-    expect(b.store.getState().infoOpen).toBe(true)
+  it('never auto-opens when the saved document says it was seen', async () => {
+    const mem = createMemoryStorage()
+    mem.setItem(
+      SAVE_KEY,
+      JSON.stringify({
+        version: SAVE_VERSION,
+        state: {
+          boards: {},
+          last: { mode: 'normal', length: 5 },
+          wordubadoInfoSeen: true,
+        },
+      }),
+    )
+    const store = createGameStore({
+      storage: createSaveStorage(() => mem),
+      loadPools: () => Promise.resolve(pools5),
+      rng: () => 0,
+      prefersReducedMotion: () => false,
+      setTimer: () => 0,
+    })
+    await store.getState().resume()
+    store.getState().switchBoard({ mode: 'wordubado' })
+    expect(store.getState().infoOpen).toBe(false)
+  })
+
+  it('persists the seen flag', async () => {
+    const { store, mem } = await started()
+    store.getState().switchBoard({ mode: 'wordubado' })
+    const doc = JSON.parse(mem.getItem(SAVE_KEY) ?? '{}')
+    expect(doc.state.wordubadoInfoSeen).toBe(true)
   })
 
   it('blocks input while open', async () => {
@@ -527,6 +441,133 @@ describe('Wordubado info popup (D-16)', () => {
     store.getState().backspace()
     expect(store.getState().current).toBe('hous')
     expect(store.getState().submit()).toBe('blocked')
+  })
+})
+
+describe('boards', () => {
+  async function inProgress() {
+    const ctx = await started()
+    type(ctx.store, 'house')
+    ctx.store.getState().submit()
+    ctx.store.getState().finishReveal()
+    return ctx
+  }
+
+  it('keeps each Board game independent across switches', async () => {
+    const { store, loadPools } = await inProgress()
+    store.getState().switchBoard({ length: 4 })
+    await vi.waitFor(() => expect(store.getState().status).toBe('playing'))
+    expect(store.getState().answer).toBe('kind')
+    expect(store.getState().rows).toEqual([])
+    expect(store.getState().boards['normal-5']).toEqual({
+      answer: 'crane',
+      guesses: ['house'],
+      outcome: 'playing',
+    })
+    store.getState().switchBoard({ length: 5 })
+    await vi.waitFor(() => expect(store.getState().status).toBe('playing'))
+    const s = store.getState()
+    expect(s.answer).toBe('crane')
+    expect(s.rows.map((r) => r.letters)).toEqual(['house'])
+    expect(loadPools).toHaveBeenCalledTimes(3)
+  })
+
+  it('restores a finished Board as finished without starting a game', async () => {
+    const { store } = await started()
+    type(store, 'crane')
+    store.getState().submit()
+    store.getState().finishReveal()
+    expect(store.getState().status).toBe('won')
+    store.getState().switchBoard({ length: 4 })
+    await vi.waitFor(() => expect(store.getState().status).toBe('playing'))
+    store.getState().switchBoard({ length: 5 })
+    await vi.waitFor(() => expect(store.getState().status).toBe('won'))
+    expect(store.getState().answer).toBe('crane')
+    expect(store.getState().finishedInSession).toBe(false)
+  })
+
+  it('saves both Boards in the document', async () => {
+    const { store, mem } = await inProgress()
+    store.getState().switchBoard({ length: 4 })
+    await vi.waitFor(() => expect(store.getState().status).toBe('playing'))
+    const doc = JSON.parse(mem.getItem(SAVE_KEY) ?? '{}')
+    expect(Object.keys(doc.state.boards).sort()).toEqual([
+      'normal-4',
+      'normal-5',
+    ])
+    expect(doc.state.boards['normal-5'].guesses).toEqual(['house'])
+  })
+
+  it('drops half-typed letters when switching away', async () => {
+    const { store } = await inProgress()
+    type(store, 'ho')
+    store.getState().switchBoard({ length: 4 })
+    await vi.waitFor(() => expect(store.getState().status).toBe('playing'))
+    store.getState().switchBoard({ length: 5 })
+    await vi.waitFor(() => expect(store.getState().status).toBe('playing'))
+    expect(store.getState().current).toBe('')
+  })
+})
+
+describe('switch', () => {
+  it('never writes the old live game under the new Board key', async () => {
+    const { store, mem } = await started()
+    type(store, 'house')
+    store.getState().submit()
+    store.getState().finishReveal()
+    const writes: string[] = []
+    const orig = mem.setItem.bind(mem)
+    mem.setItem = (k: string, v: string) => {
+      if (k === SAVE_KEY) writes.push(v)
+      orig(k, v)
+    }
+    store.getState().switchBoard({ mode: 'wordubado' })
+    await vi.waitFor(() => expect(store.getState().status).toBe('playing'))
+    expect(writes.length).toBeGreaterThan(0)
+    for (const w of writes) {
+      const g = JSON.parse(w).state.boards['wordubado-5']
+      if (g) {
+        expect(g.answer).not.toBe('crane')
+        expect(g.guesses).not.toContain('house')
+      }
+    }
+    const last = JSON.parse(writes[writes.length - 1]).state.boards
+    expect(last['normal-5'].guesses).toEqual(['house'])
+  })
+
+  it('is a no-op while revealing and for the same Board', async () => {
+    const { store, loadPools } = await started()
+    store.getState().switchBoard({ mode: 'normal', length: 5 })
+    expect(loadPools).toHaveBeenCalledTimes(1)
+    type(store, 'house')
+    store.getState().submit()
+    store.getState().switchBoard({ mode: 'wordubado' })
+    expect(store.getState().mode).toBe('normal')
+    expect(loadPools).toHaveBeenCalledTimes(1)
+  })
+
+  it('reloads the same Board when status is error', async () => {
+    let fail = true
+    const { store } = setup({
+      loadPools: () =>
+        fail ? Promise.reject(new Error('x')) : Promise.resolve(pools5),
+    })
+    await store.getState().startGame(5)
+    expect(store.getState().status).toBe('error')
+    fail = false
+    store.getState().switchBoard({ length: 5 })
+    await vi.waitFor(() => expect(store.getState().status).toBe('playing'))
+  })
+
+  it('fast switching ends on the last request (token)', async () => {
+    const { store } = setup()
+    store.getState().switchBoard({ mode: 'wordubado' })
+    store.getState().switchBoard({ length: 4 })
+    await vi.waitFor(() => expect(store.getState().status).toBe('playing'))
+    const s = store.getState()
+    expect(s.mode).toBe('wordubado')
+    expect(s.length).toBe(4)
+    expect(pools4.slang).toContain(s.answer)
   })
 })
 

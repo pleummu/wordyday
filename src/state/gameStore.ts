@@ -32,7 +32,6 @@ export function isFinished(status: GameStatus): boolean {
 export type { Mode } from '../logic/boards'
 export type Row = { letters: string; states: TileState[] }
 export type Toast = { id: number; text: string; kind: 'error' | 'info' }
-export type SwitchTarget = { mode: Mode; length: WordLength }
 export type SubmitResult = 'ok' | 'short' | 'invalid' | 'blocked'
 
 export type GameDeps = {
@@ -58,7 +57,6 @@ export type GameState = {
   shakeRow: number
   pools: Pools | null
   loadToken: number
-  pendingSwitch: SwitchTarget | null
   infoOpen: boolean
   boards: Partial<Record<BoardKey, SavedGame>>
   wordubadoInfoSeen: boolean
@@ -67,9 +65,7 @@ export type GameState = {
   openInfo(): void
   closeInfo(): void
   startGame(length: WordLength, mode?: Mode): Promise<void>
-  requestSwitch(next: { mode?: Mode; length?: WordLength }): void
-  confirmSwitch(): void
-  cancelSwitch(): void
+  switchBoard(next: { mode?: Mode; length?: WordLength }): void
   playAgain(): void
   retryLoad(): void
   typeLetter(letter: string): void
@@ -87,12 +83,12 @@ export function revealDurationMs(length: WordLength, reduced: boolean): number {
 
 const ATTEMPTS = (length: WordLength) => BOARD_CONFIG[length].attempts
 
-function docFromState(s: GameState): SaveDoc {
-  const boards: SaveDoc['boards'] = {}
-  for (const k of BOARD_KEYS) {
-    const g = s.boards[k]
-    if (g) boards[k] = g
-  }
+export function isInputBlocked(s: GameState): boolean {
+  return s.infoOpen
+}
+
+// Live view of the active Board as a saved game; null while not started.
+function viewToSaved(s: GameState): SavedGame | null {
   const live =
     s.answer !== '' &&
     (s.status === 'playing' ||
@@ -100,18 +96,23 @@ function docFromState(s: GameState): SaveDoc {
       s.status === 'won' ||
       s.status === 'lost' ||
       s.status === 'gave-up')
-  if (live) {
-    const guesses = s.rows.map((r) => r.letters)
-    const outcome =
-      s.status === 'revealing'
-        ? resolveOutcome(s.answer, guesses, ATTEMPTS(s.length))
-        : (s.status as 'playing' | 'won' | 'lost' | 'gave-up')
-    boards[boardKey(s.mode, s.length)] = {
-      answer: s.answer,
-      guesses,
-      outcome,
-    }
+  if (!live) return null
+  const guesses = s.rows.map((r) => r.letters)
+  const outcome =
+    s.status === 'revealing'
+      ? resolveOutcome(s.answer, guesses, ATTEMPTS(s.length))
+      : (s.status as 'playing' | 'won' | 'lost' | 'gave-up')
+  return { answer: s.answer, guesses, outcome }
+}
+
+function docFromState(s: GameState): SaveDoc {
+  const boards: SaveDoc['boards'] = {}
+  for (const k of BOARD_KEYS) {
+    const g = s.boards[k]
+    if (g) boards[k] = g
   }
+  const live = viewToSaved(s)
+  if (live) boards[boardKey(s.mode, s.length)] = live
   return {
     boards,
     last: { mode: s.mode, length: s.length },
@@ -133,7 +134,6 @@ function mergeDocIntoState(persisted: unknown, current: GameState): GameState {
 
 export function createGameStore(deps: GameDeps) {
   let toastSeq = 0
-  let infoSeen = false
 
   return create<GameState>()(
     persist(
@@ -146,10 +146,9 @@ export function createGameStore(deps: GameDeps) {
           if (
             nextMode === 'wordubado' &&
             prevMode !== 'wordubado' &&
-            !infoSeen
+            !get().wordubadoInfoSeen
           ) {
-            infoSeen = true
-            set({ infoOpen: true })
+            set({ infoOpen: true, wordubadoInfoSeen: true })
           }
         }
 
@@ -207,7 +206,6 @@ export function createGameStore(deps: GameDeps) {
           shakeRow: -1,
           pools: null,
           loadToken: 0,
-          pendingSwitch: null,
           infoOpen: false,
           boards: {},
           wordubadoInfoSeen: false,
@@ -254,8 +252,9 @@ export function createGameStore(deps: GameDeps) {
             }
           },
 
-          requestSwitch(next) {
-            const { status, mode, length, rows } = get()
+          switchBoard(next) {
+            const state = get()
+            const { status, mode, length } = state
             const target = {
               mode: next.mode ?? mode,
               length: next.length ?? length,
@@ -268,25 +267,20 @@ export function createGameStore(deps: GameDeps) {
             ) {
               return
             }
-            if (rows.length > 0 && status === 'playing') {
-              set({ pendingSwitch: target })
-              return
-            }
-            void get().startGame(target.length, target.mode)
+            const boards = { ...state.boards }
+            const live = viewToSaved(state)
+            if (live) boards[boardKey(mode, length)] = live
+            set({
+              mode: target.mode,
+              length: target.length,
+              boards,
+              status: 'loading',
+              answer: '',
+              rows: [],
+              current: '',
+            })
+            void loadBoard()
             autoOpenInfo(mode, target.mode)
-          },
-
-          confirmSwitch() {
-            const p = get().pendingSwitch
-            if (p === null) return
-            const prevMode = get().mode
-            set({ pendingSwitch: null })
-            void get().startGame(p.length, p.mode)
-            autoOpenInfo(prevMode, p.mode)
-          },
-
-          cancelSwitch() {
-            set({ pendingSwitch: null })
           },
 
           playAgain() {
@@ -298,18 +292,18 @@ export function createGameStore(deps: GameDeps) {
           },
 
           typeLetter(letter) {
-            const { status, current, length, pendingSwitch, infoOpen } = get()
-            if (status !== 'playing' || pendingSwitch !== null || infoOpen)
-              return
+            const state = get()
+            const { status, current, length } = state
+            if (status !== 'playing' || isInputBlocked(state)) return
             if (!/^[a-zA-Z]$/.test(letter)) return
             if (current.length >= length) return
             set({ current: current + letter.toLowerCase() })
           },
 
           backspace() {
-            const { status, current, pendingSwitch, infoOpen } = get()
-            if (status !== 'playing' || pendingSwitch !== null || infoOpen)
-              return
+            const state = get()
+            const { status, current } = state
+            if (status !== 'playing' || isInputBlocked(state)) return
             if (current.length === 0) return
             set({ current: current.slice(0, -1) })
           },
@@ -318,7 +312,7 @@ export function createGameStore(deps: GameDeps) {
             const { status, current, length, pools, answer, rows, shakeId } =
               get()
             if (status !== 'playing' || pools === null) return 'blocked'
-            if (get().pendingSwitch !== null || get().infoOpen) return 'blocked'
+            if (isInputBlocked(get())) return 'blocked'
 
             const reject = (text: string): SubmitResult => {
               set({
