@@ -11,6 +11,7 @@ import {
   boardKey,
   emptySave,
   migrateSave,
+  canForfeit,
   resolveOutcome,
   validateSave,
   type BoardKey,
@@ -24,6 +25,7 @@ import { readTestAnswer } from './testHook'
 
 export type GameStatus =
   'loading' | 'error' | 'playing' | 'revealing' | 'won' | 'lost' | 'gave-up'
+export type DialogName = 'giveUp' | 'newGame' | 'settings' | 'reset'
 export type FinishedOutcome = 'won' | 'lost' | 'gave-up' | 'forfeit'
 
 export function isFinished(status: GameStatus): boolean {
@@ -58,12 +60,17 @@ export type GameState = {
   pools: Pools | null
   loadToken: number
   infoOpen: boolean
+  dialog: DialogName | null
   boards: Partial<Record<BoardKey, SavedGame>>
   wordubadoInfoSeen: boolean
   finishedInSession: boolean
   resume(): Promise<void>
   openInfo(): void
   closeInfo(): void
+  openDialog(name: 'giveUp' | 'newGame'): void
+  closeDialog(): void
+  giveUp(): void
+  forfeitNewGame(): void
   startGame(length: WordLength, mode?: Mode): Promise<void>
   switchBoard(next: { mode?: Mode; length?: WordLength }): void
   playAgain(): void
@@ -84,7 +91,7 @@ export function revealDurationMs(length: WordLength, reduced: boolean): number {
 const ATTEMPTS = (length: WordLength) => BOARD_CONFIG[length].attempts
 
 export function isInputBlocked(s: GameState): boolean {
-  return s.infoOpen
+  return s.dialog !== null || s.infoOpen
 }
 
 // Live view of the active Board as a saved game; null while not started.
@@ -164,6 +171,7 @@ export function createGameStore(deps: GameDeps) {
             keyStates: {},
             shakeRow: -1,
             finishedInSession: false,
+            dialog: null,
           })
           if (!saved) {
             await get().startGame(length, mode)
@@ -207,6 +215,7 @@ export function createGameStore(deps: GameDeps) {
           pools: null,
           loadToken: 0,
           infoOpen: false,
+          dialog: null,
           boards: {},
           wordubadoInfoSeen: false,
           finishedInSession: false,
@@ -223,6 +232,36 @@ export function createGameStore(deps: GameDeps) {
             set({ infoOpen: false })
           },
 
+          openDialog(name) {
+            const { dialog, infoOpen, status, rows, length } = get()
+            if (dialog !== null || infoOpen) return
+            if (!canForfeit(status, rows.length, ATTEMPTS(length))) return
+            set({ dialog: name })
+          },
+
+          closeDialog() {
+            set({ dialog: null })
+          },
+
+          giveUp() {
+            set({ dialog: null })
+            const { status, rows, length, mode } = get()
+            if (!canForfeit(status, rows.length, ATTEMPTS(length))) return
+            set({ status: 'gave-up', finishedInSession: true })
+            finishGame(boardKey(mode, length), 'gave-up')
+          },
+
+          forfeitNewGame() {
+            set({ dialog: null })
+            const { status, rows, length, mode, boards } = get()
+            if (!canForfeit(status, rows.length, ATTEMPTS(length))) return
+            finishGame(boardKey(mode, length), 'forfeit')
+            const rest = { ...boards }
+            delete rest[boardKey(mode, length)]
+            set({ boards: rest })
+            void get().startGame(length, mode)
+          },
+
           async startGame(length, mode = get().mode) {
             const token = get().loadToken + 1
             set({
@@ -236,6 +275,7 @@ export function createGameStore(deps: GameDeps) {
               toast: null,
               shakeRow: -1,
               finishedInSession: false,
+              dialog: null,
             })
             try {
               const pools = await deps.loadPools(length)
@@ -278,6 +318,7 @@ export function createGameStore(deps: GameDeps) {
               answer: '',
               rows: [],
               current: '',
+              dialog: null,
             })
             void loadBoard()
             autoOpenInfo(mode, target.mode)

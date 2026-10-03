@@ -742,3 +742,150 @@ describe('persistence', () => {
     expect(store.getState().finishedInSession).toBe(false)
   })
 })
+
+describe('forfeit', () => {
+  function withRows(store: ReturnType<typeof setup>['store'], n: number) {
+    const rows = Array.from({ length: n }, () => ({
+      letters: 'house',
+      states: score('crane', 'house'),
+    }))
+    store.setState({ rows })
+  }
+
+  it('openDialog only opens at exactly 2 tries left', async () => {
+    for (const n of [0, 3, 5]) {
+      const { store } = await started()
+      withRows(store, n)
+      store.getState().openDialog('giveUp')
+      expect(store.getState().dialog).toBeNull()
+    }
+    const { store } = await started()
+    withRows(store, 4)
+    store.getState().openDialog('giveUp')
+    expect(store.getState().dialog).toBe('giveUp')
+    store.getState().openDialog('newGame')
+    expect(store.getState().dialog).toBe('giveUp')
+    store.getState().closeDialog()
+    expect(store.getState().dialog).toBeNull()
+  })
+
+  it('openDialog does nothing while the info popup is open', async () => {
+    const { store } = await started()
+    withRows(store, 4)
+    store.getState().openInfo()
+    store.getState().openDialog('giveUp')
+    expect(store.getState().dialog).toBeNull()
+  })
+
+  it('giveUp finishes as gave-up without adding a row, reported once', async () => {
+    const onGameFinished = vi.fn()
+    const ctx = setup({ onGameFinished })
+    await ctx.store.getState().startGame(5)
+    withRows(ctx.store, 4)
+    ctx.store.getState().openDialog('giveUp')
+    ctx.store.getState().giveUp()
+    const s = ctx.store.getState()
+    expect(s.status).toBe('gave-up')
+    expect(s.rows).toHaveLength(4)
+    expect(s.dialog).toBeNull()
+    expect(s.finishedInSession).toBe(true)
+    expect(onGameFinished).toHaveBeenCalledTimes(1)
+    expect(onGameFinished).toHaveBeenCalledWith('normal-5', 'gave-up')
+    const doc = JSON.parse(ctx.mem.getItem(SAVE_KEY)!)
+    expect(doc.state.boards['normal-5'].outcome).toBe('gave-up')
+    ctx.store.getState().giveUp()
+    expect(onGameFinished).toHaveBeenCalledTimes(1)
+  })
+
+  it('giveUp is rejected at other counts, while revealing and when finished', async () => {
+    const onGameFinished = vi.fn()
+    const ctx = setup({ onGameFinished })
+    await ctx.store.getState().startGame(5)
+    withRows(ctx.store, 3)
+    ctx.store.getState().giveUp()
+    expect(ctx.store.getState().status).toBe('playing')
+    withRows(ctx.store, 4)
+    ctx.store.setState({ status: 'revealing' })
+    ctx.store.getState().giveUp()
+    expect(ctx.store.getState().status).toBe('revealing')
+    ctx.store.setState({ status: 'lost' })
+    ctx.store.getState().giveUp()
+    expect(ctx.store.getState().status).toBe('lost')
+    expect(onGameFinished).not.toHaveBeenCalled()
+  })
+
+  it('forfeitNewGame reports forfeit once and starts a fresh game', async () => {
+    const onGameFinished = vi.fn()
+    const ctx = setup({ onGameFinished })
+    await ctx.store.getState().startGame(5)
+    withRows(ctx.store, 4)
+    ctx.store.getState().forfeitNewGame()
+    expect(onGameFinished).toHaveBeenCalledTimes(1)
+    expect(onGameFinished).toHaveBeenCalledWith('normal-5', 'forfeit')
+    await vi.waitFor(() => expect(ctx.store.getState().status).toBe('playing'))
+    expect(ctx.store.getState().rows).toEqual([])
+    expect(ctx.store.getState().length).toBe(5)
+    expect(ctx.store.getState().mode).toBe('normal')
+  })
+
+  it('forfeitNewGame is rejected at other counts', async () => {
+    const onGameFinished = vi.fn()
+    const ctx = setup({ onGameFinished })
+    await ctx.store.getState().startGame(5)
+    withRows(ctx.store, 3)
+    ctx.store.getState().forfeitNewGame()
+    expect(ctx.store.getState().rows).toHaveLength(3)
+    expect(onGameFinished).not.toHaveBeenCalled()
+  })
+
+  it('the rule holds at 4 and 6 letters', async () => {
+    const pools6: Pools = {
+      answers: ['planet'],
+      slang: [],
+      guesses: new Set(['planet']),
+    }
+    const onGameFinished = vi.fn()
+    const ctx = setup({
+      onGameFinished,
+      loadPools: (l) =>
+        Promise.resolve(l === 4 ? pools4 : l === 6 ? pools6 : pools5),
+    })
+    for (const [len, ok] of [
+      [4, 3],
+      [6, 5],
+    ] as const) {
+      await ctx.store.getState().startGame(len)
+      const row = { letters: 'x'.repeat(len), states: [] }
+      ctx.store.setState({ rows: Array.from({ length: ok - 1 }, () => row) })
+      ctx.store.getState().giveUp()
+      expect(ctx.store.getState().status).toBe('playing')
+      ctx.store.setState({ rows: Array.from({ length: ok }, () => row) })
+      ctx.store.getState().giveUp()
+      expect(ctx.store.getState().status).toBe('gave-up')
+    }
+    expect(onGameFinished).toHaveBeenCalledTimes(2)
+  })
+
+  it('blocks input while a dialog is open', async () => {
+    const { store } = await started()
+    withRows(store, 4)
+    store.getState().openDialog('giveUp')
+    store.getState().typeLetter('a')
+    expect(store.getState().current).toBe('')
+    store.setState({ current: 'ab' })
+    store.getState().backspace()
+    expect(store.getState().current).toBe('ab')
+    expect(store.getState().submit()).toBe('blocked')
+  })
+
+  it('a winning submit reports won once and finishReveal does not repeat it', async () => {
+    const onGameFinished = vi.fn()
+    const ctx = setup({ onGameFinished })
+    await ctx.store.getState().startGame(5)
+    type(ctx.store, 'crane')
+    ctx.store.getState().submit()
+    ctx.store.getState().finishReveal()
+    expect(onGameFinished).toHaveBeenCalledTimes(1)
+    expect(onGameFinished).toHaveBeenCalledWith('normal-5', 'won')
+  })
+})
