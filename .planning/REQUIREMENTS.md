@@ -38,7 +38,7 @@
 - [x] **SAVE-06**: Corrupt or hand-edited saved data never white-screens the site: it is validated on load, backed up under a separate key, and the app starts fresh
 - [x] **SAVE-07**: The app still works (in memory) when localStorage is unavailable or full
 - [ ] **SAVE-08**: Two open tabs stay in sync via the `storage` event
-- [ ] **SAVE-09**: User can reset all data (games, stats, streaks, Restores) from Settings after a confirm
+- [x] **SAVE-09**: User can reset all data (games, stats, streaks, Restores) from Settings after a confirm
 
 ### Streaks and Restore (STRK)
 
@@ -77,7 +77,7 @@
 - [ ] **UI-08**: Modals trap focus, close on Esc and return focus; the whole game is playable by keyboard alone
 - [x] **UI-09**: Animations respect prefers-reduced-motion
 - [ ] **UI-10**: Page has a title, meta description, Open Graph tags with an absolute image URL, a favicon and a `<noscript>` message
-- [ ] **UI-11**: Settings has a note that progress is stored in this browser only
+- [x] **UI-11**: Settings has a note that progress is stored in this browser only
 
 ### Docs (DOC)
 
@@ -165,8 +165,8 @@
 | SAVE-06 | Phase 4 | Complete |
 | SAVE-07 | Phase 4 | Complete |
 | SAVE-08 | Phase 4 | Pending |
-| SAVE-09 | Phase 4 | Pending |
-| UI-11 | Phase 4 | Pending |
+| SAVE-09 | Phase 4 | Complete |
+| UI-11 | Phase 4 | Complete |
 | QA-02 | Phase 5 | Pending |
 | STAT-01 | Phase 5 | Pending |
 | STAT-02 | Phase 5 | Pending |
