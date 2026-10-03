@@ -27,6 +27,8 @@ export type SavedGame = {
   answer: string
   guesses: string[]
   outcome: Outcome
+  // Optional game id (per-tab Lamport-style counter); absent reads as 0.
+  id?: number
 }
 
 // Phase 5 adds dayStreak, restores, pendingRestore and boards[k].winStreak
@@ -130,7 +132,87 @@ function validateGame(x: unknown, length: WordLength): SavedGame | null {
     default:
       return null
   }
+  if (has(x, 'id')) {
+    const id = x.id
+    if (typeof id !== 'number' || !Number.isSafeInteger(id) || id < 0) {
+      return null
+    }
+    return { answer, guesses: clean, outcome, id }
+  }
   return { answer, guesses: clean, outcome }
+}
+
+export function gameIdOf(g: SavedGame): number {
+  return g.id ?? 0
+}
+
+export function sameGame(
+  a: SavedGame | undefined,
+  b: SavedGame | undefined,
+): boolean {
+  if (!a || !b) return !a && !b
+  return (
+    a.answer === b.answer &&
+    a.outcome === b.outcome &&
+    a.guesses.join(',') === b.guesses.join(',') &&
+    gameIdOf(a) === gameIdOf(b)
+  )
+}
+
+export function maxGameId(boards: SaveDoc['boards']): number {
+  let max = 0
+  for (const key of BOARD_KEYS) {
+    const g = boards[key]
+    if (g) max = Math.max(max, gameIdOf(g))
+  }
+  return max
+}
+
+// Total order, so pickGame(a, b) equals pickGame(b, a): two tabs merging each
+// other's documents must end on the same game without talking to each other.
+// 1. higher id; 2. same answer: finished beats playing, then more guesses;
+// 3. different answers: lower answer; 4. lower outcome:guesses string.
+export function pickGame(a: SavedGame, b: SavedGame): SavedGame {
+  const ia = gameIdOf(a)
+  const ib = gameIdOf(b)
+  if (ia !== ib) return ia > ib ? a : b
+  if (a.answer === b.answer) {
+    const fa = a.outcome !== 'playing'
+    const fb = b.outcome !== 'playing'
+    if (fa !== fb) return fa ? a : b
+    if (a.guesses.length !== b.guesses.length) {
+      return a.guesses.length > b.guesses.length ? a : b
+    }
+  } else {
+    return a.answer < b.answer ? a : b
+  }
+  const ka = a.outcome + ':' + a.guesses.join(',')
+  const kb = b.outcome + ':' + b.guesses.join(',')
+  return kb < ka ? b : a
+}
+
+export function mergeBoard(
+  mine: SavedGame | undefined,
+  theirs: SavedGame | undefined,
+  floor = -1,
+): SavedGame | undefined {
+  const t = theirs && gameIdOf(theirs) > floor ? theirs : undefined
+  if (!t) return mine
+  if (!mine) return t
+  return pickGame(mine, t)
+}
+
+export function mergeBoards(
+  mine: SaveDoc['boards'],
+  theirs: SaveDoc['boards'],
+  floor = -1,
+): SaveDoc['boards'] {
+  const out: SaveDoc['boards'] = {}
+  for (const key of BOARD_KEYS) {
+    const merged = mergeBoard(mine[key], theirs[key], floor)
+    if (merged) out[key] = merged
+  }
+  return out
 }
 
 export function validateSave(x: unknown): SaveDoc | null {
