@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Phase 4 UI-SPEC approved
-last_updated: "2026-10-03T15:21:32.578Z"
+stopped_at: Completed 04-02-PLAN.md
+last_updated: "2026-10-03T15:28:16.475Z"
 last_activity: 2026-10-03
 progress:
   total_phases: 8
   completed_phases: 3
   total_plans: 30
-  completed_plans: 24
+  completed_plans: 25
   percent: 38
 ---
 
@@ -26,11 +26,11 @@ See: .planning/PROJECT.md (updated 2026-10-01)
 ## Current Position
 
 Phase: 04 (six-boards-and-persistence) — EXECUTING
-Plan: 2 of 7
+Plan: 3 of 7
 Status: Ready to execute
 Last activity: 2026-10-03
 
-Progress: [████████░░] 80%
+Progress: [████████░░] 83%
 
 ## Performance Metrics
 
@@ -57,6 +57,7 @@ Progress: [████████░░] 80%
 | Phase 02 P11 | n/a | 2 tasks | 0 files |
 | 02 | 11 | - | - |
 | 3 | 6 | - | - |
+| Phase 04 P02 | 25min | 3 tasks | 13 files |
 
 ## Accumulated Context
 
@@ -75,6 +76,7 @@ Progress: [████████░░] 80%
 - [Phase 01-02]: SPEC.md open-question defaults adopted (EC-40 deferred credit, K left before use, refill on answer date, zero-guess board cannot be abandoned)
 - [Phase ?]: 02-06: reveal duration (length-1)*300+500 +50ms buffer; selectLength no-op for active length
 - [Phase ?]: 02-09: Try again after failed chunk import reloads the page (browser caches failed dynamic import); reload lives in wordData.loadPools
+- [Phase 04]: Validation lives in storage adapter and merge, not persist migrate — persist only calls migrate on version mismatch
 
 ### Pending Todos
 
@@ -89,6 +91,6 @@ Progress: [████████░░] 80%
 
 ## Session Continuity
 
-Last session: 2026-10-03T15:21:32.572Z
-Stopped at: Phase 4 UI-SPEC approved
+Last session: 2026-10-03T15:28:16.469Z
+Stopped at: Completed 04-02-PLAN.md
 Resume file: None
