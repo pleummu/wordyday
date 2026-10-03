@@ -1160,3 +1160,169 @@ describe('newer-version saves (CR-01)', () => {
     expect(mem.getItem(SAVE_KEY)).toBe(v2Text)
   })
 })
+
+type TestStore = ReturnType<typeof setup>['store']
+
+function recordWrites(mem: Storage) {
+  const writes: string[] = []
+  const orig = mem.setItem.bind(mem)
+  mem.setItem = (k: string, v: string) => {
+    if (k === SAVE_KEY) writes.push(v)
+    orig(k, v)
+  }
+  return writes
+}
+
+function normal5(raw: string) {
+  return JSON.parse(raw).state.boards['normal-5']
+}
+
+async function win(store: TestStore) {
+  type(store, 'crane')
+  store.getState().submit()
+  store.getState().finishReveal()
+}
+
+describe('game ids', () => {
+  it('new games get rising ids that are saved', async () => {
+    const { store, mem } = await started()
+    expect(store.getState().gameId).toBe(1)
+    expect(normal5(mem.getItem(SAVE_KEY)!).id).toBe(1)
+    store.getState().playAgain()
+    await vi.waitFor(() => expect(store.getState().gameId).toBe(2))
+    expect(store.getState().status).toBe('playing')
+  })
+
+  it('restores the saved id and continues above it', async () => {
+    const { store } = withSaved({
+      answer: 'crane',
+      guesses: [],
+      outcome: 'playing',
+      id: 7,
+    })
+    await store.getState().resume()
+    expect(store.getState().gameId).toBe(7)
+    store.getState().playAgain()
+    await vi.waitFor(() => expect(store.getState().gameId).toBe(8))
+  })
+
+  it('a saved game without an id restores gameId 0', async () => {
+    const { store } = withSaved({
+      answer: 'crane',
+      guesses: [],
+      outcome: 'playing',
+    })
+    await store.getState().resume()
+    expect(store.getState().gameId).toBe(0)
+  })
+})
+
+describe('no stale or board-less writes (WR-01)', () => {
+  it('Play again never writes a board-less or stale playing document', async () => {
+    const { store, mem } = await started()
+    await win(store)
+    const writes = recordWrites(mem)
+    store.getState().playAgain()
+    await vi.waitFor(() => expect(store.getState().status).toBe('playing'))
+    expect(writes.length).toBeGreaterThan(0)
+    for (const w of writes) {
+      const g = normal5(w)
+      expect(g).toBeDefined()
+      expect(g.outcome === 'playing' && g.id === 1).toBe(false)
+    }
+    expect(normal5(writes[writes.length - 1])).toEqual({
+      answer: 'crane',
+      guesses: [],
+      outcome: 'playing',
+      id: 2,
+    })
+  })
+
+  it('New game stores the forfeit as finished before the next game', async () => {
+    const onGameFinished = vi.fn()
+    const ctx = setup({ onGameFinished })
+    await ctx.store.getState().startGame(5)
+    ctx.store.setState({
+      rows: Array.from({ length: 4 }, () => ({
+        letters: 'house',
+        states: score('crane', 'house'),
+      })),
+    })
+    const writes = recordWrites(ctx.mem)
+    ctx.store.getState().forfeitNewGame()
+    await vi.waitFor(() => expect(ctx.store.getState().status).toBe('playing'))
+    for (const w of writes) expect(normal5(w)).toBeDefined()
+    const first = normal5(writes[0])
+    expect(first.outcome).toBe('gave-up')
+    expect(first.guesses).toHaveLength(4)
+    expect(first.id).toBe(1)
+    const last = normal5(writes[writes.length - 1])
+    expect(last.id).toBe(2)
+    expect(last.guesses).toHaveLength(0)
+    expect(onGameFinished).toHaveBeenCalledTimes(1)
+    expect(onGameFinished).toHaveBeenCalledWith('normal-5', 'forfeit')
+  })
+
+  it('a load error after Play again keeps the finished game stored', async () => {
+    const loadPools = vi
+      .fn<(length: WordLength) => Promise<Pools>>()
+      .mockResolvedValueOnce(pools5)
+      .mockRejectedValue(new Error('offline'))
+    const { store, mem } = setup({ loadPools })
+    await store.getState().startGame(5)
+    await win(store)
+    store.getState().playAgain()
+    await vi.waitFor(() => expect(store.getState().status).toBe('error'))
+    const g = normal5(mem.getItem(SAVE_KEY)!)
+    expect(g.outcome).toBe('won')
+    expect(g.id).toBe(1)
+  })
+})
+
+describe('reset drops deferred documents (WR-03)', () => {
+  const raw = JSON.stringify({
+    version: SAVE_VERSION,
+    state: {
+      boards: {
+        'wordubado-4': {
+          answer: 'yeet',
+          guesses: [],
+          outcome: 'playing',
+          id: 0,
+        },
+      },
+      last: { mode: 'normal', length: 5 },
+      wordubadoInfoSeen: false,
+    },
+  })
+
+  it('resetAll clears the pending document so it is never applied', async () => {
+    const { store, timers, mem } = await started()
+    type(store, 'house')
+    store.getState().submit()
+    expect(store.getState().status).toBe('revealing')
+    store.getState().applyExternal(raw)
+    expect(store.getState().pendingExternal).toBe(raw)
+    store.getState().resetAll()
+    expect(store.getState().pendingExternal).toBeUndefined()
+    await vi.waitFor(() => expect(store.getState().status).toBe('playing'))
+    type(store, 'crane')
+    store.getState().submit()
+    timers[timers.length - 1].fn()
+    expect(store.getState().boards['wordubado-4']).toBeUndefined()
+    expect(
+      JSON.parse(mem.getItem(SAVE_KEY)!).state.boards['wordubado-4'],
+    ).toBeUndefined()
+  })
+
+  it('playAgain and switchBoard also clear it', async () => {
+    const { store } = await started()
+    store.setState({ pendingExternal: raw })
+    store.getState().playAgain()
+    expect(store.getState().pendingExternal).toBeUndefined()
+    await vi.waitFor(() => expect(store.getState().status).toBe('playing'))
+    store.setState({ pendingExternal: raw })
+    store.getState().switchBoard({ length: 4 })
+    expect(store.getState().pendingExternal).toBeUndefined()
+  })
+})
