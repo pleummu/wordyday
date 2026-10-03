@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { loadPools as defaultLoadPools, type Pools } from '../data/wordData'
-import { BOARD_CONFIG, type WordLength } from '../logic/boards'
+import { BOARD_CONFIG, type Mode, type WordLength } from '../logic/boards'
 import { applyGuessToKeys, type KeyStates } from '../logic/keys'
 import { pickAnswer, pickWordubadoAnswer } from '../logic/pickAnswer'
 import { score, type TileState } from '../logic/score'
@@ -9,7 +9,7 @@ import { readTestAnswer } from './testHook'
 
 export type GameStatus =
   'loading' | 'error' | 'playing' | 'revealing' | 'won' | 'lost'
-export type Mode = 'normal' | 'wordubado'
+export type { Mode } from '../logic/boards'
 export type Row = { letters: string; states: TileState[] }
 export type Toast = { id: number; text: string; kind: 'error' | 'info' }
 export type SwitchTarget = { mode: Mode; length: WordLength }
