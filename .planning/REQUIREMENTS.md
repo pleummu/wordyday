@@ -30,12 +30,12 @@
 
 ### Boards and Persistence (SAVE)
 
-- [ ] **SAVE-01**: User has 6 independent Boards (2 modes × 3 lengths), each with its own saved game
+- [x] **SAVE-01**: User has 6 independent Boards (2 modes × 3 lengths), each with its own saved game
 - [ ] **SAVE-02**: User can switch mode or length without forfeiting, and returns to the same game later
-- [ ] **SAVE-03**: User can refresh the page and resume the in-progress game (submitted guesses only; a half-typed row is discarded)
-- [ ] **SAVE-04**: User returning to a finished Board sees the finished grid with a result banner and Play again; a new game starts only on Play again
-- [ ] **SAVE-05**: Saved data has a version number and a migration chain from the first release
-- [ ] **SAVE-06**: Corrupt or hand-edited saved data never white-screens the site: it is validated on load, backed up under a separate key, and the app starts fresh
+- [x] **SAVE-03**: User can refresh the page and resume the in-progress game (submitted guesses only; a half-typed row is discarded)
+- [x] **SAVE-04**: User returning to a finished Board sees the finished grid with a result banner and Play again; a new game starts only on Play again
+- [x] **SAVE-05**: Saved data has a version number and a migration chain from the first release
+- [x] **SAVE-06**: Corrupt or hand-edited saved data never white-screens the site: it is validated on load, backed up under a separate key, and the app starts fresh
 - [ ] **SAVE-07**: The app still works (in memory) when localStorage is unavailable or full
 - [ ] **SAVE-08**: Two open tabs stay in sync via the `storage` event
 - [ ] **SAVE-09**: User can reset all data (games, stats, streaks, Restores) from Settings after a confirm
@@ -157,12 +157,12 @@
 | WORD-08 | Phase 3 | Complete |
 | PLAY-07 | Phase 4 | Pending |
 | PLAY-08 | Phase 4 | Pending |
-| SAVE-01 | Phase 4 | Pending |
+| SAVE-01 | Phase 4 | Complete |
 | SAVE-02 | Phase 4 | Pending |
-| SAVE-03 | Phase 4 | Pending |
-| SAVE-04 | Phase 4 | Pending |
-| SAVE-05 | Phase 4 | Pending |
-| SAVE-06 | Phase 4 | Pending |
+| SAVE-03 | Phase 4 | Complete |
+| SAVE-04 | Phase 4 | Complete |
+| SAVE-05 | Phase 4 | Complete |
+| SAVE-06 | Phase 4 | Complete |
 | SAVE-07 | Phase 4 | Pending |
 | SAVE-08 | Phase 4 | Pending |
 | SAVE-09 | Phase 4 | Pending |

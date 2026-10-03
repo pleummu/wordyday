@@ -179,7 +179,7 @@ Plans:
 Plans:
 
 **Wave 1**
-- [ ] 04-01-PLAN.md — Failing refresh/switch E2E; pure save schema, migration chain, guard, canForfeit (TDD)
+- [x] 04-01-PLAN.md — Failing refresh/switch E2E; pure save schema, migration chain, guard, canForfeit (TDD)
 
 **Wave 2** *(blocked on Wave 1 completion)*
 - [ ] 04-02-PLAN.md — Storage adapter, persisted store, resume on boot, submit-time outcome, reveal token (D-16), static restore in Grid/Banner
@@ -277,7 +277,7 @@ Plans:
 | 1. Foundation, Spec and CI Skeleton | 6/6 | Complete    | 2026-10-01 |
 | 2. Playable Normal Game | 11/11 | Complete   | 2026-10-01 |
 | 3. Wordubado Mode and Slang | 6/6 | Complete    | 2026-10-02 |
-| 4. Six Boards and Persistence | 0/TBD | Not started | - |
+| 4. Six Boards and Persistence | 1/7 | In Progress|  |
 | 5. Stats, Streaks and Restore | 0/TBD | Not started | - |
 | 6. Result Screen, Share and Definitions | 0/TBD | Not started | - |
 | 7. Themes, Accessibility and Polish | 0/TBD | Not started | - |
