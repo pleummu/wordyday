@@ -13,8 +13,8 @@
 - [x] **PLAY-04**: User can type with both the on-screen and the physical keyboard; keys keep their best state (green > yellow > gray)
 - [x] **PLAY-05**: User sees tile pop (typing), flip (reveal) and shake (invalid) animations; input is blocked while a row is revealing; keyboard colours update after the flip finishes
 - [x] **PLAY-06**: User sees the answer revealed when they lose
-- [ ] **PLAY-07**: User can only Give Up when exactly 2 tries are left; Give Up asks to confirm, reveals the answer and counts as a loss
-- [ ] **PLAY-08**: User can only press New game mid-game under the same rule (exactly 2 tries left), with the same confirm; it counts as a loss (forfeit). New game is always available once a game is finished
+- [x] **PLAY-07**: User can only Give Up when exactly 2 tries are left; Give Up asks to confirm, reveals the answer and counts as a loss
+- [x] **PLAY-08**: User can only press New game mid-game under the same rule (exactly 2 tries left), with the same confirm; it counts as a loss (forfeit). New game is always available once a game is finished
 
 ### Modes and Word Pools (WORD)
 
@@ -155,8 +155,8 @@
 | WORD-04 | Phase 3 | Complete |
 | WORD-06 | Phase 3 | Complete |
 | WORD-08 | Phase 3 | Complete |
-| PLAY-07 | Phase 4 | Pending |
-| PLAY-08 | Phase 4 | Pending |
+| PLAY-07 | Phase 4 | Complete |
+| PLAY-08 | Phase 4 | Complete |
 | SAVE-01 | Phase 4 | Complete |
 | SAVE-02 | Phase 4 | Complete |
 | SAVE-03 | Phase 4 | Complete |
