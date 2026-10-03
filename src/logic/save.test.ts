@@ -239,7 +239,6 @@ describe('loadSave', () => {
     ['null'],
     ['[]'],
     ['{"state":{},"version":"1"}'],
-    [wrap(V1_FIXTURE, 2)],
     [wrap(V1_FIXTURE, 0)],
     [wrap(V1_FIXTURE, 1.5)],
     [JSON.stringify({ version: 1 })],
@@ -247,7 +246,14 @@ describe('loadSave', () => {
     [wrap({}, 1)],
     [''],
   ])('rejects %s without throwing', (raw) => {
-    expect(loadSave(raw)).toEqual({ ok: false })
+    expect(loadSave(raw)).toEqual({ ok: false, reason: 'invalid' })
+  })
+  it.each([
+    [wrap(V1_FIXTURE, 2)],
+    [wrap(V1_FIXTURE, 99)],
+    [wrap({ future: true }, 2)],
+  ])('flags %s as newer, not invalid (CR-01)', (raw) => {
+    expect(loadSave(raw)).toEqual({ ok: false, reason: 'newer' })
   })
   it('loads a valid v1 document', () => {
     expect(loadSave(wrap(V1_FIXTURE, 1))).toEqual({

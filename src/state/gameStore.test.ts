@@ -3,7 +3,7 @@ import { createGameStore, revealDurationMs, type GameDeps } from './gameStore'
 import type { Pools } from '../data/wordData'
 import type { WordLength } from '../logic/boards'
 import { score } from '../logic/score'
-import { PRAISE } from './copy'
+import { CORRUPT_TOAST, PRAISE } from './copy'
 import { createSaveStorage } from './storage'
 import {
   createMemoryStorage,
@@ -1117,5 +1117,46 @@ describe('sync', () => {
     const spy = vi.spyOn(mem, 'setItem')
     store.getState().applyExternal(raw)
     expect(spy.mock.calls.some(([, v]) => v === raw)).toBe(false)
+  })
+})
+
+describe('newer-version saves (CR-01)', () => {
+  const v2Text = JSON.stringify({ state: { future: true }, version: 2 })
+
+  it('boot keeps the newer document and still plays in memory', async () => {
+    const mem = createMemoryStorage({ [SAVE_KEY]: v2Text })
+    const store = createGameStore({
+      storage: createSaveStorage(() => mem),
+      loadPools: vi.fn((length: WordLength) =>
+        Promise.resolve(length === 4 ? pools4 : pools5),
+      ),
+      rng: () => 0,
+      prefersReducedMotion: () => false,
+      setTimer: () => 1,
+    })
+    await store.getState().resume()
+    expect(store.getState().status).toBe('playing')
+    type(store, 'house')
+    store.getState().submit()
+    expect(store.getState().rows.map((r) => r.letters)).toEqual(['house'])
+    expect(mem.getItem(SAVE_KEY)).toBe(v2Text)
+    expect(mem.getItem(SAVE_KEY + ':corrupt')).toBeNull()
+    expect(store.getState().toast?.text).not.toBe(CORRUPT_TOAST)
+  })
+
+  it('ignores a newer document from another tab and never overwrites it', async () => {
+    const { store, mem } = await started()
+    const before = store.getState()
+    mem.setItem(SAVE_KEY, v2Text)
+    store.getState().applyExternal(v2Text)
+    const s = store.getState()
+    expect(s.answer).toBe(before.answer)
+    expect(s.rows).toEqual(before.rows)
+    expect(s.toast?.text).not.toBe('Updated from your other tab.')
+    type(store, 'house')
+    store.getState().submit()
+    store.getState().finishReveal()
+    await store.getState().playAgain()
+    expect(mem.getItem(SAVE_KEY)).toBe(v2Text)
   })
 })

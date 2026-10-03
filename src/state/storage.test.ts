@@ -44,7 +44,7 @@ describe('createSaveStorage getItem', () => {
         },
       }),
     ],
-    ['version 2', envelope(emptySave(), 2)],
+    ['version 0', envelope(emptySave(), 0)],
   ])('backs up %s and notices corrupt once', (_n, raw) => {
     const mem = createMemoryStorage({ [NAME]: raw })
     const s = createSaveStorage(() => mem)
@@ -109,6 +109,44 @@ describe('createSaveStorage setItem', () => {
     s.setItem(NAME, a)
     expect(s.isOk()).toBe(true)
     expect(got).toEqual(['storage-failed', 'storage-recovered'])
+  })
+})
+
+describe('newer-version saves (CR-01)', () => {
+  const v2 = envelope({ future: true }, 2)
+  const v1 = { state: emptySave(), version: SAVE_VERSION }
+
+  it('boot getItem keeps the document, no backup, storage-failed only', () => {
+    const mem = createMemoryStorage({ [NAME]: v2 })
+    const s = createSaveStorage(() => mem)
+    const got = notices(s)
+    expect(s.getItem(NAME)).toBeNull()
+    expect(got).toEqual(['storage-failed'])
+    expect(mem.getItem(NAME + ':corrupt')).toBeNull()
+    expect(s.isOk()).toBe(false)
+    expect(s.isReadOnly()).toBe(true)
+  })
+
+  it('blocks setItem and removeItem afterwards', () => {
+    const mem = createMemoryStorage({ [NAME]: v2 })
+    const s = createSaveStorage(() => mem)
+    const got = notices(s)
+    s.getItem(NAME)
+    s.setItem(NAME, v1)
+    s.removeItem(NAME)
+    expect(mem.dump()).toEqual({ [NAME]: v2 })
+    expect(got).toEqual(['storage-failed'])
+  })
+
+  it('read() of newer text flips to read-only', () => {
+    const mem = createMemoryStorage({ [NAME]: v2 })
+    const s = createSaveStorage(() => mem)
+    const got = notices(s)
+    expect(s.read(v2)).toBe('newer')
+    expect(s.isReadOnly()).toBe(true)
+    expect(got).toEqual(['storage-failed'])
+    s.setItem(NAME, v1)
+    expect(mem.dump()).toEqual({ [NAME]: v2 })
   })
 })
 
