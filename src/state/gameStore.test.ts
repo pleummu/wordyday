@@ -1000,3 +1000,122 @@ describe('settings', () => {
     expect(store.getState().storageOk).toBe(true)
   })
 })
+
+describe('sync', () => {
+  const rawDoc = (
+    boards: Record<string, unknown>,
+    last = { mode: 'normal', length: 5 },
+    seen = false,
+  ) =>
+    JSON.stringify({
+      state: { boards, last, wordubadoInfoSeen: seen },
+      version: SAVE_VERSION,
+    })
+  const crane = (guesses: string[], outcome = 'playing') => ({
+    answer: 'crane',
+    guesses,
+    outcome,
+  })
+
+  async function ready(extra: Partial<GameDeps> = {}) {
+    const ctx = setup(extra)
+    await ctx.store.getState().startGame(5)
+    return ctx
+  }
+
+  it('replaces the visible Board and shows the other-tab toast', async () => {
+    const { store } = await ready()
+    type(store, 'hou')
+    store.getState().applyExternal(rawDoc({ 'normal-5': crane(['house']) }))
+    const s = store.getState()
+    expect(s.rows.map((r) => r.letters)).toEqual(['house'])
+    expect(s.current).toBe('')
+    expect(s.status).toBe('playing')
+    expect(s.toast?.text).toBe('Updated from your other tab.')
+  })
+
+  it('updates other Boards silently', async () => {
+    const { store } = await ready()
+    const before = store.getState().answer
+    store.getState().applyExternal(
+      rawDoc({
+        'normal-5': { answer: before, guesses: [], outcome: 'playing' },
+        'wordubado-4': { answer: 'yeet', guesses: [], outcome: 'playing' },
+      }),
+    )
+    const s = store.getState()
+    expect(s.boards['wordubado-4']?.answer).toBe('yeet')
+    expect(s.toast).toBeNull()
+    expect(s.answer).toBe(before)
+  })
+
+  it('takes a finished outcome without finishing the game again', async () => {
+    const onGameFinished = vi.fn()
+    const { store } = await ready({ onGameFinished })
+    store
+      .getState()
+      .applyExternal(rawDoc({ 'normal-5': crane(['crane'], 'won') }))
+    const s = store.getState()
+    expect(s.status).toBe('won')
+    expect(s.finishedInSession).toBe(false)
+    expect(onGameFinished).not.toHaveBeenCalled()
+  })
+
+  it('a reset in the other tab makes this tab a first visit', async () => {
+    const { store } = await ready()
+    await store.getState().startGame(6, 'wordubado')
+    store.setState({ wordubadoInfoSeen: true })
+    store.getState().applyExternal(null)
+    expect(store.getState().wordubadoInfoSeen).toBe(false)
+    expect(store.getState().boards).toEqual({})
+    expect(store.getState().mode).toBe('wordubado')
+    expect(store.getState().length).toBe(6)
+    expect(store.getState().toast?.text).toBe('Updated from your other tab.')
+    await vi.waitFor(() => expect(store.getState().status).toBe('playing'))
+  })
+
+  it('ignores invalid text without a backup or toast', async () => {
+    const { store, mem } = await ready()
+    const before = store.getState()
+    store.getState().applyExternal('{not json')
+    expect(store.getState().boards).toBe(before.boards)
+    expect(store.getState().toast).toBeNull()
+    expect(mem.getItem(SAVE_KEY + ':corrupt')).toBeNull()
+  })
+
+  it('waits for a reveal to end before applying', async () => {
+    const { store, timers } = await ready()
+    type(store, 'house')
+    store.getState().submit()
+    store
+      .getState()
+      .applyExternal(rawDoc({ 'normal-5': crane(['ghost', 'house']) }))
+    expect(store.getState().status).toBe('revealing')
+    expect(store.getState().rows).toHaveLength(1)
+    timers[0].fn()
+    expect(store.getState().rows).toHaveLength(2)
+    expect(store.getState().pendingExternal).toBeUndefined()
+  })
+
+  it('never follows the other tab last-Board pointer', async () => {
+    const { store } = await ready()
+    store.getState().applyExternal(
+      rawDoc(
+        {
+          'wordubado-4': { answer: 'yeet', guesses: [], outcome: 'playing' },
+        },
+        { mode: 'wordubado', length: 4 },
+      ),
+    )
+    expect(store.getState().mode).toBe('normal')
+    expect(store.getState().length).toBe(5)
+  })
+
+  it('does not write the same text back', async () => {
+    const { store, mem } = await ready()
+    const raw = rawDoc({ 'normal-5': crane(['house']) })
+    const spy = vi.spyOn(mem, 'setItem')
+    store.getState().applyExternal(raw)
+    expect(spy.mock.calls.some(([, v]) => v === raw)).toBe(false)
+  })
+})

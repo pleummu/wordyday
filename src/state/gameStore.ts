@@ -26,6 +26,7 @@ import {
   STORAGE_FAILED_TOAST,
   NOT_ENOUGH_LETTERS,
   NOT_IN_WORD_LIST,
+  OTHER_TAB_TOAST,
   PRAISE,
 } from './copy'
 import {
@@ -84,6 +85,8 @@ export type GameState = {
   finishedInSession: boolean
   storageOk: boolean
   settingsFocus: 'close' | 'reset'
+  // undefined = nothing waiting; null = the other tab reset everything.
+  pendingExternal: string | null | undefined
   resume(): Promise<void>
   openInfo(): void
   closeInfo(): void
@@ -94,6 +97,7 @@ export type GameState = {
   cancelReset(): void
   resetAll(): void
   applyStorageNotice(n: StorageNotice): void
+  applyExternal(raw: string | null): void
   giveUp(): void
   forfeitNewGame(): void
   startGame(length: WordLength, mode?: Mode): Promise<void>
@@ -135,6 +139,15 @@ function viewToSaved(s: GameState): SavedGame | null {
       ? resolveOutcome(s.answer, guesses, ATTEMPTS(s.length))
       : (s.status as 'playing' | 'won' | 'lost' | 'gave-up')
   return { answer: s.answer, guesses, outcome }
+}
+
+function sameGame(a: SavedGame | undefined, b: SavedGame | undefined): boolean {
+  if (!a || !b) return !a && !b
+  return (
+    a.answer === b.answer &&
+    a.outcome === b.outcome &&
+    a.guesses.join(',') === b.guesses.join(',')
+  )
 }
 
 function docFromState(s: GameState): SaveDoc {
@@ -247,6 +260,7 @@ export function createGameStore(deps: GameDeps) {
           finishedInSession: false,
           storageOk: deps.storage.isOk(),
           settingsFocus: 'close',
+          pendingExternal: undefined,
 
           async resume() {
             await loadBoard()
@@ -333,6 +347,88 @@ export function createGameStore(deps: GameDeps) {
                 },
               })
             }
+          },
+
+          // Another tab changed storage. Same validation path as boot; never
+          // backs up, never finishes a game, never follows its `last` pointer.
+          applyExternal(raw) {
+            if (get().status === 'revealing') {
+              set({ pendingExternal: raw })
+              return
+            }
+            const read = deps.storage.read(raw)
+            if (read === 'invalid') return
+            const doc = read ?? emptySave()
+            // Echo guard: our own write-back of this exact text is deduped.
+            deps.storage.markSeen(raw)
+            const state = get()
+            const mine = docFromState(state)
+            let same = mine.wordubadoInfoSeen === doc.wordubadoInfoSeen
+            for (const k of BOARD_KEYS) {
+              if (!same) break
+              if (!sameGame(mine.boards[k], doc.boards[k])) same = false
+            }
+            // Nothing new: do not set (a set would write our own `last` back
+            // and the two tabs would ping-pong).
+            if (same) return
+            const key = boardKey(state.mode, state.length)
+            const theirs = doc.boards[key]
+            const base = {
+              boards: doc.boards,
+              wordubadoInfoSeen: doc.wordubadoInfoSeen,
+            }
+            // One set per sync so storage only ever sees the final document.
+            if (sameGame(viewToSaved(state) ?? undefined, theirs)) {
+              set(base)
+              return
+            }
+            const toast = {
+              id: ++toastSeq,
+              text: OTHER_TAB_TOAST,
+              kind: 'info' as const,
+            }
+            const loaded =
+              state.pools !== null &&
+              (state.status === 'playing' || isFinished(state.status))
+            if (theirs && loaded) {
+              const rows: Row[] = theirs.guesses.map((g) => ({
+                letters: g,
+                states: score(theirs.answer, g),
+              }))
+              let keyStates: KeyStates = {}
+              for (const r of rows) {
+                keyStates = applyGuessToKeys(keyStates, r.letters, r.states)
+              }
+              set({
+                ...base,
+                loadToken: state.loadToken + 1,
+                answer: theirs.answer,
+                rows,
+                keyStates,
+                current: '',
+                status: theirs.outcome,
+                finishedInSession: false,
+                shakeRow: -1,
+                toast,
+                dialog:
+                  state.dialog === 'giveUp' || state.dialog === 'newGame'
+                    ? null
+                    : state.dialog,
+              })
+              return
+            }
+            // Clear the live view in the same set so the old answer is not
+            // written back under this Board.
+            set({
+              ...base,
+              answer: '',
+              rows: [],
+              current: '',
+              status: 'loading',
+            })
+            if (theirs) void loadBoard()
+            else void get().startGame(state.length, state.mode)
+            set({ toast })
           },
 
           giveUp() {
@@ -513,6 +609,11 @@ export function createGameStore(deps: GameDeps) {
               })
             } else {
               set({ keyStates: merged, status: 'playing' })
+            }
+            const pending = get().pendingExternal
+            if (pending !== undefined) {
+              set({ pendingExternal: undefined })
+              get().applyExternal(pending)
             }
           },
 
