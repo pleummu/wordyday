@@ -29,7 +29,13 @@ beforeEach(async () => {
   loadPools.mockImplementation((length: WordLength) =>
     Promise.resolve(length === 4 ? pools4 : pools5),
   )
-  useGameStore.setState({ pendingSwitch: null, infoOpen: false })
+  localStorage.clear()
+  useGameStore.setState({
+    pendingSwitch: null,
+    infoOpen: false,
+    boards: {},
+    finishedInSession: false,
+  })
   await useGameStore.getState().startGame(5, 'normal')
   loadPools.mockClear()
 })

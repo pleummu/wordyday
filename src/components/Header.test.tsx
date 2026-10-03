@@ -19,7 +19,13 @@ import { useGameStore } from '../state/gameStore'
 beforeAll(stubDialog)
 
 beforeEach(async () => {
-  useGameStore.setState({ pendingSwitch: null, infoOpen: false })
+  localStorage.clear()
+  useGameStore.setState({
+    pendingSwitch: null,
+    infoOpen: false,
+    boards: {},
+    finishedInSession: false,
+  })
   loadPools.mockReset()
   loadPools.mockImplementation(() => Promise.resolve(pools))
   await useGameStore.getState().startGame(5, 'normal')

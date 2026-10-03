@@ -4,6 +4,12 @@ import type { Pools } from '../data/wordData'
 import type { WordLength } from '../logic/boards'
 import { score } from '../logic/score'
 import { PRAISE } from './copy'
+import { createSaveStorage } from './storage'
+import {
+  createMemoryStorage,
+  createThrowingStorage,
+} from '../test/storageDoubles'
+import { SAVE_KEY, SAVE_VERSION } from '../logic/save'
 
 const pools5: Pools = {
   answers: ['crane', 'slate'],
@@ -21,7 +27,9 @@ function setup(overrides: Partial<GameDeps> = {}, reduced = false) {
   const loadPools = vi.fn((length: WordLength) =>
     Promise.resolve(length === 4 ? pools4 : pools5),
   )
+  const mem = createMemoryStorage()
   const deps: GameDeps = {
+    storage: createSaveStorage(() => mem),
     loadPools,
     rng: () => 0,
     prefersReducedMotion: () => reduced,
@@ -31,7 +39,7 @@ function setup(overrides: Partial<GameDeps> = {}, reduced = false) {
     },
     ...overrides,
   }
-  return { store: createGameStore(deps), timers, loadPools }
+  return { store: createGameStore(deps), timers, loadPools, mem }
 }
 
 async function started(reduced = false) {
@@ -519,5 +527,177 @@ describe('Wordubado info popup (D-16)', () => {
     store.getState().backspace()
     expect(store.getState().current).toBe('hous')
     expect(store.getState().submit()).toBe('blocked')
+  })
+})
+
+function saved(
+  mem: Storage,
+  game: object,
+  last = { mode: 'normal', length: 5 },
+) {
+  mem.setItem(
+    SAVE_KEY,
+    JSON.stringify({
+      version: SAVE_VERSION,
+      state: {
+        boards: { [`${last.mode}-${last.length}`]: game },
+        last,
+        wordubadoInfoSeen: false,
+      },
+    }),
+  )
+}
+
+function withSaved(game: object) {
+  const mem = createMemoryStorage()
+  saved(mem, game)
+  const timers: { fn: () => void; ms: number }[] = []
+  const loadPools = vi.fn<(length: WordLength) => Promise<Pools>>(() =>
+    Promise.resolve(pools5),
+  )
+  const store = createGameStore({
+    storage: createSaveStorage(() => mem),
+    loadPools,
+    rng: () => 0,
+    prefersReducedMotion: () => false,
+    setTimer: (fn, ms) => timers.push({ fn, ms }),
+  })
+  return { store, mem, loadPools, timers }
+}
+
+describe('persistence', () => {
+  it('resumes a playing game', async () => {
+    const { store, loadPools } = withSaved({
+      answer: 'crane',
+      guesses: ['house'],
+      outcome: 'playing',
+    })
+    expect(store.getState().mode).toBe('normal')
+    expect(store.getState().length).toBe(5)
+    await store.getState().resume()
+    const s = store.getState()
+    expect(s.answer).toBe('crane')
+    expect(s.rows).toEqual([
+      { letters: 'house', states: score('crane', 'house') },
+    ])
+    expect(s.keyStates.h).toBe('absent')
+    expect(s.current).toBe('')
+    expect(s.status).toBe('playing')
+    expect(s.finishedInSession).toBe(false)
+    expect(loadPools).toHaveBeenCalledTimes(1)
+    expect(loadPools).toHaveBeenCalledWith(5)
+  })
+
+  it.each([
+    ['won', ['crane']],
+    ['lost', ['house', 'house', 'house', 'house', 'house', 'house']],
+    ['gave-up', ['house', 'house', 'house']],
+  ] as const)('restores %s with no toast', async (outcome, guesses) => {
+    const { store } = withSaved({
+      answer: 'crane',
+      guesses: [...guesses],
+      outcome,
+    })
+    await store.getState().resume()
+    expect(store.getState().status).toBe(outcome)
+    expect(store.getState().toast).toBeNull()
+    expect(store.getState().finishedInSession).toBe(false)
+  })
+
+  it('starts a fresh normal-5 game on first visit', async () => {
+    const { store, loadPools } = setup()
+    await store.getState().resume()
+    expect(store.getState().status).toBe('playing')
+    expect(store.getState().answer).toBe('crane')
+    expect(loadPools).toHaveBeenCalledWith(5)
+  })
+
+  it('saves the guess at submit and the outcome before the reveal ends', async () => {
+    const { store, mem } = await started()
+    type(store, 'house')
+    store.getState().submit()
+    const doc = JSON.parse(mem.dump()[SAVE_KEY]).state
+    expect(doc.boards['normal-5'].guesses).toEqual(['house'])
+    for (let i = 0; i < 5; i++) {
+      store.setState({ status: 'playing' })
+      type(store, 'house')
+      store.getState().submit()
+    }
+    expect(store.getState().status).toBe('revealing')
+    const doc2 = JSON.parse(mem.dump()[SAVE_KEY]).state
+    expect(doc2.boards['normal-5'].outcome).toBe('lost')
+  })
+
+  it('does not write when only typing', async () => {
+    const { store, mem } = await started()
+    const before = mem.dump()[SAVE_KEY]
+    type(store, 'hou')
+    expect(mem.dump()[SAVE_KEY]).toBe(before)
+  })
+
+  it('ignores a stale reveal timer (token)', async () => {
+    const { store, timers } = await started()
+    type(store, 'house')
+    store.getState().submit()
+    store.setState({ loadToken: store.getState().loadToken + 1 })
+    timers[0].fn()
+    expect(store.getState().status).toBe('revealing')
+  })
+
+  it('retryLoad keeps the saved game after a failed load', async () => {
+    const { store, loadPools } = withSaved({
+      answer: 'crane',
+      guesses: ['house'],
+      outcome: 'playing',
+    })
+    loadPools.mockRejectedValueOnce(new Error('net'))
+    await store.getState().resume()
+    expect(store.getState().status).toBe('error')
+    store.getState().retryLoad()
+    await vi.waitFor(() => expect(store.getState().status).toBe('playing'))
+    expect(store.getState().answer).toBe('crane')
+    expect(store.getState().rows).toHaveLength(1)
+  })
+
+  it('plays a full game with throwing storage', async () => {
+    const store = createGameStore({
+      storage: createSaveStorage(() =>
+        createThrowingStorage({ get: true, set: true }),
+      ),
+      loadPools: () => Promise.resolve(pools5),
+      rng: () => 0,
+      prefersReducedMotion: () => false,
+      setTimer: () => 0,
+    })
+    await store.getState().resume()
+    type(store, 'crane')
+    expect(() => store.getState().submit()).not.toThrow()
+    store.getState().finishReveal()
+    expect(store.getState().status).toBe('won')
+  })
+
+  it('accepts the answer even when the guess pool lacks it', async () => {
+    const store = createGameStore({
+      storage: createSaveStorage(() => createMemoryStorage()),
+      loadPools: () =>
+        Promise.resolve({ ...pools5, guesses: new Set(['house']) }),
+      rng: () => 0,
+      prefersReducedMotion: () => false,
+      setTimer: () => 0,
+    })
+    await store.getState().startGame(5)
+    type(store, 'crane')
+    expect(store.getState().submit()).toBe('ok')
+  })
+
+  it('tracks finishedInSession', async () => {
+    const { store } = await started()
+    type(store, 'crane')
+    store.getState().submit()
+    expect(store.getState().finishedInSession).toBe(false)
+    store.getState().finishReveal()
+    expect(store.getState().finishedInSession).toBe(true)
+    await store.getState().playAgain()
+    expect(store.getState().finishedInSession).toBe(false)
   })
 })
