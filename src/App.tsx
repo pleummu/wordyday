@@ -1,13 +1,17 @@
 import Banner from './components/Banner'
 import Grid from './components/Grid'
+import ForfeitRow from './components/ForfeitRow'
+import GiveUpConfirm from './components/GiveUpConfirm'
 import Header from './components/Header'
 import Keyboard from './components/Keyboard'
 import LoadError from './components/LoadError'
 import LoadingNotice from './components/LoadingNotice'
+import NewGameConfirm from './components/NewGameConfirm'
 import Toast from './components/Toast'
 import WordubadoInfo from './components/WordubadoInfo'
 import { usePhysicalKeyboard } from './components/usePhysicalKeyboard'
 import { BOARD_CONFIG } from './logic/boards'
+import { canForfeit } from './logic/save'
 import { isFinished, useGameStore } from './state/gameStore'
 
 export default function App() {
@@ -27,6 +31,8 @@ export default function App() {
   const retryLoad = useGameStore((s) => s.retryLoad)
   const finishedInSession = useGameStore((s) => s.finishedInSession)
 
+  const showRow = canForfeit(status, rows.length, BOARD_CONFIG[length].attempts)
+
   function onKey(key: string) {
     const store = useGameStore.getState()
     if (key === 'enter') store.submit()
@@ -35,9 +41,15 @@ export default function App() {
   }
 
   return (
-    <div className="app" data-mode={mode}>
+    <div
+      className="app"
+      data-mode={mode}
+      data-forfeit={showRow ? 'true' : undefined}
+    >
       <Toast toast={toast} onDismiss={dismissToast} />
       <WordubadoInfo />
+      <GiveUpConfirm />
+      <NewGameConfirm />
       <LoadingNotice active={status === 'loading'} />
       <Header />
       <main className="board-area">
@@ -51,6 +63,7 @@ export default function App() {
           celebrate={finishedInSession}
         />
       </main>
+      <ForfeitRow />
       <div className="controls">
         {isFinished(status) ? (
           <Banner

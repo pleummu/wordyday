@@ -368,6 +368,53 @@
   padding: 0;
 }
 
+.forfeit-row {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-2);
+  height: 32px;
+  flex: none;
+}
+
+@media (min-height: 640px) {
+  .forfeit-row {
+    height: 36px;
+  }
+}
+
+.forfeit-button {
+  height: 32px;
+  min-width: 64px;
+  padding: 0 var(--space-3);
+  border: none;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--color-text);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.forfeit-button:hover {
+  background: var(--color-surface);
+}
+
+.forfeit-button:active {
+  background: var(--color-key-pressed);
+}
+
+.forfeit-button:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+.app[data-forfeit] {
+  --tile-min: 36px;
+}
+
 .banner {
   min-height: var(--controls-h);
   padding: var(--space-3);
@@ -382,7 +429,8 @@
   border-radius: var(--radius-card);
 }
 
-.banner[data-result='lost'] {
+.banner[data-result='lost'],
+.banner[data-result='gave-up'] {
   border-color: var(--color-error);
 }
 
@@ -430,7 +478,8 @@
 }
 
 @media (max-height: 540px) {
-  .app {
+  .app,
+  .app[data-forfeit] {
     --tile-min: 32px;
     --key-h: 36px;
     --controls-h: 124px;

@@ -158,3 +158,51 @@ it('ignores physical keys while the info popup is open', async () => {
   expect(s.current).toBe('ho')
   expect(s.rows).toHaveLength(0)
 })
+
+function playFour() {
+  for (const w of ['house', 'bruhs', 'house', 'bruhs']) {
+    for (const k of w) fireEvent.keyDown(window, { key: k })
+    fireEvent.keyDown(window, { key: 'Enter' })
+    act(() => {
+      useGameStore.getState().finishReveal()
+    })
+  }
+}
+
+it('Give up confirm reveals the answer with the gave-up banner', () => {
+  render(<App />)
+  playFour()
+  fireEvent.click(screen.getByRole('button', { name: 'Give up' }))
+  expect(screen.getByText('Give up?')).toBeTruthy()
+  expect(
+    screen.getByText('This counts as a loss. Reveal the answer?'),
+  ).toBeTruthy()
+  const dialog = screen.getByText('Give up?').closest('dialog')!
+  fireEvent.click(
+    Array.from(dialog.querySelectorAll('button')).find(
+      (b) => b.textContent === 'Give up',
+    )!,
+  )
+  expect(screen.getByText('The word was CRANE')).toBeTruthy()
+  expect(screen.getByText('You gave up. Ready for another?')).toBeTruthy()
+})
+
+it('New game confirm starts a fresh playing game', async () => {
+  render(<App />)
+  playFour()
+  fireEvent.click(screen.getByRole('button', { name: 'New game' }))
+  expect(
+    screen.getByText('This counts as a loss. Start a new game?'),
+  ).toBeTruthy()
+  const dialog = screen.getByText('New game?').closest('dialog')!
+  await act(async () => {
+    fireEvent.click(
+      Array.from(dialog.querySelectorAll('button')).find(
+        (b) => b.textContent === 'New game',
+      )!,
+    )
+  })
+  const s = useGameStore.getState()
+  expect(s.rows).toHaveLength(0)
+  expect(s.status).toBe('playing')
+})

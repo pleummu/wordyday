@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react'
 import {
+  GAVE_UP_BODY,
   LOSS_BODY,
   PLAY_AGAIN,
   WIN_BODY,
@@ -36,7 +37,9 @@ export default function Banner({
       <h2 className="banner-heading">
         {won ? winHeading(attemptsUsed, maxAttempts) : lossHeading(answer)}
       </h2>
-      <p className="banner-body">{won ? WIN_BODY : LOSS_BODY}</p>
+      <p className="banner-body">
+        {won ? WIN_BODY : status === 'gave-up' ? GAVE_UP_BODY : LOSS_BODY}
+      </p>
       <button
         ref={button}
         type="button"

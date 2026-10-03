@@ -34,3 +34,11 @@ export const INFO_BODY = [
   'Heads up: some words are mildly crude.',
 ] as const
 export const INFO_GOT_IT = 'Got it'
+
+export const GIVE_UP = 'Give up'
+export const NEW_GAME = 'New game'
+export const GIVE_UP_HEADING = 'Give up?'
+export const GIVE_UP_BODY = 'This counts as a loss. Reveal the answer?'
+export const NEW_GAME_HEADING = 'New game?'
+export const NEW_GAME_BODY = 'This counts as a loss. Start a new game?'
+export const GAVE_UP_BODY = 'You gave up. Ready for another?'
