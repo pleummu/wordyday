@@ -82,6 +82,10 @@ Already locked elsewhere and not re-decided here:
 ### Carried-over fix (must land in this phase)
 - **D-20:** **Phase 4 WR-02** (`04-REVIEW.md`): `onGameFinished` can fire twice for one game when two tabs finish it at the same time. Streaks and stats hang off this seam, so it **must be made idempotent by `(boardKey, gameId)`** before stats and streaks are wired to it. Add a two-tab test where both tabs finish the same game before the sync arrives. Streak and stats fields also need a sane two-tab merge rule (Claude's discretion; it must never double-count).
 
+### Decided at plan time (2026-10-04, after research)
+- **D-21:** A finished game is **recorded at submit** (when `finishGame` runs), not when the reveal ends, so a refresh mid-reveal cannot lose it. The **Stats button and Day Streak chip are disabled while `revealing`**, and the Day Streak toast and banner Win Streak line fire at `finishReveal`. This overrides 05-UI-SPEC lines 130 and 251 ("enabled while revealing" / "recorded when the reveal completes").
+- **D-22:** Fold in two Phase 4 review fixes with the v1 to v2 save migration: **WR-03** (one malformed Board is skipped and the rest are kept, instead of discarding the whole document) and **IN-01** (the unused Zustand `persist` `migrate` path throws instead of silently passing unvalidated data).
+
 ### Claude's Discretion
 - Exact v2 schema field names and placement (per-Board `stats` vs a top-level `stats` map), the shape of the "break modal shown" marker, and the migration function. These follow SPEC §8 names and the existing `MIGRATIONS` chain in `src/logic/save.ts`.
 - How the Restore state machine is split: pure `logic/streaks.ts` with an injected `today`, plus store actions. Wiring the CHECK on open, `visibilitychange`/focus and date change uses a StrictMode-safe effect with cleanup. Date-change detection could be a check on focus plus a timer to the next local midnight.

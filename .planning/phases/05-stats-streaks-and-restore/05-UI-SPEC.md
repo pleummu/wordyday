@@ -127,7 +127,7 @@ The chip is not mode-tinted and never uses `--color-danger` or `--color-error` (
 
 DOM order inside `.header-actions` (also tab order, after the title and before the mode switch): **Day Streak chip (only when Day Streak > 0), Stats button, Settings button.** Icons left to right: `[sun 5] [bars] [sliders]`. Gap `--space-1`.
 
-- **Stats button**: `<button type="button" class="stats-button" aria-label="Statistics" aria-haspopup="dialog" data-own-enter>`; same box, hover, active and focus rules as `.settings-button`; icon colour `--color-text`. Enabled while `revealing`. Opens the Stats modal on the current Board.
+- **Stats button**: `<button type="button" class="stats-button" aria-label="Statistics" aria-haspopup="dialog" data-own-enter>`; same box, hover, active and focus rules as `.settings-button`; icon colour `--color-text`. Disabled while `revealing` (CONTEXT D-21). Opens the Stats modal on the current Board.
 - **Day Streak chip**: `<button type="button" class="streak-chip" aria-haspopup="dialog" data-own-enter>`, pill (`--radius-pill`), height 32, padding `0 var(--space-2)` (8 px), min-width 36. Contents: sun icon (18 px) then the count (Label 14/600, `font-variant-numeric: tabular-nums`). Opens Stats on the current Board (same as the Stats button). Rendered only when `dayStreak.current > 0`; unmounted otherwise (no placeholder, no reserved space). While the Restore prompt is pending the chip shows the pre-break value or is hidden per the state machine; the prompt is blocking, so the chip is `inert` with the rest of the app.
 - **Chip accessible name** (D-09): credited today: "Day streak {n}, open statistics". Not credited yet: "Day streak {n}, play today to keep it, open statistics". Singular "Day streak 1" needs no change (a count, not a noun phrase).
 - **Count display**: show the integer as is. No abbreviation or "99+" (layout budget above covers 4 digits).
@@ -248,7 +248,7 @@ Adds a second line in `.banner`, below `.banner-body` and above the button: Labe
 
 ## Interaction Rules
 
-- **Opening Stats**: header Stats button or Day Streak chip. Both open the same modal. One dialog at a time (Phase 3 rule). Opening Stats does not touch the game and is allowed while `revealing` (it only reads saved results; the result of the game being revealed is already counted when the reveal ends, so the view must not show a half-counted game: the finish is recorded when the reveal completes, as today's `onGameFinished`).
+- **Opening Stats**: header Stats button or Day Streak chip. Both open the same modal. One dialog at a time (Phase 3 rule). Opening Stats does not touch the game. Both openers are **disabled while `revealing`** (CONTEXT D-21): the finished game is recorded at submit, and the Day Streak toast and banner Win Streak line wait for the reveal to end.
 - **Tab/radio keyboard**: Left/Right arrows move between tabs and between mode segments; Home/End jump to first/last tab; Tab moves between the toggle, the tablist, then Close. Esc and scrim close Stats; focus returns to whichever header button opened it (chip or Stats button; if the chip unmounted, fall back to the Stats button).
 - **Missed-day check** runs on open, on `visibilitychange` (visible) / focus, and at the next local midnight. If it triggers a Restore prompt or streak-ended modal while the player is mid-game, the dialog appears immediately over the board (input blocked); typed letters stay in place.
 - **Chip dimming** updates when the credit happens (no animation, instant) and when midnight passes (the chip dims again).
