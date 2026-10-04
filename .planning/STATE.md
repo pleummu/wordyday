@@ -2,9 +2,9 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: verifying
-stopped_at: Completed 04-12-PLAN.md
-last_updated: "2026-10-04T06:49:04.524Z"
+status: ready_to_plan
+stopped_at: Phase 04 complete (12/12) — ready to discuss Phase 5
+last_updated: 2026-10-04T06:54:05.744Z
 last_activity: 2026-10-04
 progress:
   total_phases: 8
@@ -21,13 +21,13 @@ progress:
 See: .planning/PROJECT.md (updated 2026-10-01)
 
 **Core value:** Endless, correct Wordle play. Scoring (including repeated letters), word validation and a smooth, responsive feel must be right for all three lengths.
-**Current focus:** Phase 04 — six-boards-and-persistence
+**Current focus:** Phase 5 — stats, streaks and restore
 
 ## Current Position
 
-Phase: 04 (six-boards-and-persistence) — EXECUTING
-Plan: 12 of 12
-Status: All plans complete, verifying
+Phase: 5
+Plan: Not started
+Status: Ready to plan
 Last activity: 2026-10-04
 
 Progress: [█████████░] 89%
@@ -36,7 +36,7 @@ Progress: [█████████░] 89%
 
 **Velocity:**
 
-- Total plans completed: 23
+- Total plans completed: 35
 - Average duration: -
 - Total execution time: -
 
@@ -63,6 +63,7 @@ Progress: [█████████░] 89%
 | Phase 04 P05 | 15min | 2 tasks | 10 files |
 | Phase 04 P06 | 15min | 2 tasks | 14 files |
 | Phase 04 P07 | 25min | 3 tasks | 17 files |
+| 04 | 12 | - | - |
 
 ## Accumulated Context
 

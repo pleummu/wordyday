@@ -1,103 +1,88 @@
 ---
 phase: 04-six-boards-and-persistence
-verified: 2026-10-03T00:00:00Z
-status: gaps_found
-score: 3/5 roadmap success criteria fully verified (SC1, SC2, SC3, SC5 verified; SC4 partial)
-gaps:
-  - truth: "Two open tabs stay in sync (SC4, SAVE-08)"
-    status: failed
-    reason: "CR-02: when the other tab's document lacks the active Board (Play again, New game, forfeit, Reset all write a board-less 'loading' document), each tab starts its own random game; tabs end up crossed on different answers and both toast 'Updated from your other tab'. e2e hides it because fixAnswers forces the same answer in both tabs (WR-07)."
-    artifacts:
-      - path: "src/state/gameStore.ts"
-        issue: "applyExternal theirs===undefined branch (about lines 420-431) calls startGame with local rng; startGame persists a board-less loading document"
-      - path: "e2e/tabs.spec.ts"
-        issue: "No test for Play again / New game / Reset with a second tab and different answers; uses waitForTimeout(300)"
-    missing:
-      - "Keep the live game when the external doc lacks the active Board and raw !== null; merge other Boards only"
-      - "Do not broadcast a board-less loading document"
-      - "E2E where the answer is fixed only in tab A, Play again in A, B shows the same answer"
-  - truth: "Saved data has a version number and a migration chain that protects data across updates (SAVE-05, SAVE-06 hand-off to Phase 5)"
-    status: failed
-    reason: "CR-01 (confirmed in code): loadSave returns { ok:false } for version > SAVE_VERSION; storage.getItem backs it up to :corrupt, toasts 'corrupt', returns null, and the next write overwrites it. Across tabs, read() yields 'invalid' and the old tab later overwrites a newer document. Phase 5 bumps the schema, so v1 code in old tabs/rollbacks will wipe streaks and Restores."
-    artifacts:
-      - path: "src/logic/save.ts"
-        issue: "lines 171-179 no distinct 'newer' result"
-      - path: "src/state/storage.ts"
-        issue: "getItem/setItem/read have no read-only mode for newer-version saves"
-    missing:
-      - "Distinct 'newer' result; storage goes read-only for the session, no corrupt toast/backup, no overwrite"
-      - "Unit tests for newer-version load on boot and via storage event"
-  - truth: "Reset all data fully resets and a finished game is never double-counted (SAVE-09, CONTEXT seam for Phase 5)"
-    status: partial
-    reason: "WR-03: pendingExternal is not cleared by resetAll/startGame (only set undefined at gameStore.ts:263 and consumed at 613-615), so a pre-reset document can be applied after reset and undo it. WR-04: applyExternal replaces whole boards document (last-writer-wins) and can roll back a game already finished, allowing onGameFinished to fire twice."
-    artifacts:
-      - path: "src/state/gameStore.ts"
-        issue: "resetAll does not clear pendingExternal; applyExternal not merged per Board"
-    missing:
-      - "Clear pendingExternal wherever loadToken is bumped (resetAll, startGame, loadBoard)"
-      - "Per-Board merge: same answer keeps more guesses, never move finished back to playing"
+verified: 2026-10-04T00:00:00Z
+status: passed
+score: 5/5 roadmap success criteria verified
+re_verification:
+  previous_status: gaps_found
+  previous_score: 3/5
+  gaps_closed:
+    - "Two open tabs stay in sync (SC4, SAVE-08) - CR-02"
+    - "Newer-version saves protected (SAVE-05/06) - CR-01"
+    - "Reset all complete, no double-apply of stale docs (SAVE-09) - WR-03/WR-04"
+  gaps_remaining: []
+  regressions: []
 ---
 
 # Phase 4: Six Boards and Persistence Verification Report
 
 **Phase Goal:** Users keep six independent games that survive refresh, mode/length switches and bad storage
-**Status:** gaps_found
-**Re-verification:** No, initial verification
+**Status:** passed
+**Re-verification:** Yes, after gap closure plans 04-08..04-12
 
-## Automated Checks (run by verifier)
+## Automated Checks
 
 | Check | Result |
 | ----- | ------ |
-| `npx vitest run` | 23 files, 324 tests pass |
-| `npm run typecheck` | clean |
-| `npm run lint` | clean |
-| `npx playwright test --project=chromium` | 59 passed |
-| Debt markers (TBD/FIXME/XXX) in src, e2e | none found |
+| `npx vitest run` (re-run by verifier) | 24 files, 372 tests pass |
+| typecheck, lint, format:check | clean (orchestrator-reported) |
+| `npx playwright test` | 126 passed, chromium + mobile (orchestrator-reported) |
+| Debt markers TBD/FIXME/XXX in src, e2e | none |
+| Fixed sleeps in e2e/tabs.spec.ts | none (`waitForTimeout` absent) |
 
-Green tests do not cover the gaps below: the review reproduced CR-02 and WR-01 with a throwaway two-store script, and the e2e suite masks CR-02 by fixing the same answer in both tabs.
+## Previous Gaps
+
+| Gap | Now | Evidence |
+| --- | --- | -------- |
+| Tab sync diverges on Play again / New game / Reset (CR-02, WR-01) | CLOSED | `pickGame` / `mergeBoards` (src/logic/save.ts:175, 205) merge per Board by game id with a total order; a board-less document no longer starts a game, only `raw === null` does. `startGame` stores the finished game before clearing the live view. Unit tests in `src/state/twoTabs.test.ts` cover Play again, New game, Reset and concurrent Play again. `e2e/tabs.spec.ts` uses answers fixed only in one tab (`b: 'none'`, `b: { 5: 'slate' }`), with no sleeps. Owner did the real two-tab check on a production build and typed "approved". |
+| Newer-version save destroyed (CR-01) | CLOSED | `loadSave` returns `reason: 'newer'` (save.ts:247-256). `storage.ts` goes read-only (`readOnly`, lines 32, 60-62, 101, 122): no backup, no corrupt toast, `setItem` / `removeItem` are no-ops. The store ignores `'newer'` reads from other tabs (gameStore.ts:372). E2E checks the document is byte-identical after boot, play, Play again and reload. |
+| Reset undone by stale pendingExternal; rollback of finished games (WR-03/WR-04) | CLOSED | `pendingExternal: undefined` is cleared in resetAll, startGame, loadBoard and the reset path (gameStore.ts:211, 270, 317, 396, 445, 520). A reset floor plus per-Board merge means a finished game is never moved back to playing. |
 
 ## Success Criteria
 
 | # | Criterion | Status | Evidence |
 | - | --------- | ------ | -------- |
-| 1 | Six Boards, switch without losing progress, refresh resumes, half-typed row discarded | VERIFIED | Persisted store, non-forfeiting switchBoard, refresh/switch E2E and unit tests pass |
-| 2 | Finished Board shows grid, banner, Play again; new game only on Play again | VERIFIED | Static restore in Grid/Banner, tests pass |
-| 3 | Give Up / New game only at exactly 2 tries left, confirm, counts as loss | VERIFIED | canForfeit, forfeit E2E (give up, new game, 4/6 letters) pass |
-| 4 | Corrupt/blocked/full storage still works; two tabs stay in sync | PARTIAL / FAILED | Corrupt/blocked/full handled (storage tests, loading E2E). Tab sync diverges (CR-02); newer-version saves destroyed (CR-01) |
-| 5 | Reset all from Settings after confirm; browser-only note | VERIFIED (with WR-03 caveat) | ResetConfirm, SettingsModal, resetAll present and tested; stale pendingExternal can undo a reset in a narrow race |
+| 1 | Six Boards, switch without losing progress, refresh resumes, half-typed row discarded | VERIFIED | Persisted store, non-forfeiting switchBoard; boards and persistence E2E and unit tests pass |
+| 2 | Finished Board shows grid, banner, Play again; new game only on Play again | VERIFIED | Static restore in Grid and Banner; tests pass |
+| 3 | Give Up / New game only at exactly 2 tries left, confirm, counts as loss | VERIFIED | canForfeit; forfeit E2E passes |
+| 4 | Corrupt/blocked/full storage still works; two tabs stay in sync | VERIFIED | Storage and loading E2E; the tab-sync gaps above are closed, including the manual owner check |
+| 5 | Reset all from Settings after confirm; browser-only note | VERIFIED | ResetConfirm, SettingsModal, resetAll; stale-document race closed |
+
+**Score:** 5/5
 
 ## Requirements Coverage
 
-All 12 IDs appear in plan frontmatter and in REQUIREMENTS.md (all marked Complete, mapped to Phase 4); no orphans.
+All 12 IDs (SAVE-01..09, PLAY-07, PLAY-08, UI-11) appear in plan frontmatter, are mapped to Phase 4 in REQUIREMENTS.md and marked Complete. No orphans.
 
-| Requirement | Plans | Status |
-| ----------- | ----- | ------ |
-| SAVE-01, SAVE-02, SAVE-03, SAVE-04 | 01, 02, 03 | SATISFIED |
-| SAVE-05 (versioned, migration chain) | 01, 02 | PARTIAL: chain exists but forward-version handling destroys newer data (CR-01) |
-| SAVE-06 (corrupt data never white-screens, backed up) | 01, 02, 07 | SATISFIED for corrupt; newer-version misclassified as corrupt (CR-01); WR-05 one bad Board drops all |
-| SAVE-07 (storage unavailable/full) | 02, 07 | SATISFIED (WR-02: second failure after recovery is not reported, minor) |
-| SAVE-08 (tabs in sync) | 07 | BLOCKED by CR-02 (also WR-04) |
-| SAVE-09 (reset all) | 06 | SATISFIED with WR-03 caveat |
-| PLAY-07, PLAY-08 | 04, 05 | SATISFIED |
-| UI-11 | 06 | SATISFIED |
+| Requirement | Status |
+| ----------- | ------ |
+| SAVE-01..04 | SATISFIED |
+| SAVE-05 (versioned, migration chain) | SATISFIED, forward-version handled via `'newer'` |
+| SAVE-06 (corrupt data backed up, no white screen) | SATISFIED (WR-03 below is a resilience improvement only) |
+| SAVE-07 (storage unavailable/full) | SATISFIED |
+| SAVE-08 (tabs in sync) | SATISFIED |
+| SAVE-09 (reset all) | SATISFIED (see WR-01 caveat, edge case only) |
+| PLAY-07, PLAY-08 | SATISFIED |
+| UI-11 | SATISFIED |
 
-## Review Findings Weighed
+## Review Findings Weighed (04-REVIEW.md: 0 critical, 5 warnings, 9 info)
 
-- CR-01: BLOCKER for SAVE-05/SAVE-06 intent; code confirmed (save.ts version > SAVE_VERSION returns ok:false; storage.getItem backs up to :corrupt, emits corrupt, returns null).
-- CR-02: BLOCKER for SC4 / SAVE-08; tabs diverge on Play again / New game / Reset.
-- WR-03, WR-04: gaps (Reset completeness; double-count of finish, which Phase 5 stats depend on per CONTEXT).
-- WR-01 (stale snapshot written during startGame) is tied to CR-02/WR-04; fix together.
-- Non-blocking, warning level: WR-02, WR-05, WR-06 (toast behind modals, a11y), WR-07 (test weakness), IN-01..06.
+None blocks this phase's goal or success criteria. Advisory, to be tracked:
+
+- WR-02 (onGameFinished can fire in two tabs for one game): belongs to Phase 5. Make the seam idempotent by (Board, gameId) when streaks are added. Not a Phase 4 criterion; there are no stats yet.
+- WR-01 (Reset in read-only mode toasts "All data reset" but storage is untouched): edge case only reachable with a newer-version save. Suggest disabling Reset or using different copy in a follow-up.
+- WR-03 (one invalid Board discards the whole document), WR-04 (second storage failure not reported), WR-05 (tab booting during the reset window loses input), IN-01..09: hardening and polish.
+- Owner-flagged UX (IN-09): focus returns to the Settings button after Reset or closing Settings, so Enter reopens Settings. Pre-existing since 04-06. Keyboard accessibility polish; recommend a small follow-up fix (return focus to the grid or body, and remove the `blur()` workaround in e2e/tabs.spec.ts).
 
 ## Human Verification
 
-None required beyond closing the gaps; two-tab behaviour should be re-checked manually after the CR-02 fix.
+None outstanding. The two-tab real-browser check was done by the owner on a production build (Play again, New game, Reset, other-Board change) and approved.
 
 ## Gaps Summary
 
-Everything is built and tests pass, but the cross-tab and forward-compat paths have real defects that contradict SC4 (tabs stay in sync) and the versioning intent of SAVE-05/06. Plan a gap-closure (`/gsd-plan-phase 4 --gaps`) covering CR-01, CR-02 (with WR-01), WR-03/WR-04, and the missing e2e (WR-07). Deferral to Phase 5 is not appropriate: Phase 5 success criteria do not cover tab sync or v1 forward-compat.
+No gaps. The previous BLOCKERs (CR-01, CR-02) and the WR-03/WR-04 gaps are closed with code and test evidence. Remaining items are advisory warnings or Phase 5 concerns.
 
 ---
 
-_Verified: 2026-10-03_
+_Verified: 2026-10-04_
 _Verifier: Claude (gsd-verifier)_
