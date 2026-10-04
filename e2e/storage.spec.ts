@@ -73,3 +73,44 @@ test('full storage still plays in memory', async ({ page }) => {
   await playTwoGuesses(page)
   expect(await page.getByText(STORAGE_TOAST).count()).toBeLessThanOrEqual(1)
 })
+
+test('a save from a newer version is kept untouched (CR-01)', async ({
+  page,
+}) => {
+  const NEWER = '{"state":{"future":true},"version":2}'
+  const CORRUPT = "We couldn't read your saved games, so we started fresh."
+  await page.addInitScript((seed) => {
+    if (sessionStorage.getItem('seeded') === null) {
+      localStorage.setItem('unlimited-wordle', seed)
+      sessionStorage.setItem('seeded', '1')
+    }
+  }, NEWER)
+  await fixAnswers(page)
+  await page.goto('/')
+  await expect(page.getByText(STORAGE_TOAST)).toBeVisible()
+  await expect(page.getByText(CORRUPT)).toHaveCount(0)
+  await waitForReady(page)
+  await guess(page, 'house', 1)
+  await guess(page, 'crane', 2)
+  await expect(page.getByText('You got it in 2 of 6')).toBeVisible()
+  await page.getByRole('button', { name: 'Play again' }).click()
+  await waitForReady(page)
+  expect(
+    await page.evaluate(() => localStorage.getItem('unlimited-wordle')),
+  ).toBe(NEWER)
+  expect(
+    await page.evaluate(() => localStorage.getItem('unlimited-wordle:corrupt')),
+  ).toBeNull()
+  await page.getByRole('button', { name: 'Settings' }).click()
+  await expect(
+    page.getByText(
+      "Saving isn't working in this browser right now, so this session won't be kept.",
+    ),
+  ).toBeVisible()
+  await page.keyboard.press('Escape')
+  await page.reload()
+  expect(
+    await page.evaluate(() => localStorage.getItem('unlimited-wordle')),
+  ).toBe(NEWER)
+  await expect(page.getByText(CORRUPT)).toHaveCount(0)
+})
