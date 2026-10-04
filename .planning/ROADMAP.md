@@ -214,7 +214,7 @@ Plans:
 - [x] 04-11-PLAN.md — applyExternal on mergeBoards, two-tab harness tests (CR-02, WR-04)
 
 **Wave 12** *(blocked on Wave 11 completion)*
-- [ ] 04-12-PLAN.md — Two-tab E2E with the answer fixed only in tab A, newer-save E2E, no sleeps, owner two-tab check (WR-07)
+- [x] 04-12-PLAN.md — Two-tab E2E with the answer fixed only in tab A, newer-save E2E, no sleeps, owner two-tab check (WR-07)
 
 **UI hint**: yes
 **Notes**: Schema versioning and the migration chain are settled here, before any streak data exists. A Modal primitive (focus trap, Esc, focus return) is built here for the confirm dialogs.
@@ -294,7 +294,7 @@ Plans:
 | 1. Foundation, Spec and CI Skeleton | 6/6 | Complete    | 2026-10-01 |
 | 2. Playable Normal Game | 11/11 | Complete   | 2026-10-01 |
 | 3. Wordubado Mode and Slang | 6/6 | Complete    | 2026-10-02 |
-| 4. Six Boards and Persistence | 11/12 | In Progress|  |
+| 4. Six Boards and Persistence | 12/12 | Complete   | 2026-10-04 |
 | 5. Stats, Streaks and Restore | 0/TBD | Not started | - |
 | 6. Result Screen, Share and Definitions | 0/TBD | Not started | - |
 | 7. Themes, Accessibility and Polish | 0/TBD | Not started | - |

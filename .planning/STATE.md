@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: executing
-stopped_at: Completed 04-02-PLAN.md
-last_updated: "2026-10-03T19:32:41.818Z"
-last_activity: 2026-10-03
+status: verifying
+stopped_at: Completed 04-12-PLAN.md
+last_updated: "2026-10-04T06:49:04.524Z"
+last_activity: 2026-10-04
 progress:
   total_phases: 8
-  completed_phases: 3
+  completed_phases: 4
   total_plans: 35
-  completed_plans: 32
-  percent: 38
+  completed_plans: 35
+  percent: 50
 ---
 
 # Project State
@@ -26,9 +26,9 @@ See: .planning/PROJECT.md (updated 2026-10-01)
 ## Current Position
 
 Phase: 04 (six-boards-and-persistence) — EXECUTING
-Plan: 2 of 12
-Status: Ready to execute
-Last activity: 2026-10-03
+Plan: 12 of 12
+Status: All plans complete, verifying
+Last activity: 2026-10-04
 
 Progress: [█████████░] 89%
 
@@ -88,6 +88,9 @@ Progress: [█████████░] 89%
 - [Phase 04]: resetAll sets toast after startGame — startGame clears toast synchronously
 - [Phase 04]: applyExternal sets once and skips when boards match — Avoids cross-tab write ping-pong from each tab's own last pointer
 - [Phase 04]: Unavailable storage counts as a storage failure — SAVE-07 needs the blocked-storage toast
+- [Phase 04]: Merge two tabs per Board by game id; pickGame is a symmetric total order (higher id wins, ties by lower answer) (04-09)
+- [Phase 04]: Game ids assigned after loadPools await; forfeit stored as gave-up snapshot before next game (04-10)
+- [Phase 04]: Only a reset may start a game from another tab; resetFloor ignores pre-reset games; write back only when ahead (04-11)
 
 ### Pending Todos
 
@@ -103,5 +106,5 @@ Progress: [█████████░] 89%
 ## Session Continuity
 
 Last session: 2026-10-03T19:32:41.813Z
-Stopped at: Completed 04-02-PLAN.md
+Stopped at: Completed 04-12-PLAN.md
 Resume file: None
