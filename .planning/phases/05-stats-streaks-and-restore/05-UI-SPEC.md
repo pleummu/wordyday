@@ -1,7 +1,8 @@
 ---
 phase: 5
 slug: stats-streaks-and-restore
-status: draft
+status: approved
+reviewed_at: 2026-10-04
 shadcn_initialized: false
 preset: none
 created: 2026-10-04
@@ -337,11 +338,11 @@ Tone: short, warm, plain; no emoji. Glossary terms in code and docs (Win Streak,
 
 ## Checker Sign-Off
 
-- [ ] Dimension 1 Copywriting: PASS
-- [ ] Dimension 2 Visuals: PASS
-- [ ] Dimension 3 Color: PASS
-- [ ] Dimension 4 Typography: PASS
-- [ ] Dimension 5 Spacing: PASS
-- [ ] Dimension 6 Registry Safety: PASS
+- [x] Dimension 1 Copywriting: FLAG (non-blocking; "OK" locked by D-16, "Close" follows Phase 3/4 modal pattern)
+- [x] Dimension 2 Visuals: PASS
+- [x] Dimension 3 Color: PASS
+- [x] Dimension 4 Typography: PASS
+- [x] Dimension 5 Spacing: PASS
+- [x] Dimension 6 Registry Safety: PASS
 
-**Approval:** pending
+**Approval:** approved 2026-10-04 (gsd-ui-checker APPROVED after 1 revision, 1 non-blocking FLAG; owner review of copy and discretion items pending)
