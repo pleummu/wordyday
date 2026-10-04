@@ -40,7 +40,7 @@ Unchanged tokens (`--space-1..7` = 4, 8, 16, 32, 24, 48, 64). New usages:
 | Token | Usage in Phase 5 |
 |-------|------------------|
 | `--space-1` (4px) | Gap between chip icon and count; gap between header action buttons; gap between distribution rows; gap between segments inside toggle and tabs |
-| `--space-2` (8px) | Gap between stat cells' number and label; gap between "Gave up" line and chart; padding inside the mode toggle track |
+| `--space-2` (8px) | Gap between stat cells' number and label; gap between "Gave up" line and chart; padding inside the mode toggle track; Day Streak chip horizontal padding |
 | `--space-3` (16px) | Stats modal inner section gap (same as `.modal-card` gap); banner side padding |
 | `--space-5` (24px) | Modal padding (unchanged) |
 
@@ -58,13 +58,13 @@ Row width at 320 px viewport = 320 - 32 = 288 px. Below 400 px the title is **le
 | Element | Width at 320 px |
 |---------|-----------------|
 | Title "Unlimited Wordle" | Label size (14/600) below 360 px: about 118 px. 20 px Heading size from 360 px: about 168 px |
-| Day Streak chip (2-digit count) | about 52 px (6 px padding, 18 px icon, 4 px gap, 2 digits about 18 px) |
+| Day Streak chip (2-digit count) | about 56 px (2 x 8 px padding = 16, 18 px icon, 4 px gap, 2 digits about 18 px) |
 | Stats button | 36 px |
 | Settings button | 36 px |
 | Gaps (2 x 4 px) | 8 px |
-| Actions total | about 132 px (3-digit count: about 141 px) |
+| Actions total | about 136 px (3-digit count: about 145 px) |
 
-- 320 px: 118 + 132 = 250 px of 288 px; at least 38 px spare. 360 px (row 328 px): 168 + 132 = 300 px; fits. 400 px and wider: unchanged `space-between`, 40 px buttons.
+- 320 px: 118 + 136 = 254 px of 288 px; at least 34 px spare (Day Streak 123: 118 + 145 = 263 px; 25 px spare). 360 px (row 328 px): 168 + 136 = 304 px (3-digit: 313 px); fits. 400 px and wider: unchanged `space-between`, 40 px buttons.
 - When the chip is hidden (Day Streak 0) the title simply has more room; no layout jump matters because the title is left aligned.
 - Height is unchanged: `.header-top` stays 32 px (24 px at `max-height: 540px`), so the Phase 2 to 4 vertical budgets (header 64 / 80, controls, forfeit row) are unaffected. No new vertical element is added to the main screen except the banner line below.
 - Playwright (`e2e/layout.spec.ts`) must add: at 320 x 500, 320 x 568 and 320 x 640 with Day Streak set to 12 and to 123, no horizontal overflow, no title/actions overlap (bounding boxes do not intersect), header height unchanged, in Normal and Wordubado.
@@ -127,7 +127,7 @@ The chip is not mode-tinted and never uses `--color-danger` or `--color-error` (
 DOM order inside `.header-actions` (also tab order, after the title and before the mode switch): **Day Streak chip (only when Day Streak > 0), Stats button, Settings button.** Icons left to right: `[sun 5] [bars] [sliders]`. Gap `--space-1`.
 
 - **Stats button**: `<button type="button" class="stats-button" aria-label="Statistics" aria-haspopup="dialog" data-own-enter>`; same box, hover, active and focus rules as `.settings-button`; icon colour `--color-text`. Enabled while `revealing`. Opens the Stats modal on the current Board.
-- **Day Streak chip**: `<button type="button" class="streak-chip" aria-haspopup="dialog" data-own-enter>`, pill (`--radius-pill`), height 32, padding `0 6px`, min-width 36. Contents: sun icon (18 px) then the count (Label 14/600, `font-variant-numeric: tabular-nums`). Opens Stats on the current Board (same as the Stats button). Rendered only when `dayStreak.current > 0`; unmounted otherwise (no placeholder, no reserved space). While the Restore prompt is pending the chip shows the pre-break value or is hidden per the state machine; the prompt is blocking, so the chip is `inert` with the rest of the app.
+- **Day Streak chip**: `<button type="button" class="streak-chip" aria-haspopup="dialog" data-own-enter>`, pill (`--radius-pill`), height 32, padding `0 var(--space-2)` (8 px), min-width 36. Contents: sun icon (18 px) then the count (Label 14/600, `font-variant-numeric: tabular-nums`). Opens Stats on the current Board (same as the Stats button). Rendered only when `dayStreak.current > 0`; unmounted otherwise (no placeholder, no reserved space). While the Restore prompt is pending the chip shows the pre-break value or is hidden per the state machine; the prompt is blocking, so the chip is `inert` with the rest of the app.
 - **Chip accessible name** (D-09): credited today: "Day streak {n}, open statistics". Not credited yet: "Day streak {n}, play today to keep it, open statistics". Singular "Day streak 1" needs no change (a count, not a noun phrase).
 - **Count display**: show the integer as is. No abbreviation or "99+" (layout budget above covers 4 digits).
 
