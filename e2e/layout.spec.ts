@@ -2,6 +2,7 @@ import { expect, test, type Page } from '@playwright/test'
 import {
   fixAnswers,
   guessAll,
+  seedSave,
   selectLength,
   turnOnWordubado,
   waitForReady,
@@ -206,3 +207,58 @@ test('header action buttons are 40 px at 1280x720', async ({ page }) => {
     expect(b.height).toBeCloseTo(40, 0)
   }
 })
+
+async function chipPage(
+  page: Page,
+  h: number,
+  mode: 'normal' | 'wordubado',
+  streak: number,
+): Promise<Page> {
+  const p = await page.context().newPage()
+  await p.clock.install({ time: new Date('2026-06-03T09:00:00') })
+  await fixAnswers(p)
+  await seedSave(p, {
+    dayStreak: {
+      current: streak,
+      longest: streak,
+      lastActiveDate: streak ? '2026-06-03' : null,
+    },
+    wordubadoInfoSeen: true,
+  })
+  await p.setViewportSize({ width: 320, height: h })
+  await p.goto('/')
+  await waitForReady(p)
+  if (mode === 'wordubado') await turnOnWordubado(p, { firstTime: false })
+  return p
+}
+
+for (const h of [500, 568, 640]) {
+  for (const mode of ['normal', 'wordubado'] as const) {
+    test(`header fits the Day Streak chip at 320x${h} in ${mode}`, async ({
+      page,
+    }) => {
+      const p0 = await chipPage(page, h, mode, 0)
+      const base = (await p0.locator('.header').boundingBox())!.height
+      await p0.close()
+      for (const streak of [12, 123]) {
+        const p = await chipPage(page, h, mode, streak)
+        await expectNoScroll(p, h)
+        const title = (await p.locator('h1.title').boundingBox())!
+        const actions = (await p.locator('.header-actions').boundingBox())!
+        const overlap =
+          title.x < actions.x + actions.width &&
+          actions.x < title.x + title.width &&
+          title.y < actions.y + actions.height &&
+          actions.y < title.y + title.height
+        expect(overlap).toBe(false)
+        const chip = (await p
+          .getByRole('button', { name: /^Day streak/ })
+          .boundingBox())!
+        expect(chip.x).toBeGreaterThanOrEqual(0)
+        expect(chip.x + chip.width).toBeLessThanOrEqual(320)
+        expect((await p.locator('.header').boundingBox())!.height).toBe(base)
+        await p.close()
+      }
+    })
+  }
+}

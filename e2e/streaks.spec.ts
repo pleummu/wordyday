@@ -4,6 +4,7 @@ import {
   guess,
   guessAll,
   seedSave,
+  selectLength,
   waitForReady,
 } from './helpers.ts'
 
@@ -106,7 +107,7 @@ test.describe('Win Streak (STRK-01, D-12)', () => {
 const DAY1 = new Date('2026-06-03T09:00:00')
 
 async function openStats(page: Page) {
-  await page.getByRole('button', { name: 'Statistics' }).click()
+  await page.getByRole('button', { name: 'Statistics', exact: true }).click()
   const dialog = page.getByRole('dialog', { name: 'Statistics' })
   await expect(dialog).toBeVisible()
   return dialog
@@ -198,5 +199,67 @@ test.describe('Day Streak (STRK-02, D-11)', () => {
     const dialog = await openStats(page)
     await expect(dialog).toContainText('Day streak 0 · Best 0')
     await expect(dialog).toContainText('Restores left: 3/3')
+  })
+})
+
+test.describe('Day Streak chip (D-08..D-10)', () => {
+  const chip = (page: Page, name: string | RegExp) =>
+    page.getByRole('button', { name })
+
+  test('hidden at 0', async ({ page }) => {
+    await startDay(page)
+    await expect(chip(page, /^Day streak/)).toHaveCount(0)
+  })
+
+  test("after today's first finish", async ({ page }) => {
+    await startDay(page)
+    await winOnce(page)
+    await expect(chip(page, 'Day streak 1, open statistics')).toBeVisible()
+  })
+
+  test('muted until played today', async ({ page }) => {
+    await startDay(page, {
+      dayStreak: { current: 5, longest: 5, lastActiveDate: '2026-06-02' },
+    })
+    const dim = chip(
+      page,
+      'Day streak 5, play today to keep it, open statistics',
+    )
+    await expect(dim).toHaveAttribute('data-dimmed', '')
+    await winOnce(page)
+    const full = chip(page, 'Day streak 6, open statistics')
+    await expect(full).toBeVisible()
+    await expect(full).not.toHaveAttribute('data-dimmed', '')
+  })
+
+  test('opens Statistics on the current Board', async ({ page }) => {
+    await startDay(page, {
+      dayStreak: { current: 5, longest: 5, lastActiveDate: '2026-06-03' },
+    })
+    await selectLength(page, 4)
+    const c = chip(page, 'Day streak 5, open statistics')
+    await c.click()
+    const dialog = page.getByRole('dialog', { name: 'Statistics' })
+    await expect(dialog).toBeVisible()
+    await expect(
+      dialog.getByRole('tab', { name: '4 letters' }),
+    ).toHaveAttribute('aria-selected', 'true')
+    await page.keyboard.press('Escape')
+    await expect(dialog).toBeHidden()
+    await expect(c).toBeFocused()
+  })
+
+  test.describe('while revealing (D-21)', () => {
+    test.use({ reducedMotion: 'no-preference' })
+    test('chip is disabled during the reveal', async ({ page }) => {
+      await startDay(page, {
+        dayStreak: { current: 5, longest: 5, lastActiveDate: '2026-06-03' },
+      })
+      await page.keyboard.type('house')
+      await page.keyboard.press('Enter')
+      const c = chip(page, 'Day streak 5, open statistics')
+      await expect(c).toBeDisabled()
+      await expect(c).toBeEnabled()
+    })
   })
 })
