@@ -43,7 +43,7 @@
 ### Streaks and Restore (STRK)
 
 - [x] **STRK-01**: Each Board has a Win Streak: +1 on a win; resets to 0 on a loss, Give Up or Forfeit
-- [ ] **STRK-02**: User has one global Day Streak: +1 at most once per local calendar day when any game finishes (win, loss or Give Up)
+- [x] **STRK-02**: User has one global Day Streak: +1 at most once per local calendar day when any game finishes (win, loss or Give Up)
 - [ ] **STRK-03**: Missed days are computed from local calendar dates (DST-safe); a clock moved backwards counts as 0 missed days and never overwrites lastActiveDate
 - [ ] **STRK-04**: The missed-day check runs on app open, when the tab regains focus and when the date changes; running it again gives the same result
 - [ ] **STRK-05**: Any missed day resets every Board's Win Streak to 0; a Restore never brings them back
@@ -173,7 +173,7 @@
 | STAT-03 | Phase 5 | Pending |
 | STAT-04 | Phase 5 | Pending |
 | STRK-01 | Phase 5 | Complete |
-| STRK-02 | Phase 5 | Pending |
+| STRK-02 | Phase 5 | Complete |
 | STRK-03 | Phase 5 | Pending |
 | STRK-04 | Phase 5 | Pending |
 | STRK-05 | Phase 5 | Pending |
