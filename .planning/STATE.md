@@ -4,13 +4,13 @@ milestone: v1.0
 milestone_name: milestone
 status: executing
 stopped_at: Phase 5 UI-SPEC approved
-last_updated: "2026-10-04T17:07:04.736Z"
-last_activity: 2026-10-04 -- Phase 5 planning complete
+last_updated: "2026-10-05T13:30:28.442Z"
+last_activity: 2026-10-05
 progress:
   total_phases: 8
   completed_phases: 4
   total_plans: 43
-  completed_plans: 35
+  completed_plans: 36
   percent: 50
 ---
 
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-10-01)
 
 **Core value:** Endless, correct Wordle play. Scoring (including repeated letters), word validation and a smooth, responsive feel must be right for all three lengths.
-**Current focus:** Phase 5 — stats, streaks and restore
+**Current focus:** Phase 05 — stats-streaks-and-restore
 
 ## Current Position
 
-Phase: 5
-Plan: Not started
+Phase: 05 (stats-streaks-and-restore) — EXECUTING
+Plan: 2 of 8
 Status: Ready to execute
-Last activity: 2026-10-04 -- Phase 5 planning complete
+Last activity: 2026-10-05
 
-Progress: [█████████░] 89%
+Progress: [████████░░] 84%
 
 ## Performance Metrics
 
@@ -64,6 +64,7 @@ Progress: [█████████░] 89%
 | Phase 04 P06 | 15min | 2 tasks | 14 files |
 | Phase 04 P07 | 25min | 3 tasks | 17 files |
 | 04 | 12 | - | - |
+| Phase 05 P01 | 25min | 4 tasks | 20 files |
 
 ## Accumulated Context
 
@@ -92,6 +93,7 @@ Progress: [█████████░] 89%
 - [Phase 04]: Merge two tabs per Board by game id; pickGame is a symmetric total order (higher id wins, ties by lower answer) (04-09)
 - [Phase 04]: Game ids assigned after loadPools await; forfeit stored as gave-up snapshot before next game (04-10)
 - [Phase 04]: Only a reset may start a game from another tab; resetFloor ignores pre-reset games; write back only when ahead (04-11)
+- [Phase 05]: 05-01: Restores month sentinel is empty string; forfeit snapshot rides in the same set as the count
 
 ### Pending Todos
 
@@ -106,6 +108,6 @@ Progress: [█████████░] 89%
 
 ## Session Continuity
 
-Last session: 2026-10-04T16:30:12.894Z
+Last session: 2026-10-05T13:30:22.302Z
 Stopped at: Phase 5 UI-SPEC approved
-Resume file: .planning/phases/05-stats-streaks-and-restore/05-UI-SPEC.md
+Resume file: None

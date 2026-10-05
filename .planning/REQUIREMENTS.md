@@ -42,7 +42,7 @@
 
 ### Streaks and Restore (STRK)
 
-- [ ] **STRK-01**: Each Board has a Win Streak: +1 on a win; resets to 0 on a loss, Give Up or Forfeit
+- [x] **STRK-01**: Each Board has a Win Streak: +1 on a win; resets to 0 on a loss, Give Up or Forfeit
 - [ ] **STRK-02**: User has one global Day Streak: +1 at most once per local calendar day when any game finishes (win, loss or Give Up)
 - [ ] **STRK-03**: Missed days are computed from local calendar dates (DST-safe); a clock moved backwards counts as 0 missed days and never overwrites lastActiveDate
 - [ ] **STRK-04**: The missed-day check runs on app open, when the tab regains focus and when the date changes; running it again gives the same result
@@ -88,7 +88,7 @@
 ### Quality and Pipeline (QA)
 
 - [x] **QA-01**: Project uses React + Vite + TypeScript (pinned 6.0.x), ESLint flat config, Prettier, Node 24
-- [ ] **QA-02**: Vitest unit tests cover scoring (ABBEY/BABES, SPEED/ERASE, triples, all lengths), the 75/25 split over 10,000 seeded draws, streaks/Restore (an edge-case table including DST, month boundary and clock moved backwards), forfeit rules, and storage (round-trip, migration, corrupt, throwing storage)
+- [x] **QA-02**: Vitest unit tests cover scoring (ABBEY/BABES, SPEED/ERASE, triples, all lengths), the 75/25 split over 10,000 seeded draws, streaks/Restore (an edge-case table including DST, month boundary and clock moved backwards), forfeit rules, and storage (round-trip, migration, corrupt, throwing storage)
 - [ ] **QA-03**: Playwright E2E tests run against the production build: a full win and loss, invalid guess, resume after refresh, switching Boards, Give Up rule, the Restore prompt (fake clock), and an axe accessibility check, in desktop and mobile projects
 - [ ] **QA-04**: GitHub Actions CI on every PR and push to main runs lint, format check, typecheck, unit tests, build, E2E and the word-drift check
 - [x] **QA-05**: Vercel deploys a preview for every PR and production from main
@@ -167,12 +167,12 @@
 | SAVE-08 | Phase 4 | Complete |
 | SAVE-09 | Phase 4 | Complete |
 | UI-11 | Phase 4 | Complete |
-| QA-02 | Phase 5 | Pending |
+| QA-02 | Phase 5 | Complete |
 | STAT-01 | Phase 5 | Pending |
 | STAT-02 | Phase 5 | Pending |
 | STAT-03 | Phase 5 | Pending |
 | STAT-04 | Phase 5 | Pending |
-| STRK-01 | Phase 5 | Pending |
+| STRK-01 | Phase 5 | Complete |
 | STRK-02 | Phase 5 | Pending |
 | STRK-03 | Phase 5 | Pending |
 | STRK-04 | Phase 5 | Pending |
