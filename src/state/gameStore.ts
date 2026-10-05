@@ -30,7 +30,15 @@ import {
 } from '../logic/save'
 import { score, type TileState } from '../logic/score'
 import { nextSeq, recordResult } from '../logic/stats'
-import { creditDay, monthOf, refill } from '../logic/streaks'
+import {
+  check,
+  creditDay,
+  decline as pureDecline,
+  monthOf,
+  refill,
+  restore as pureRestore,
+  restoresLeft,
+} from '../logic/streaks'
 import {
   ALL_DATA_RESET,
   CORRUPT_TOAST,
@@ -38,6 +46,7 @@ import {
   STORAGE_FAILED_TOAST,
   TOAST_LIFE_MS,
   dayStreakToast,
+  restoreToast,
   NOT_ENOUGH_LETTERS,
   NOT_IN_WORD_LIST,
   OTHER_TAB_TOAST,
@@ -116,6 +125,9 @@ export type GameState = {
   // undefined = nothing waiting; null = the other tab reset everything.
   pendingExternal: string | null | undefined
   resume(): Promise<void>
+  checkStreaks(): void
+  restore(): void
+  declineRestore(): void
   openInfo(): void
   closeInfo(): void
   openDialog(name: 'giveUp' | 'newGame'): void
@@ -149,7 +161,15 @@ export function revealDurationMs(length: WordLength, reduced: boolean): number {
 const ATTEMPTS = (length: WordLength) => BOARD_CONFIG[length].attempts
 
 export function isInputBlocked(s: GameState): boolean {
-  return s.dialog !== null || s.infoOpen
+  return s.dialog !== null || s.infoOpen || s.pendingRestore !== null
+}
+
+function pickSlice(s: GameState) {
+  return {
+    dayStreak: s.dayStreak,
+    restores: s.restores,
+    pendingRestore: s.pendingRestore,
+  }
 }
 
 // Live view of the active Board as a saved game; null while not started.
@@ -398,7 +418,77 @@ export function createGameStore(deps: GameDeps) {
             await loadBoard()
           },
 
+          checkStreaks() {
+            const state = get()
+            const today = localDateKey(now())
+            const before = pickSlice(state)
+            const r = check(before, today)
+            const changed = JSON.stringify(r.slice) !== JSON.stringify(before)
+            let stats = state.stats
+            if (r.resetWinStreaks) {
+              const reset = {} as Record<BoardKey, BoardStats>
+              let any = false
+              for (const k of BOARD_KEYS) {
+                const b = state.stats[k]
+                if (b.winStreak > 0) {
+                  reset[k] = { ...b, winStreak: 0 }
+                  any = true
+                } else {
+                  reset[k] = b
+                }
+              }
+              if (any) stats = reset
+            }
+            if (!changed && stats === state.stats && today === state.today) {
+              return
+            }
+            set({
+              today,
+              stats,
+              ...(changed
+                ? { ...r.slice, streakRev: state.streakRev + 1 }
+                : {}),
+              // The prompt wins over every other dialog.
+              ...(r.effect === 'prompt'
+                ? { dialog: null, infoOpen: false }
+                : {}),
+            })
+          },
+
+          restore() {
+            const state = get()
+            if (state.pendingRestore === null) return
+            const today = localDateKey(now())
+            const r = pureRestore(pickSlice(state), today)
+            set({
+              ...r.slice,
+              today,
+              streakRev: state.streakRev + 1,
+              ...(r.applied
+                ? {
+                    toast: {
+                      id: ++toastSeq,
+                      text: restoreToast(restoresLeft(r.slice.restores)),
+                      kind: 'info' as const,
+                    },
+                  }
+                : {}),
+            })
+          },
+
+          declineRestore() {
+            const state = get()
+            if (state.pendingRestore === null) return
+            const today = localDateKey(now())
+            set({
+              ...pureDecline(pickSlice(state), today),
+              today,
+              streakRev: state.streakRev + 1,
+            })
+          },
+
           openInfo() {
+            if (get().pendingRestore !== null) return
             set({ infoOpen: true })
           },
 
@@ -407,8 +497,9 @@ export function createGameStore(deps: GameDeps) {
           },
 
           openDialog(name) {
-            const { dialog, infoOpen, status, rows, length } = get()
-            if (dialog !== null || infoOpen) return
+            const { dialog, infoOpen, status, rows, length, pendingRestore } =
+              get()
+            if (dialog !== null || infoOpen || pendingRestore !== null) return
             if (!canForfeit(status, rows.length, ATTEMPTS(length))) return
             set({ dialog: name })
           },
@@ -418,14 +509,21 @@ export function createGameStore(deps: GameDeps) {
           },
 
           openSettings() {
-            const { dialog, infoOpen } = get()
-            if (dialog !== null || infoOpen) return
+            const { dialog, infoOpen, pendingRestore } = get()
+            if (dialog !== null || infoOpen || pendingRestore !== null) return
             set({ dialog: 'settings', settingsFocus: 'close' })
           },
 
           openStats() {
-            const { dialog, infoOpen, status } = get()
-            if (dialog !== null || infoOpen || status === 'revealing') return
+            const { dialog, infoOpen, status, pendingRestore } = get()
+            if (
+              dialog !== null ||
+              infoOpen ||
+              status === 'revealing' ||
+              pendingRestore !== null
+            ) {
+              return
+            }
             set({ dialog: 'stats' })
           },
 

@@ -434,3 +434,23 @@ describe('D-20 stats and streak slices', () => {
     expect(a.store.getState().dayStreak.current).toBe(0)
   })
 })
+
+describe('Restore prompt across tabs', () => {
+  it('a Restore answered in tab A closes the prompt in tab B silently', async () => {
+    const { a, b, settle } = await twoTabs()
+    const pending = { streak: 5, missed: 1, creditDeferred: false }
+    const slice = {
+      dayStreak: { current: 5, longest: 5, lastActiveDate: '2026-06-01' },
+      restores: { month: '', used: 0 },
+      pendingRestore: pending,
+      streakRev: 1,
+    }
+    a.store.setState(slice)
+    b.store.setState(slice)
+    a.store.getState().restore()
+    await settle()
+    expect(a.store.getState().pendingRestore).toBeNull()
+    expect(b.store.getState().pendingRestore).toBeNull()
+    expect(b.store.getState().toast?.text).not.toBe(OTHER_TAB)
+  })
+})

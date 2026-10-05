@@ -67,3 +67,102 @@ export function creditDay(
     credited: true,
   }
 }
+
+export type CheckEffect = 'none' | 'prompt' | 'broke'
+
+const MAX_MISSED_FOR_RESTORE = 4
+
+function withCredit(s: StreakSlice, deferred: boolean, today: string) {
+  return deferred ? creditDay(s, today).slice : s
+}
+
+// R-RESTORE-1..4: the missed-day check on open. Refills first, then resets the
+// Win Streaks on any missed day and offers a Restore when one is allowed.
+export function check(
+  s: StreakSlice,
+  today: string,
+): { slice: StreakSlice; effect: CheckEffect; resetWinStreaks: boolean } {
+  const restores = refill(s.restores, today)
+  const base = restores === s.restores ? s : { ...s, restores }
+  const missed = missedDays(s.dayStreak.lastActiveDate, today)
+  if (missed === 0) {
+    return { slice: base, effect: 'none', resetWinStreaks: false }
+  }
+  const current = s.dayStreak.current
+  const eligible =
+    current > 0 &&
+    missed <= MAX_MISSED_FOR_RESTORE &&
+    restoresLeft(restores) > 0
+  if (s.pendingRestore !== null) {
+    if (eligible) {
+      return { slice: base, effect: 'none', resetWinStreaks: false }
+    }
+    // The offer lapsed: auto-decline.
+    const declined = withCredit(
+      {
+        ...base,
+        dayStreak: { ...base.dayStreak, current: 0 },
+        pendingRestore: null,
+      },
+      s.pendingRestore.creditDeferred,
+      today,
+    )
+    return { slice: declined, effect: 'broke', resetWinStreaks: true }
+  }
+  if (current === 0) {
+    return { slice: base, effect: 'none', resetWinStreaks: true }
+  }
+  if (eligible) {
+    return {
+      slice: {
+        ...base,
+        pendingRestore: { streak: current, missed, creditDeferred: false },
+      },
+      effect: 'prompt',
+      resetWinStreaks: true,
+    }
+  }
+  return {
+    slice: { ...base, dayStreak: { ...base.dayStreak, current: 0 } },
+    effect: 'broke',
+    resetWinStreaks: true,
+  }
+}
+
+// R-RESTORE-5..6: one Restore covers the whole gap; lastActiveDate becomes
+// yesterday so today can still be credited. Win Streaks are never revived.
+export function restore(
+  s: StreakSlice,
+  today: string,
+): { slice: StreakSlice; applied: boolean } {
+  const pending = s.pendingRestore
+  if (pending === null) return { slice: s, applied: false }
+  const restores = refill(s.restores, today)
+  if (restoresLeft(restores) === 0) {
+    return { slice: decline({ ...s, restores }, today), applied: false }
+  }
+  const restored: StreakSlice = {
+    dayStreak: { ...s.dayStreak, lastActiveDate: prevDay(today) },
+    restores: { month: restores.month, used: restores.used + 1 },
+    pendingRestore: null,
+  }
+  return {
+    slice: withCredit(restored, pending.creditDeferred, today),
+    applied: true,
+  }
+}
+
+// R-RESTORE-7: No. The Day Streak goes to 0; Best and the Restores are kept.
+export function decline(s: StreakSlice, today: string): StreakSlice {
+  const pending = s.pendingRestore
+  if (pending === null) return s
+  return withCredit(
+    {
+      ...s,
+      dayStreak: { ...s.dayStreak, current: 0 },
+      pendingRestore: null,
+    },
+    pending.creditDeferred,
+    today,
+  )
+}

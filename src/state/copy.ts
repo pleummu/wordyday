@@ -106,3 +106,11 @@ export function chipName(n: number, creditedToday: boolean): string {
     ? `Day streak ${n}, open statistics`
     : `Day streak ${n}, play today to keep it, open statistics`
 }
+
+export const RESTORE_HEADING = 'Streak broke'
+export const restorePromptBody = (streak: number, left: number) =>
+  `Your ${streak}-day streak broke. Restore it? (${left} left this month)`
+export const RESTORE = 'Restore'
+export const NO = 'No'
+export const restoreToast = (n: number) =>
+  `Streak restored. ${n} left this month.`

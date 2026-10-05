@@ -9,6 +9,8 @@ import { startTabSync } from './state/sync'
 
 // Resume the last Board (or start a fresh one) outside React effects (StrictMode would run it twice).
 void useGameStore.getState().resume()
+// Missed-day check once at boot, outside React (StrictMode would run it twice).
+useGameStore.getState().checkStreaks()
 defaultSaveStorage.onNotice((n) =>
   useGameStore.getState().applyStorageNotice(n),
 )

@@ -296,9 +296,11 @@ export function mergeBoards(
 
 // Counters are picked, never summed: adding two copies of the same finish
 // would double-count it. Total order, so mergeBoardStats(a, b) equals
-// mergeBoardStats(b, a): 1. higher played; 2. smaller JSON.stringify.
+// mergeBoardStats(b, a): 1. higher played; 2. lower winStreak (a missed-day
+// reset in one tab is never undone by the other); 3. smaller JSON.stringify.
 export function mergeBoardStats(a: BoardStats, b: BoardStats): BoardStats {
   if (a.played !== b.played) return a.played > b.played ? a : b
+  if (a.winStreak !== b.winStreak) return a.winStreak < b.winStreak ? a : b
   return JSON.stringify(b) < JSON.stringify(a) ? b : a
 }
 

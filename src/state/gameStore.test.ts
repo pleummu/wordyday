@@ -1,5 +1,10 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { createGameStore, revealDurationMs, type GameDeps } from './gameStore'
+import {
+  createGameStore,
+  isInputBlocked,
+  revealDurationMs,
+  type GameDeps,
+} from './gameStore'
 import type { Pools } from '../data/wordData'
 import type { WordLength } from '../logic/boards'
 import { score } from '../logic/score'
@@ -1661,5 +1666,95 @@ describe('Day Streak (STRK-02, D-11, D-21)', () => {
     ctx.store.getState().applyExternal(null)
     expect(ctx.store.getState().toast?.text).not.toMatch(/Day streak/)
     expect(ctx.store.getState().dayToastDue).toBeNull()
+  })
+})
+
+describe('Restore prompt (STRK-04..07)', () => {
+  const pend = { streak: 5, missed: 1, creditDeferred: false }
+
+  function seeded(today = '2026-06-03T09:00:00') {
+    const clock = { at: new Date(today) }
+    const ctx = setup({ now: () => clock.at })
+    const stats = emptySave().stats
+    for (const k of BOARD_KEYS) {
+      stats[k] = { ...stats[k], played: 3, winStreak: 2, bestWinStreak: 4 }
+    }
+    ctx.store.setState({
+      stats,
+      dayStreak: { current: 5, longest: 5, lastActiveDate: '2026-06-01' },
+      restores: { month: '2026-06', used: 0 },
+    })
+    return { ...ctx, clock }
+  }
+
+  it('checkStreaks sets the prompt, zeroes every Win Streak and closes dialogs', () => {
+    const { store } = seeded()
+    store.setState({ dialog: 'settings', infoOpen: true })
+    const rev = store.getState().streakRev
+    store.getState().checkStreaks()
+    const s = store.getState()
+    expect(s.pendingRestore).toEqual(pend)
+    expect(s.streakRev).toBe(rev + 1)
+    expect(s.dialog).toBeNull()
+    expect(s.infoOpen).toBe(false)
+    for (const k of BOARD_KEYS) {
+      expect(s.stats[k].winStreak).toBe(0)
+      expect(s.stats[k].bestWinStreak).toBe(4)
+    }
+  })
+
+  it('checkStreaks twice gives an identical state', () => {
+    const { store } = seeded()
+    store.getState().checkStreaks()
+    const first = store.getState()
+    store.getState().checkStreaks()
+    const second = store.getState()
+    expect(second.streakRev).toBe(first.streakRev)
+    expect(second.stats).toBe(first.stats)
+    expect(second.pendingRestore).toBe(first.pendingRestore)
+  })
+
+  it('blocks input and every dialog while pending', async () => {
+    const { store } = seeded()
+    await store.getState().startGame(5)
+    store.getState().checkStreaks()
+    expect(isInputBlocked(store.getState())).toBe(true)
+    type(store, 'cra')
+    expect(store.getState().current).toBe('')
+    expect(store.getState().submit()).toBe('blocked')
+    store.getState().openSettings()
+    store.getState().openStats()
+    store.getState().openDialog('giveUp')
+    store.getState().openInfo()
+    const s = store.getState()
+    expect(s.dialog).toBeNull()
+    expect(s.infoOpen).toBe(false)
+  })
+
+  it('restore() keeps the streak, toasts and never revives Win Streaks', () => {
+    const { store } = seeded()
+    store.getState().checkStreaks()
+    const rev = store.getState().streakRev
+    store.getState().restore()
+    const s = store.getState()
+    expect(s.toast?.text).toBe('Streak restored. 2 left this month.')
+    expect(s.pendingRestore).toBeNull()
+    expect(s.dayStreak.current).toBe(5)
+    expect(s.streakRev).toBe(rev + 1)
+    for (const k of BOARD_KEYS) expect(s.stats[k].winStreak).toBe(0)
+  })
+
+  it('declineRestore() resets silently', () => {
+    const { store } = seeded()
+    store.getState().checkStreaks()
+    const rev = store.getState().streakRev
+    store.getState().declineRestore()
+    const s = store.getState()
+    expect(s.toast).toBeNull()
+    expect(s.pendingRestore).toBeNull()
+    expect(s.dayStreak.current).toBe(0)
+    expect(s.dayStreak.longest).toBe(5)
+    expect(s.dialog).toBeNull()
+    expect(s.streakRev).toBe(rev + 1)
   })
 })

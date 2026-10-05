@@ -558,6 +558,11 @@ describe('D-20 stats merges', () => {
     expect(mergeBoardStats(tieA, tieB)).toEqual(mergeBoardStats(tieB, tieA))
   })
 
+  it('mergeBoardStats with equal played prefers the lower winStreak', () => {
+    expect(mergeBoardStats(tieA, tieB).winStreak).toBe(1)
+    expect(mergeBoardStats(tieB, tieA).winStreak).toBe(1)
+  })
+
   it('mergeStats picks per Board and honours the floor', () => {
     const mine = emptyStats()
     const theirs = emptyStats()
