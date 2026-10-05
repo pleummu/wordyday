@@ -117,7 +117,9 @@ export default function StatsModal() {
       titleId="stats-title"
       bodyId="stats-panel"
       fallbackFocus={() =>
-        document.querySelector<HTMLElement>('.stats-button') ?? document.body
+        document.querySelector<HTMLElement>('.streak-chip') ??
+        document.querySelector<HTMLElement>('.stats-button') ??
+        document.body
       }
     >
       <h2 id="stats-title" className="modal-heading">

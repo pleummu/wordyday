@@ -216,6 +216,7 @@ async function chipPage(
 ): Promise<Page> {
   const p = await page.context().newPage()
   await p.clock.install({ time: new Date('2026-06-03T09:00:00') })
+  await p.addInitScript(() => localStorage.removeItem('unlimited-wordle'))
   await fixAnswers(p)
   await seedSave(p, {
     dayStreak: {

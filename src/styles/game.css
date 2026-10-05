@@ -349,6 +349,52 @@
   }
 }
 
+.streak-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+  box-sizing: border-box;
+  height: 36px;
+  min-width: 36px;
+  padding: 0 var(--space-2);
+  border: none;
+  background: transparent;
+  color: var(--color-text);
+  border-radius: var(--radius-pill);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.streak-chip-count {
+  font-variant-numeric: tabular-nums;
+}
+
+.streak-chip:hover:not(:disabled) {
+  background: var(--color-surface);
+}
+
+.streak-chip:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.streak-chip:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+.streak-chip[data-dimmed] svg {
+  color: var(--color-muted);
+}
+
+@media (min-width: 400px) {
+  .streak-chip {
+    height: 40px;
+  }
+}
+
 .header-actions {
   display: flex;
   align-items: center;

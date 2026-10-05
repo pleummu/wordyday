@@ -23,7 +23,9 @@ test('starts in Normal with the Wordubado switch off and Settings and Statistics
   await waitForReady(page)
   await expect(wordubadoSwitch(page)).toHaveAttribute('aria-checked', 'false')
   await expect(page.getByRole('button', { name: 'Settings' })).toBeVisible()
-  await expect(page.getByRole('button', { name: 'Statistics' })).toBeVisible()
+  await expect(
+    page.getByRole('button', { name: 'Statistics', exact: true }),
+  ).toBeVisible()
   await expect(page.getByRole('button', { name: /help/i })).toHaveCount(0)
 })
 

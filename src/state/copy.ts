@@ -100,3 +100,9 @@ export const dayStreakToast = (n: number) => `Day streak: ${n}`
 export const dayStreakFooter = (n: number, m: number) =>
   `Day streak ${n} · Best ${m}`
 export const restoresLeftLine = (r: number) => `Restores left: ${r}/3`
+
+export function chipName(n: number, creditedToday: boolean): string {
+  return creditedToday
+    ? `Day streak ${n}, open statistics`
+    : `Day streak ${n}, play today to keep it, open statistics`
+}
