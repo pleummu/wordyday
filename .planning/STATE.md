@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 05-06-PLAN.md
-last_updated: "2026-10-05T14:16:37.817Z"
+stopped_at: Completed 05-07-PLAN.md
+last_updated: "2026-10-05T14:24:13.182Z"
 last_activity: 2026-10-05
 progress:
   total_phases: 8
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-10-01)
 ## Current Position
 
 Phase: 05 (stats-streaks-and-restore) — EXECUTING
-Plan: 7 of 8
+Plan: 8 of 8
 Status: Ready to execute
 Last activity: 2026-10-05
 
@@ -69,6 +69,7 @@ Progress: [██████████] 95%
 | Phase 05 P04 | 40min | 3 tasks | 13 files |
 | Phase 05 P05 | 25 min | 2 tasks | 10 files |
 | Phase 05 P06 | 45min | 3 tasks | 15 files |
+| Phase 05 P07 | 25min | 3 tasks | 14 files |
 
 ## Accumulated Context
 
@@ -102,6 +103,7 @@ Progress: [██████████] 95%
 - [Phase ?]: 05-04: Day Streak credit recorded at submit, toast held in dayToastDue until reveal ends
 - [Phase ?]: 05-05: Day Streak chip dimmed via data-dimmed when lastActiveDate != today; E2E Statistics button queries use exact:true
 - [Phase ?]: 05-06: Restore prompt is persisted pendingRestore (not a DialogName), gated on status !== revealing; Modal dismissible=false re-opens on native close
+- [Phase ?]: 05-07: finishDay defers the Day Streak credit while a Restore is pending; breakNotice is transient and Fresh start waits for the reveal
 
 ### Pending Todos
 
@@ -116,6 +118,6 @@ Progress: [██████████] 95%
 
 ## Session Continuity
 
-Last session: 2026-10-05T14:16:37.811Z
-Stopped at: Completed 05-06-PLAN.md
+Last session: 2026-10-05T14:24:13.177Z
+Stopped at: Completed 05-07-PLAN.md
 Resume file: None
