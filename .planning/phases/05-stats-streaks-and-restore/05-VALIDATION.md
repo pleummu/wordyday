@@ -62,7 +62,7 @@ created: 2026-10-04
 | 05-07-T2 | STRK-04, R-RESTORE-7/10, EC-30/39/40, D-21 | finishDay, breakNotice (set at submit, shown after reveal), streakWatch | unit (fake timers) | `npx vitest run src/logic src/state` | ❌ W0 | ✅ green |
 | 05-07-T3 | D-16, D-21, QA-02 (EC-01..44 complete) | StreakBreakModal; prompt/Fresh start not rendered while revealing, rendered after finishReveal; EC completeness gate; Fresh start axe green | component + e2e + axe | `npx vitest run && npx playwright test e2e/restore.spec.ts e2e/streaks.spec.ts e2e/stats.spec.ts --project=chromium` | ❌ W0 | ✅ green |
 | 05-08-T1 | all | phase gate | full suite | `npm run lint && npm run format:check && npm run typecheck && npm test && npm run build && npm run check:bundle && npm run test:e2e` | ✅ | ✅ green |
-| 05-08-T2 | all | owner play-through + manual-only checks | manual | checkpoint | n/a | ⬜ pending |
+| 05-08-T2 | all | owner play-through + manual-only checks | manual | checkpoint | n/a | ✅ green (owner approved 2026-10-05) |
 
 Accessibility: automated axe checks (`@axe-core/playwright`, exact version pinned in 05-03-T1, helper `e2e/axe.ts`) run with Statistics open on every tab in Normal and Wordubado (05-03), with the Restore prompt open in both modes (05-06) and with the Fresh start dialog open in both modes (05-07). The dimmed chip icon (non-text, which axe does not measure) is checked with `nonTextContrast` >= 3:1 in 05-06.
 
@@ -88,8 +88,8 @@ Accessibility: automated axe checks (`@axe-core/playwright`, exact version pinne
 
 | Behavior | Requirement | Why Manual | Test Instructions |
 |----------|-------------|------------|-------------------|
-| Restore prompt cannot be closed with a double Esc in real Chrome | STRK-06 | Browser `<dialog>` cancel behaviour (research assumption A1) may differ from jsdom | Open the prompt, press Esc twice quickly; it must stay open |
-| Midnight rollover while the tab stays open | STRK-04 | Real wall-clock behaviour across local midnight | Leave the app open past midnight (or move the OS clock); the check runs once |
+| Restore prompt cannot be closed with a double Esc in real Chrome | STRK-06 | Browser `<dialog>` cancel behaviour (research assumption A1) may differ from jsdom | Open the prompt, press Esc twice quickly; it must stay open | Done: owner approval 2026-10-05 |
+| Midnight rollover while the tab stays open | STRK-04 | Real wall-clock behaviour across local midnight | Leave the app open past midnight (or move the OS clock); the check runs once | Done: owner approval 2026-10-05 (optional step 6 covered by the overall approval) |
 
 ---
 
@@ -102,4 +102,4 @@ Accessibility: automated axe checks (`@axe-core/playwright`, exact version pinne
 - [x] Feedback latency < 30s
 - [x] `nyquist_compliant: true` set in frontmatter
 
-**Approval:** pending
+**Approval:** approved 2026-10-05

@@ -11,7 +11,7 @@ Vertical MVP: a playable game appears as early as possible (Phase 2), then each 
 - [x] **Phase 3: Wordubado Mode and Slang** - Switch to Wordubado with owner-reviewed slang answers, plus slang as a valid Normal guess (completed 2026-10-02)
 - [x] **Phase 4: Six Boards and Persistence** - Six independent saved Boards that survive refresh, with safe, versioned storage
  (completed 2026-10-03)
-- [ ] **Phase 5: Stats, Streaks and Restore** - Win Streaks, Day Streak, monthly Restores and the statistics screen
+- [x] **Phase 5: Stats, Streaks and Restore** - Win Streaks, Day Streak, monthly Restores and the statistics screen (completed 2026-10-05)
 - [ ] **Phase 6: Result Screen, Share and Definitions** - Result modal with Play again, Show definition and Share
 - [ ] **Phase 7: Themes, Accessibility and Polish** - Dark/colour-blind themes, how-to-play, screen-reader and keyboard support, metadata
 - [ ] **Phase 8: E2E, CI Hardening and Pipeline Docs** - Playwright full-game suite, complete CI, and the PIPELINE.md learning guide
@@ -263,11 +263,11 @@ Plans:
 
 **Wave 7** *(blocked on Wave 6 completion)*
 
-- [ ] 05-07-PLAN.md — Focus/visibility/midnight checks, finish across midnight (EC-39/40), streak-ended modal, EC-01..44 complete
+- [x] 05-07-PLAN.md — Focus/visibility/midnight checks, finish across midnight (EC-39/40), streak-ended modal, EC-01..44 complete
 
 **Wave 8** *(blocked on Wave 7 completion)*
 
-- [ ] 05-08-PLAN.md — Full phase gate and owner play-through (checkpoint)
+- [x] 05-08-PLAN.md — Full phase gate and owner play-through (checkpoint)
 
 **UI hint**: yes
 **Notes**: Table-driven streak/Restore tests (DST, month boundary, clock backwards, year end, Feb 29, TZ matrix) plus scoring, 75/25, forfeit and storage unit tests complete QA-02 here.
@@ -330,7 +330,7 @@ Plans:
 | 2. Playable Normal Game | 11/11 | Complete   | 2026-10-01 |
 | 3. Wordubado Mode and Slang | 6/6 | Complete    | 2026-10-02 |
 | 4. Six Boards and Persistence | 12/12 | Complete   | 2026-10-04 |
-| 5. Stats, Streaks and Restore | 6/8 | In Progress|  |
+| 5. Stats, Streaks and Restore | 8/8 | Complete   | 2026-10-05 |
 | 6. Result Screen, Share and Definitions | 0/TBD | Not started | - |
 | 7. Themes, Accessibility and Polish | 0/TBD | Not started | - |
 | 8. E2E, CI Hardening and Pipeline Docs | 0/TBD | Not started | - |
