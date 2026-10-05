@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest'
 import { BOARD_CONFIG, type WordLength } from './boards'
 import {
+  mergeBoardStats,
+  mergeStats,
+  pickStreak,
   BOARD_KEYS,
   SAVE_VERSION,
   boardKey,
@@ -540,5 +543,40 @@ describe('v2 slice validation (T-05-01, T-05-02)', () => {
     const out = validateSave(doc({ stats }))
     expect(Object.keys(out?.stats ?? {})).toEqual([...BOARD_KEYS])
     expect(out?.stats).toEqual(emptyStats())
+  })
+})
+
+describe('D-20 stats merges', () => {
+  const a = { ...emptyBoardStats('normal-5'), played: 2, wins: 2 }
+  const b = { ...emptyBoardStats('normal-5'), played: 3, wins: 1 }
+  const tieA = { ...emptyBoardStats('normal-5'), played: 1, winStreak: 1 }
+  const tieB = { ...emptyBoardStats('normal-5'), played: 1, winStreak: 2 }
+
+  it('mergeBoardStats is symmetric and never sums', () => {
+    expect(mergeBoardStats(a, b)).toEqual(mergeBoardStats(b, a))
+    expect(mergeBoardStats(a, b).played).toBe(3)
+    expect(mergeBoardStats(tieA, tieB)).toEqual(mergeBoardStats(tieB, tieA))
+  })
+
+  it('mergeStats picks per Board and honours the floor', () => {
+    const mine = emptyStats()
+    const theirs = emptyStats()
+    theirs['normal-5'] = { ...b, lastCounted: { id: 5, answer: 'crane' } }
+    expect(mergeStats(mine, theirs)['normal-5'].played).toBe(3)
+    expect(mergeStats(mine, theirs, 5)['normal-5'].played).toBe(0)
+  })
+
+  it('pickStreak is symmetric, higher streakRev wins, ties are ordered', () => {
+    const base = emptySave()
+    const x = { ...base, streakRev: 2 }
+    const y = {
+      ...base,
+      streakRev: 3,
+      dayStreak: { current: 4, longest: 4, lastActiveDate: '2026-06-01' },
+    }
+    expect(pickStreak(x, y)).toBe(y)
+    expect(pickStreak(y, x)).toBe(y)
+    const t1 = { ...base, streakRev: 3 }
+    expect(pickStreak(t1, y)).toEqual(pickStreak(y, t1))
   })
 })
