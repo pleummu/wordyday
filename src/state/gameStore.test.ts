@@ -1450,18 +1450,30 @@ describe('stats recording (D-07, D-12, D-21)', () => {
     })
   })
 
-  it('giveUp records played and gaveUp', async () => {
+  it('QA-02 R-FORFEIT-4 Give Up counts as a played loss and resets the Win Streak', async () => {
     const { store } = await started()
+    store.setState({
+      stats: {
+        ...store.getState().stats,
+        'normal-5': {
+          ...store.getState().stats['normal-5'],
+          played: 1,
+          wins: 1,
+          winStreak: 1,
+          bestWinStreak: 1,
+        },
+      },
+    })
     withRows(store, 4)
     store.getState().giveUp()
     expect(store.getState().stats['normal-5']).toMatchObject({
-      played: 1,
+      played: 2,
       gaveUp: 1,
       winStreak: 0,
     })
   })
 
-  it('forfeitNewGame counts the game on the Board being left (D-07)', async () => {
+  it('QA-02 R-FORFEIT-4 a Forfeit counts as a played loss and adds to gaveUp (D-07)', async () => {
     const onGameFinished = vi.fn()
     const ctx = setup({ onGameFinished })
     await ctx.store.getState().startGame(5)

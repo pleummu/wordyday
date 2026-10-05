@@ -40,7 +40,7 @@ describe('createSaveStorage getItem', () => {
       envelope({ ...emptySave(), last: { mode: 'hard', length: 5 } }),
     ],
     ['version 0', envelope(emptySave(), 0)],
-  ])('backs up %s and notices corrupt once', (_n, raw) => {
+  ])('QA-02 backs up %s and notices corrupt once', (_n, raw) => {
     const mem = createMemoryStorage({ [NAME]: raw })
     const s = createSaveStorage(() => mem)
     const got = notices(s)
@@ -49,7 +49,7 @@ describe('createSaveStorage getItem', () => {
     expect(got).toEqual(['corrupt'])
   })
 
-  it('survives a throwing getItem', () => {
+  it('QA-02 survives a throwing getItem', () => {
     const s = createSaveStorage(() => createThrowingStorage({ get: true }))
     const got = notices(s)
     expect(s.getItem(NAME)).toBeNull()
@@ -80,7 +80,7 @@ describe('createSaveStorage setItem', () => {
     expect(mem.getItem(NAME)).toBe(JSON.stringify(v))
   })
 
-  it('never throws on quota, notices failure once, recovers later', () => {
+  it('QA-02 never throws on a throwing setItem, notices failure once, recovers later', () => {
     let full = true
     const mem = createMemoryStorage()
     const area: Storage = {
@@ -179,7 +179,7 @@ describe('createSaveStorage removeItem, notices and read', () => {
 })
 
 describe('v1 to v2 upgrade through storage (D-18)', () => {
-  it('D-18 a v1 envelope in storage is read as the v2 document', () => {
+  it('QA-02 D-18 a v1 envelope in storage is read as the v2 document', () => {
     const v1 = envelope(
       {
         boards: {
@@ -207,7 +207,7 @@ describe('v1 to v2 upgrade through storage (D-18)', () => {
     expect(got.state.restores).toEqual({ month: '', used: 0 })
   })
 
-  it('round-trips a v2 document', () => {
+  it('QA-02 round-trips a v2 document', () => {
     const mem = createMemoryStorage()
     const s = createSaveStorage(() => mem)
     const doc = {

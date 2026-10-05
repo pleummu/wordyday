@@ -99,7 +99,7 @@ describe('resolveOutcome', () => {
 describe('canForfeit', () => {
   for (const len of [4, 5, 6] as WordLength[]) {
     const max = BOARD_CONFIG[len].attempts
-    it(`length ${len}: only at max - 2 while playing`, () => {
+    it(`QA-02 R-FORFEIT-6 length ${len}: only at exactly 2 tries left while playing`, () => {
       for (let n = 0; n <= max; n++) {
         expect(canForfeit('playing', n, max)).toBe(n === max - 2)
       }
@@ -111,7 +111,7 @@ describe('canForfeit', () => {
       expect(canForfeit(status, 4, 6)).toBe(false)
     },
   )
-  it('false at zero guesses', () => {
+  it('QA-02 R-FORFEIT-6 a fresh Board cannot be abandoned', () => {
     expect(canForfeit('playing', 0, 2)).toBe(false)
   })
 })
