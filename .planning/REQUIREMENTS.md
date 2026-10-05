@@ -45,11 +45,11 @@
 - [x] **STRK-01**: Each Board has a Win Streak: +1 on a win; resets to 0 on a loss, Give Up or Forfeit
 - [x] **STRK-02**: User has one global Day Streak: +1 at most once per local calendar day when any game finishes (win, loss or Give Up)
 - [x] **STRK-03**: Missed days are computed from local calendar dates (DST-safe); a clock moved backwards counts as 0 missed days and never overwrites lastActiveDate
-- [ ] **STRK-04**: The missed-day check runs on app open, when the tab regains focus and when the date changes; running it again gives the same result
-- [ ] **STRK-05**: Any missed day resets every Board's Win Streak to 0; a Restore never brings them back
-- [ ] **STRK-06**: If Day Streak > 0, missed ≤ 4 and a Restore is left this month, the user sees a blocking Restore prompt ("Your N-day streak broke. Restore it? (K left this month)") and cannot play until they answer; otherwise the Day Streak resets to 0 with no prompt
-- [ ] **STRK-07**: Choosing Restore uses 1 Restore for the whole gap, keeps the streak number and sets lastActiveDate to yesterday; choosing No resets the Day Streak; refreshing without answering shows the prompt again
-- [ ] **STRK-08**: User gets 3 Restores per calendar month, refilled on the 1st (before any offer); unused ones don't carry over; each is counted against the month it is used in
+- [x] **STRK-04**: The missed-day check runs on app open, when the tab regains focus and when the date changes; running it again gives the same result
+- [x] **STRK-05**: Any missed day resets every Board's Win Streak to 0; a Restore never brings them back
+- [x] **STRK-06**: If Day Streak > 0, missed ≤ 4 and a Restore is left this month, the user sees a blocking Restore prompt ("Your N-day streak broke. Restore it? (K left this month)") and cannot play until they answer; otherwise the Day Streak resets to 0 with no prompt
+- [x] **STRK-07**: Choosing Restore uses 1 Restore for the whole gap, keeps the streak number and sets lastActiveDate to yesterday; choosing No resets the Day Streak; refreshing without answering shows the prompt again
+- [x] **STRK-08**: User gets 3 Restores per calendar month, refilled on the 1st (before any offer); unused ones don't carry over; each is counted against the month it is used in
 
 ### Statistics (STAT)
 
@@ -175,11 +175,11 @@
 | STRK-01 | Phase 5 | Complete |
 | STRK-02 | Phase 5 | Complete |
 | STRK-03 | Phase 5 | Complete |
-| STRK-04 | Phase 5 | Pending |
-| STRK-05 | Phase 5 | Pending |
-| STRK-06 | Phase 5 | Pending |
-| STRK-07 | Phase 5 | Pending |
-| STRK-08 | Phase 5 | Pending |
+| STRK-04 | Phase 5 | Complete |
+| STRK-05 | Phase 5 | Complete |
+| STRK-06 | Phase 5 | Complete |
+| STRK-07 | Phase 5 | Complete |
+| STRK-08 | Phase 5 | Complete |
 | RSLT-01 | Phase 6 | Pending |
 | RSLT-02 | Phase 6 | Pending |
 | RSLT-03 | Phase 6 | Pending |

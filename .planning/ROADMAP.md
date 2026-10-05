@@ -259,7 +259,7 @@ Plans:
 
 **Wave 6** *(blocked on Wave 5 completion)*
 
-- [ ] 05-06-PLAN.md — Missed-day check on open, Restore state machine (EC table), blocking Restore prompt
+- [x] 05-06-PLAN.md — Missed-day check on open, Restore state machine (EC table), blocking Restore prompt
 
 **Wave 7** *(blocked on Wave 6 completion)*
 
@@ -330,7 +330,7 @@ Plans:
 | 2. Playable Normal Game | 11/11 | Complete   | 2026-10-01 |
 | 3. Wordubado Mode and Slang | 6/6 | Complete    | 2026-10-02 |
 | 4. Six Boards and Persistence | 12/12 | Complete   | 2026-10-04 |
-| 5. Stats, Streaks and Restore | 5/8 | In Progress|  |
+| 5. Stats, Streaks and Restore | 6/8 | In Progress|  |
 | 6. Result Screen, Share and Definitions | 0/TBD | Not started | - |
 | 7. Themes, Accessibility and Polish | 0/TBD | Not started | - |
 | 8. E2E, CI Hardening and Pipeline Docs | 0/TBD | Not started | - |
