@@ -15,7 +15,7 @@ test.use({ reducedMotion: 'reduce' })
 const wordubadoSwitch = (page: import('@playwright/test').Page) =>
   page.getByRole('switch', { name: 'Wordubado' })
 
-test('starts in Normal with the Wordubado switch off and a Settings button and no help/stats buttons', async ({
+test('starts in Normal with the Wordubado switch off and Settings and Statistics buttons and no help button', async ({
   page,
 }) => {
   await fixAnswers(page)
@@ -23,7 +23,8 @@ test('starts in Normal with the Wordubado switch off and a Settings button and n
   await waitForReady(page)
   await expect(wordubadoSwitch(page)).toHaveAttribute('aria-checked', 'false')
   await expect(page.getByRole('button', { name: 'Settings' })).toBeVisible()
-  await expect(page.getByRole('button', { name: /help|stats/i })).toHaveCount(0)
+  await expect(page.getByRole('button', { name: 'Statistics' })).toBeVisible()
+  await expect(page.getByRole('button', { name: /help/i })).toHaveCount(0)
 })
 
 test('turning Wordubado on starts a game that can be won with a slang answer', async ({

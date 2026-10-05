@@ -9,6 +9,7 @@ import LoadingNotice from './components/LoadingNotice'
 import NewGameConfirm from './components/NewGameConfirm'
 import ResetConfirm from './components/ResetConfirm'
 import SettingsModal from './components/SettingsModal'
+import StatsModal from './components/StatsModal'
 import Toast from './components/Toast'
 import WordubadoInfo from './components/WordubadoInfo'
 import { usePhysicalKeyboard } from './components/usePhysicalKeyboard'
@@ -55,6 +56,7 @@ export default function App() {
       <GiveUpConfirm />
       <NewGameConfirm />
       <SettingsModal />
+      <StatsModal />
       <ResetConfirm />
       <LoadingNotice active={status === 'loading'} />
       <Header />

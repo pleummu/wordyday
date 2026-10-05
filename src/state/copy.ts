@@ -73,3 +73,24 @@ export function winStreakLine(note: {
   if (note.won) return `Win streak: ${note.winStreak}`
   return note.prev > 0 ? WIN_STREAK_RESET : null
 }
+
+export const STATISTICS = 'Statistics'
+export const MODE_LABEL = 'Mode'
+export const WORD_LENGTH = 'Word length'
+export const ALL_TAB = 'All'
+export const ALL_LENGTHS = 'All lengths'
+export const PLAYED = 'Played'
+export const WIN_PCT = 'Win %'
+export const STREAK = 'Streak'
+export const BEST = 'Best'
+export const WIN_PCT_FULL = 'Win percentage'
+export const STREAK_FULL = 'Current win streak'
+export const BEST_FULL = 'Best win streak'
+export const GUESS_DISTRIBUTION = 'Guess distribution'
+export const NO_WINS_YET = 'No wins yet. Go play one!'
+export const EM_DASH = '—'
+export const gaveUpLine = (n: number) => `Gave up: ${n}`
+export const avgLine = (x: number | null) =>
+  `Avg guesses: ${x === null ? EM_DASH : x.toFixed(1)}`
+export const distRowLabel = (n: number, count: number, latest: boolean) =>
+  `${n} ${n === 1 ? 'guess' : 'guesses'}: ${count} ${count === 1 ? 'win' : 'wins'}${latest ? ', latest win' : ''}`

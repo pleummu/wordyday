@@ -181,15 +181,9 @@
 .header-top {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
   width: 100%;
   height: 32px;
-}
-
-@media (min-width: 400px) {
-  .header-top {
-    justify-content: space-between;
-  }
 }
 
 .header-controls {
@@ -311,11 +305,12 @@
   }
 }
 
-.settings-button {
+.settings-button,
+.stats-button {
   display: inline-grid;
   place-items: center;
-  width: 40px;
-  height: 40px;
+  width: 36px;
+  height: 36px;
   padding: 0;
   border: none;
   background: transparent;
@@ -324,38 +319,41 @@
   cursor: pointer;
 }
 
-.settings-button:hover {
+.settings-button:hover,
+.stats-button:hover:not(:disabled) {
   background: var(--color-surface);
 }
 
-.settings-button:focus-visible {
+.stats-button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.settings-button:focus-visible,
+.stats-button:focus-visible {
   outline: 2px solid var(--color-focus);
   outline-offset: 2px;
 }
 
-.settings-button svg {
+.settings-button svg,
+.stats-button svg {
   width: 18px;
   height: 18px;
 }
 
 @media (min-width: 400px) {
-  .settings-button {
-    width: 44px;
-    height: 44px;
+  .settings-button,
+  .stats-button {
+    width: 40px;
+    height: 40px;
   }
 }
 
-@media (max-width: 399px) {
-  .header-top {
-    position: relative;
-  }
-
-  .header-actions {
-    position: absolute;
-    right: 0;
-    top: 50%;
-    transform: translateY(-50%);
-  }
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  margin-left: auto;
 }
 
 .length-picker {
@@ -893,4 +891,150 @@ dialog.modal[data-closing] {
       opacity: 1;
     }
   }
+}
+
+/* Statistics dialog */
+dialog.modal:has(#stats-panel) {
+  max-height: calc(100dvh - 32px);
+}
+
+dialog.modal:has(#stats-panel) .modal-card {
+  max-height: calc(100dvh - 32px);
+  overflow-y: auto;
+  box-sizing: border-box;
+}
+
+.modal-subheading {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.stats-mode,
+.stats-tabs {
+  display: flex;
+  flex: none;
+  gap: var(--space-1);
+  padding: 2px;
+  height: 36px;
+  box-sizing: border-box;
+  border-radius: var(--radius-pill);
+  background: var(--color-surface);
+}
+
+.stats-mode-option,
+.stats-tab {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--color-text);
+  font-family: inherit;
+  font-size: var(--font-size-label);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.stats-mode-option[aria-checked='true'] {
+  background: var(--color-bg);
+  box-shadow: var(--shadow-button);
+}
+
+.stats-mode-option[data-mode='wordubado'][aria-checked='true'] {
+  color: var(--color-wordubado);
+}
+
+.stats-tab[aria-selected='true'] {
+  background: var(--color-accent);
+}
+
+.stats-mode-option:focus-visible,
+.stats-tab:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 1px;
+}
+
+.stats-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.stat-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-2);
+  text-align: center;
+}
+
+.stat-row[data-cells='2'] {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.stat-value {
+  font-size: var(--font-size-display);
+  font-weight: 600;
+  line-height: 1.1;
+}
+
+.stat-label {
+  font-size: 12px;
+}
+
+.stats-line {
+  margin: 0;
+  font-size: var(--font-size-label);
+}
+
+.dist {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.dist-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  height: 20px;
+}
+
+.dist-num {
+  width: 12px;
+  font-size: 12px;
+  text-align: right;
+}
+
+.dist-track {
+  flex: 1;
+  display: flex;
+}
+
+.dist-bar {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  box-sizing: border-box;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 6px;
+  background: var(--tile-absent);
+  color: var(--color-text);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.dist-bar[data-highlight] {
+  background: var(--color-accent);
 }

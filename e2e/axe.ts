@@ -5,6 +5,10 @@ export async function expectNoA11yViolations(
   page: Page,
   include?: string,
 ): Promise<void> {
+  // A dialog mid fade-in reads as low contrast; wait for animations to settle.
+  await page.evaluate(() =>
+    Promise.all(document.getAnimations().map((a) => a.finished)),
+  )
   let builder = new AxeBuilder({ page }).withTags([
     'wcag2a',
     'wcag2aa',
