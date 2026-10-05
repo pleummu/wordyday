@@ -165,6 +165,8 @@ test('UI-SPEC contrast: the dimmed chip icon is at least 3:1', async ({
   await prompt(page).getByRole('button', { name: 'Restore' }).click()
   const chip = page.locator('.streak-chip[data-dimmed]')
   await expect(chip).toBeVisible()
+  // Let the toast and its animation finish so axe sees a settled page.
+  await expect(page.getByRole('status')).toBeHidden()
   expect(
     await nonTextContrast(page.locator('.streak-chip[data-dimmed] svg')),
   ).toBeGreaterThanOrEqual(3)

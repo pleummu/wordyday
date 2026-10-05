@@ -8,6 +8,7 @@ import LoadError from './components/LoadError'
 import LoadingNotice from './components/LoadingNotice'
 import NewGameConfirm from './components/NewGameConfirm'
 import ResetConfirm from './components/ResetConfirm'
+import RestorePrompt from './components/RestorePrompt'
 import SettingsModal from './components/SettingsModal'
 import StatsModal from './components/StatsModal'
 import Toast from './components/Toast'
@@ -58,6 +59,7 @@ export default function App() {
       <SettingsModal />
       <StatsModal />
       <ResetConfirm />
+      <RestorePrompt />
       <LoadingNotice active={status === 'loading'} />
       <Header />
       <main className="board-area">

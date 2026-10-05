@@ -14,7 +14,9 @@ function Sample({
   open,
   onClose = () => {},
   fallbackFocus,
+  dismissible,
 }: {
+  dismissible?: boolean
   open: boolean
   onClose?: () => void
   fallbackFocus?: () => HTMLElement | null
@@ -28,6 +30,7 @@ function Sample({
         titleId="t"
         bodyId="b"
         fallbackFocus={fallbackFocus}
+        dismissible={dismissible}
       >
         <h2 id="t">Title</h2>
         <p id="b">Body</p>
@@ -138,4 +141,27 @@ it('animated close finishes after 120 ms without calling onClose', () => {
     vi.useRealTimers()
     vi.stubGlobal('matchMedia', () => ({ matches: true }))
   }
+})
+
+it('dismissible false: cancel is prevented and backdrop clicks do not close', () => {
+  const onClose = vi.fn()
+  render(<Sample open dismissible={false} onClose={onClose} />)
+  const dialog = document.querySelector('dialog')!
+  const cancel = new Event('cancel', { cancelable: true })
+  dialog.dispatchEvent(cancel)
+  expect(cancel.defaultPrevented).toBe(true)
+  fireEvent.click(dialog)
+  expect(onClose).not.toHaveBeenCalled()
+})
+
+it('dismissible false: a native close while open re-opens the dialog', () => {
+  const onClose = vi.fn()
+  render(<Sample open dismissible={false} onClose={onClose} />)
+  const dialog = document.querySelector('dialog')!
+  const spy = vi.spyOn(HTMLDialogElement.prototype, 'showModal')
+  dialog.close()
+  expect(spy).toHaveBeenCalledTimes(1)
+  expect(dialog.hasAttribute('open')).toBe(true)
+  expect(onClose).not.toHaveBeenCalled()
+  spy.mockRestore()
 })
