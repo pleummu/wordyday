@@ -255,7 +255,7 @@ Plans:
 
 **Wave 5** *(blocked on Wave 4 completion)*
 
-- [ ] 05-05-PLAN.md — Day Streak chip in the header (dimmed until played today, opens Stats, fits 320 px)
+- [x] 05-05-PLAN.md — Day Streak chip in the header (dimmed until played today, opens Stats, fits 320 px)
 
 **Wave 6** *(blocked on Wave 5 completion)*
 
@@ -330,7 +330,7 @@ Plans:
 | 2. Playable Normal Game | 11/11 | Complete   | 2026-10-01 |
 | 3. Wordubado Mode and Slang | 6/6 | Complete    | 2026-10-02 |
 | 4. Six Boards and Persistence | 12/12 | Complete   | 2026-10-04 |
-| 5. Stats, Streaks and Restore | 4/8 | In Progress|  |
+| 5. Stats, Streaks and Restore | 5/8 | In Progress|  |
 | 6. Result Screen, Share and Definitions | 0/TBD | Not started | - |
 | 7. Themes, Accessibility and Polish | 0/TBD | Not started | - |
 | 8. E2E, CI Hardening and Pipeline Docs | 0/TBD | Not started | - |
