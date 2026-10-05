@@ -3,6 +3,7 @@ import {
   check,
   creditDay,
   decline,
+  finishDay,
   restore,
   dayNumber,
   missedDays,
@@ -472,5 +473,50 @@ describe('win streaks, Best and counts', () => {
     const s = mk(5, 5, '2026-06-01', { month: '2026-06', used: 7 })
     expect(restoresLeft(s.restores)).toBe(0)
     expect(check(s, '2026-06-03').effect).toBe('broke')
+  })
+})
+
+describe('finishDay', () => {
+  it('EC-39 midnight mid-game, active yesterday: credits the new day', () => {
+    const r = finishDay(slice(5, 5, '2026-06-03'), '2026-06-04')
+    expect(r.effect).toBe('none')
+    expect(r.credited).toBe(true)
+    expect(r.slice.dayStreak).toEqual({
+      current: 6,
+      longest: 6,
+      lastActiveDate: '2026-06-04',
+    })
+  })
+
+  it('EC-40 a break found at finish defers the credit', () => {
+    const r = finishDay(slice(5, 5, '2026-06-01'), '2026-06-04')
+    expect(r.resetWinStreaks).toBe(true)
+    expect(r.effect).toBe('prompt')
+    expect(r.credited).toBe(false)
+    expect(r.slice.pendingRestore).toEqual({
+      streak: 5,
+      missed: 2,
+      creditDeferred: true,
+    })
+    const yes = restore(r.slice, '2026-06-04').slice
+    expect(yes.dayStreak.current).toBe(6)
+    expect(yes.dayStreak.lastActiveDate).toBe('2026-06-04')
+    const no = decline(r.slice, '2026-06-04')
+    expect(no.dayStreak.current).toBe(1)
+    expect(no.dayStreak.lastActiveDate).toBe('2026-06-04')
+  })
+
+  it('EC-30 clock backwards at finish changes nothing', () => {
+    const s = slice(5, 5, '2026-06-10')
+    const r = finishDay(s, '2026-06-05')
+    expect(r.slice).toEqual(s)
+    expect(r.credited).toBe(false)
+  })
+
+  it('an unrestorable break at finish starts a new streak of 1', () => {
+    const r = finishDay(slice(5, 5, '2026-06-01'), '2026-06-09')
+    expect(r.effect).toBe('broke')
+    expect(r.credited).toBe(true)
+    expect(r.slice.dayStreak.current).toBe(1)
   })
 })

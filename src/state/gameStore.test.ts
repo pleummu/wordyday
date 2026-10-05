@@ -1758,3 +1758,150 @@ describe('Restore prompt (STRK-04..07)', () => {
     expect(s.streakRev).toBe(rev + 1)
   })
 })
+
+describe('finish-time CHECK and break notice (STRK-04, D-16, D-21)', () => {
+  const GAP = '2026-06-04T09:00:00'
+  type Streak = {
+    current: number
+    longest: number
+    lastActiveDate: string | null
+  }
+  const FIVE: Streak = {
+    current: 5,
+    longest: 5,
+    lastActiveDate: '2026-06-01',
+  }
+
+  function seeded(
+    today: string,
+    dayStreak: Streak = FIVE,
+    extra: Record<string, unknown> = {},
+  ) {
+    const clock = { at: new Date(today) }
+    const ctx = setup({ now: () => clock.at })
+    const stats = emptySave().stats
+    for (const k of BOARD_KEYS) {
+      stats[k] = { ...stats[k], played: 3, winStreak: 2, bestWinStreak: 4 }
+    }
+    ctx.store.setState({
+      stats,
+      dayStreak,
+      restores: { month: '2026-06', used: 0 },
+      ...extra,
+    })
+    return { ...ctx, clock }
+  }
+
+  it('EC-40 a break found at finish records the result and defers the credit', async () => {
+    const { store } = seeded(GAP)
+    await store.getState().startGame(5)
+    type(store, 'crane')
+    store.getState().submit()
+    const s = store.getState()
+    expect(s.stats['normal-5'].winStreak).toBe(1)
+    expect(s.stats['normal-5'].played).toBe(4)
+    expect(s.stats['normal-4'].winStreak).toBe(0)
+    expect(s.pendingRestore).toEqual({
+      streak: 5,
+      missed: 2,
+      creditDeferred: true,
+    })
+    expect(s.dayStreak.current).toBe(5)
+    expect(s.dayToastDue).toBeNull()
+    s.finishReveal()
+    store.getState().restore()
+    expect(store.getState().dayStreak.current).toBe(6)
+  })
+
+  it('D-21 EC-40 the prompt state is set at submit but status stays revealing', async () => {
+    const { store } = seeded(GAP)
+    await store.getState().startGame(5)
+    type(store, 'crane')
+    store.getState().submit()
+    expect(store.getState().status).toBe('revealing')
+    expect(store.getState().pendingRestore).not.toBeNull()
+    const pending = store.getState().pendingRestore
+    store.getState().finishReveal()
+    expect(store.getState().status).not.toBe('revealing')
+    expect(store.getState().pendingRestore).toBe(pending)
+  })
+
+  it('EC-05 EC-07 EC-12 an involuntary loss sets breakNotice once', () => {
+    const a = seeded('2026-06-07T09:00:00')
+    a.store.getState().checkStreaks()
+    expect(a.store.getState().breakNotice).toBe(true)
+    a.store.getState().dismissBreak()
+    a.store.getState().checkStreaks()
+    expect(a.store.getState().breakNotice).toBe(false)
+
+    const b = seeded('2026-06-03T09:00:00')
+    b.store.setState({ restores: { month: '2026-06', used: 3 } })
+    b.store.getState().checkStreaks()
+    expect(b.store.getState().breakNotice).toBe(true)
+
+    const c = seeded('2026-06-08T09:00:00', FIVE, {
+      pendingRestore: { streak: 5, missed: 1, creditDeferred: false },
+    })
+    c.store.getState().checkStreaks()
+    expect(c.store.getState().breakNotice).toBe(true)
+  })
+
+  it('EC-03 a prompt, declining, S=0 and a first visit never set breakNotice', () => {
+    const a = seeded('2026-06-03T09:00:00')
+    a.store.getState().checkStreaks()
+    expect(a.store.getState().breakNotice).toBe(false)
+    a.store.getState().declineRestore()
+    expect(a.store.getState().breakNotice).toBe(false)
+    const b = seeded('2026-06-07T09:00:00', {
+      current: 0,
+      longest: 5,
+      lastActiveDate: '2026-06-01',
+    })
+    b.store.getState().checkStreaks()
+    expect(b.store.getState().breakNotice).toBe(false)
+    const c = seeded('2026-06-07T09:00:00', {
+      current: 0,
+      longest: 0,
+      lastActiveDate: null,
+    })
+    c.store.getState().checkStreaks()
+    expect(c.store.getState().breakNotice).toBe(false)
+  })
+
+  it('resetAll and applyExternal(null) clear breakNotice, and it is never stored', async () => {
+    const a = seeded('2026-06-07T09:00:00')
+    await a.store.getState().startGame(5)
+    a.store.getState().checkStreaks()
+    expect(a.store.getState().breakNotice).toBe(true)
+    expect(a.mem.getItem(SAVE_KEY) ?? '').not.toContain('breakNotice')
+    a.store.getState().resetAll()
+    expect(a.store.getState().breakNotice).toBe(false)
+    a.store.setState({ breakNotice: true })
+    a.store.getState().applyExternal(null)
+    expect(a.store.getState().breakNotice).toBe(false)
+  })
+
+  it('a finish that breaks an unrestorable streak sets breakNotice and credits 1', async () => {
+    const { store } = seeded('2026-06-09T09:00:00')
+    await store.getState().startGame(5)
+    type(store, 'crane')
+    store.getState().submit()
+    const s = store.getState()
+    expect(s.breakNotice).toBe(true)
+    expect(s.dayStreak.current).toBe(1)
+    expect(s.pendingRestore).toBeNull()
+  })
+
+  it('checkStreaks refreshes today and bumps streakRev only when the slice changed', () => {
+    const { store, clock } = seeded('2026-06-03T09:00:00', {
+      current: 5,
+      longest: 5,
+      lastActiveDate: '2026-06-03',
+    })
+    const rev = store.getState().streakRev
+    clock.at = new Date('2026-06-04T00:05:00')
+    store.getState().checkStreaks()
+    expect(store.getState().today).toBe('2026-06-04')
+    expect(store.getState().streakRev).toBe(rev)
+  })
+})

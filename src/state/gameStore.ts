@@ -32,10 +32,9 @@ import { score, type TileState } from '../logic/score'
 import { nextSeq, recordResult } from '../logic/stats'
 import {
   check,
-  creditDay,
+  finishDay,
   decline as pureDecline,
   monthOf,
-  refill,
   restore as pureRestore,
   restoresLeft,
 } from '../logic/streaks'
@@ -114,6 +113,8 @@ export type GameState = {
   restores: Restores
   pendingRestore: PendingRestore | null
   streakRev: number
+  // Transient (never persisted): an involuntary Day Streak loss to announce.
+  breakNotice: boolean
   // Local calendar day (YYYY-MM-DD) as of the last finish or reset.
   today: string
   // Day Streak value to announce when the reveal ends; transient (D-21).
@@ -128,6 +129,7 @@ export type GameState = {
   checkStreaks(): void
   restore(): void
   declineRestore(): void
+  dismissBreak(): void
   openInfo(): void
   closeInfo(): void
   openDialog(name: 'giveUp' | 'newGame'): void
@@ -272,39 +274,50 @@ export function createGameStore(deps: GameDeps) {
         ) {
           const state = get()
           const prevStats = state.stats[key]
-          const next = recordResult(prevStats, {
+          const input = {
             outcome,
             guesses: state.rows.length,
             id: state.gameId,
             answer: state.answer,
             seq: nextSeq(state.stats),
-          })
-          if (next === prevStats) {
+          }
+          if (recordResult(prevStats, input) === prevStats) {
             if (Object.keys(extra).length > 0) set(extra)
             return
           }
-          // R-RESTORE-1: refill first, then credit the local day (D-21: both
-          // recorded at submit; the toast waits for the reveal).
+          // R-RESTORE-7/10: CHECK first (refill, break, defer), then credit
+          // the local day. Recorded at submit; dialogs and the toast wait for
+          // the reveal (D-21).
           const today = localDateKey(now())
-          const refilled = {
-            dayStreak: state.dayStreak,
-            restores: refill(state.restores, today),
-            pendingRestore: state.pendingRestore,
+          const before = pickSlice(state)
+          const r = finishDay(before, today)
+          let stats = state.stats
+          if (r.resetWinStreaks) {
+            const reset = {} as Record<BoardKey, BoardStats>
+            for (const k of BOARD_KEYS) {
+              const b = state.stats[k]
+              reset[k] = b.winStreak > 0 ? { ...b, winStreak: 0 } : b
+            }
+            stats = reset
           }
-          const { slice, credited } = creditDay(refilled, today)
-          const streakChanged = credited || refilled.restores !== state.restores
+          const base = stats[key]
+          const next = recordResult(base, input)
+          const streakChanged =
+            JSON.stringify(r.slice) !== JSON.stringify(before)
           set({
             ...extra,
             today,
             ...(streakChanged
-              ? { ...slice, streakRev: state.streakRev + 1 }
+              ? { ...r.slice, streakRev: state.streakRev + 1 }
               : {}),
-            ...(credited ? { dayToastDue: slice.dayStreak.current } : {}),
-            stats: { ...state.stats, [key]: next },
+            ...(r.effect === 'prompt' ? { dialog: null, infoOpen: false } : {}),
+            ...(r.effect === 'broke' ? { breakNotice: true } : {}),
+            ...(r.credited ? { dayToastDue: r.slice.dayStreak.current } : {}),
+            stats: { ...stats, [key]: next },
             finishNote: {
               won: outcome === 'won',
               winStreak: next.winStreak,
-              prev: prevStats.winStreak,
+              prev: base.winStreak,
             },
           })
           deps.onGameFinished?.(key, outcome)
@@ -406,6 +419,7 @@ export function createGameStore(deps: GameDeps) {
           boards: {},
           wordubadoInfoSeen: false,
           ...streakDefaults(),
+          breakNotice: false,
           today: localDateKey(now()),
           dayToastDue: null,
           finishNote: null,
@@ -452,6 +466,7 @@ export function createGameStore(deps: GameDeps) {
               ...(r.effect === 'prompt'
                 ? { dialog: null, infoOpen: false }
                 : {}),
+              ...(r.effect === 'broke' ? { breakNotice: true } : {}),
             })
           },
 
@@ -485,6 +500,10 @@ export function createGameStore(deps: GameDeps) {
               today,
               streakRev: state.streakRev + 1,
             })
+          },
+
+          dismissBreak() {
+            if (get().breakNotice) set({ breakNotice: false })
           },
 
           openInfo() {
@@ -552,6 +571,7 @@ export function createGameStore(deps: GameDeps) {
               streakRev: get().streakRev + 1,
               dayToastDue: null,
               finishNote: null,
+              breakNotice: false,
               dialog: null,
               infoOpen: false,
               mode: 'normal',
@@ -627,6 +647,7 @@ export function createGameStore(deps: GameDeps) {
                 streakRev: s0.streakRev + 1,
                 dayToastDue: null,
                 finishNote: null,
+                breakNotice: false,
                 answer: '',
                 rows: [],
                 current: '',

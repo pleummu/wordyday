@@ -166,3 +166,36 @@ export function decline(s: StreakSlice, today: string): StreakSlice {
     today,
   )
 }
+
+// R-RESTORE-7 / R-RESTORE-10: a finished game checks first. A pending offer
+// defers the credit until it is answered; otherwise the day is credited.
+export function finishDay(
+  s: StreakSlice,
+  today: string,
+): {
+  slice: StreakSlice
+  effect: CheckEffect
+  resetWinStreaks: boolean
+  credited: boolean
+} {
+  const r = check(s, today)
+  if (r.slice.pendingRestore !== null) {
+    const pending = r.slice.pendingRestore
+    const slice = pending.creditDeferred
+      ? r.slice
+      : { ...r.slice, pendingRestore: { ...pending, creditDeferred: true } }
+    return {
+      slice,
+      effect: r.effect,
+      resetWinStreaks: r.resetWinStreaks,
+      credited: false,
+    }
+  }
+  const c = creditDay(r.slice, today)
+  return {
+    slice: c.slice,
+    effect: r.effect,
+    resetWinStreaks: r.resetWinStreaks,
+    credited: c.credited,
+  }
+}
