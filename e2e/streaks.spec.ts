@@ -1,15 +1,15 @@
 import { expect, test, type Page } from '@playwright/test'
-import { fixAnswers, guess, guessAll, waitForReady } from './helpers.ts'
+import {
+  fixAnswers,
+  guess,
+  guessAll,
+  seedSave,
+  waitForReady,
+} from './helpers.ts'
 
 test.use({ reducedMotion: 'reduce' })
 
 const WRONG6 = ['house', 'ghost', 'plant', 'mouse', 'trick', 'brown']
-
-test.beforeEach(async ({ page }) => {
-  await fixAnswers(page)
-  await page.goto('/')
-  await waitForReady(page)
-})
 
 async function saved(page: Page) {
   const raw = await page.evaluate(() =>
@@ -32,6 +32,12 @@ async function playAgain(page: Page) {
 }
 
 test.describe('Win Streak (STRK-01, D-12)', () => {
+  test.beforeEach(async ({ page }) => {
+    await fixAnswers(page)
+    await page.goto('/')
+    await waitForReady(page)
+  })
+
   test('a win shows Win streak: 1 and a second win shows Win streak: 2', async ({
     page,
   }) => {
@@ -94,5 +100,103 @@ test.describe('Win Streak (STRK-01, D-12)', () => {
     expect(s.played).toBe(1)
     expect(s.gaveUp).toBe(1)
     expect(s.winStreak).toBe(0)
+  })
+})
+
+const DAY1 = new Date('2026-06-03T09:00:00')
+
+async function openStats(page: Page) {
+  await page.getByRole('button', { name: 'Statistics' }).click()
+  const dialog = page.getByRole('dialog', { name: 'Statistics' })
+  await expect(dialog).toBeVisible()
+  return dialog
+}
+
+async function startDay(page: Page, save?: Record<string, unknown>) {
+  await page.clock.install({ time: DAY1 })
+  await fixAnswers(page)
+  if (save) await seedSave(page, save)
+  await page.goto('/')
+  await waitForReady(page)
+}
+
+test.describe('Day Streak (STRK-02, D-11)', () => {
+  test('first win of the day: praise then Day streak: 1', async ({ page }) => {
+    await startDay(page)
+    await guess(page, 'crane', 1)
+    await expect(page.getByRole('status')).toHaveText('Unbelievable!')
+    await expect(page.getByRole('status')).toHaveText('Day streak: 1')
+    const dialog = await openStats(page)
+    await expect(dialog).toContainText('Day streak 1 · Best 1')
+    await expect(dialog).toContainText('Restores left: 3/3')
+  })
+
+  test('a second game the same day adds nothing', async ({ page }) => {
+    await startDay(page)
+    await winOnce(page)
+    await expect(page.getByRole('status')).toHaveText('Day streak: 1')
+    await playAgain(page)
+    await winOnce(page)
+    await expect(page.getByText('Day streak: 2')).toHaveCount(0)
+    await page.waitForTimeout(3000)
+    await expect(page.getByText('Day streak: 2')).toHaveCount(0)
+    const dialog = await openStats(page)
+    await expect(dialog).toContainText('Day streak 1 · Best 1')
+  })
+
+  test('a loss counts (EC-33)', async ({ page }) => {
+    await startDay(page)
+    await guessAll(page, WRONG6)
+    await expect(page.getByRole('status')).toHaveText('Day streak: 1')
+  })
+
+  test("yesterday's streak continues", async ({ page }) => {
+    await startDay(page, {
+      dayStreak: { current: 4, longest: 4, lastActiveDate: '2026-06-02' },
+    })
+    await winOnce(page)
+    await expect(page.getByText('Day streak: 5')).toBeVisible()
+    const dialog = await openStats(page)
+    await expect(dialog).toContainText('Day streak 5 · Best 5')
+  })
+
+  test('the next day credits again', async ({ page }) => {
+    await startDay(page)
+    await winOnce(page)
+    await expect(page.getByText('Day streak: 1')).toBeVisible()
+    await page.clock.setFixedTime(new Date('2026-06-04T09:00:00'))
+    await page.reload()
+    await playAgain(page)
+    await winOnce(page)
+    await expect(page.getByText('Day streak: 2')).toBeVisible()
+  })
+
+  test.describe('without reduced motion', () => {
+    test.use({ reducedMotion: 'no-preference' })
+    test('A2: reveal completes under an installed clock', async ({ page }) => {
+      await startDay(page)
+      await guess(page, 'crane', 1)
+      await expect(
+        page.getByRole('button', { name: 'Play again' }),
+      ).toBeVisible()
+    })
+  })
+
+  test('Reset all data clears the Day Streak (R-RESTORE-11)', async ({
+    page,
+  }) => {
+    await startDay(page, {
+      dayStreak: { current: 4, longest: 4, lastActiveDate: '2026-06-03' },
+    })
+    await page.getByRole('button', { name: 'Settings' }).click()
+    await page.getByRole('button', { name: 'Reset my data' }).click()
+    await page
+      .getByRole('dialog', { name: 'Reset all data?' })
+      .getByRole('button', { name: 'Reset', exact: true })
+      .click()
+    await waitForReady(page)
+    const dialog = await openStats(page)
+    await expect(dialog).toContainText('Day streak 0 · Best 0')
+    await expect(dialog).toContainText('Restores left: 3/3')
   })
 })
