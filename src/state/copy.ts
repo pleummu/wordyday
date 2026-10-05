@@ -94,3 +94,9 @@ export const avgLine = (x: number | null) =>
   `Avg guesses: ${x === null ? EM_DASH : x.toFixed(1)}`
 export const distRowLabel = (n: number, count: number, latest: boolean) =>
   `${n} ${n === 1 ? 'guess' : 'guesses'}: ${count} ${count === 1 ? 'win' : 'wins'}${latest ? ', latest win' : ''}`
+
+export const TOAST_LIFE_MS = 1860
+export const dayStreakToast = (n: number) => `Day streak: ${n}`
+export const dayStreakFooter = (n: number, m: number) =>
+  `Day streak ${n} · Best ${m}`
+export const restoresLeftLine = (r: number) => `Restores left: ${r}/3`

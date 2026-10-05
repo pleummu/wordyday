@@ -1,6 +1,7 @@
 import { useRef, useState, type KeyboardEvent } from 'react'
 import type { Mode } from '../logic/boards'
 import { deriveStats, type StatsTab } from '../logic/stats'
+import { refill, restoresLeft } from '../logic/streaks'
 import {
   ALL_LENGTHS,
   ALL_TAB,
@@ -19,8 +20,10 @@ import {
   WIN_PCT_FULL,
   WORD_LENGTH,
   avgLine,
+  dayStreakFooter,
   distRowLabel,
   gaveUpLine,
+  restoresLeftLine,
 } from '../state/copy'
 import { useGameStore } from '../state/gameStore'
 import Modal from './Modal'
@@ -63,6 +66,9 @@ export default function StatsModal() {
   const currentMode = useGameStore((s) => s.mode)
   const currentLength = useGameStore((s) => s.length)
   const closeDialog = useGameStore((s) => s.closeDialog)
+  const dayStreak = useGameStore((s) => s.dayStreak)
+  const restores = useGameStore((s) => s.restores)
+  const today = useGameStore((s) => s.today)
 
   const [view, setView] = useState<{ mode: Mode; tab: StatsTab }>({
     mode: currentMode,
@@ -230,6 +236,13 @@ export default function StatsModal() {
           </ol>
         )}
         <p className="stats-line">{avgLine(v.avgGuesses)}</p>
+        <hr className="stats-divider" />
+        <p className="stats-footer">
+          {dayStreakFooter(dayStreak.current, dayStreak.longest)}
+        </p>
+        <p className="stats-footer">
+          {restoresLeftLine(restoresLeft(refill(restores, today)))}
+        </p>
       </div>
       <div className="modal-actions">
         <button

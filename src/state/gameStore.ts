@@ -30,11 +30,14 @@ import {
 } from '../logic/save'
 import { score, type TileState } from '../logic/score'
 import { nextSeq, recordResult } from '../logic/stats'
+import { creditDay, monthOf, refill } from '../logic/streaks'
 import {
   ALL_DATA_RESET,
   CORRUPT_TOAST,
   LONG_TOAST_MS,
   STORAGE_FAILED_TOAST,
+  TOAST_LIFE_MS,
+  dayStreakToast,
   NOT_ENOUGH_LETTERS,
   NOT_IN_WORD_LIST,
   OTHER_TAB_TOAST,
@@ -46,6 +49,7 @@ import {
   type SaveStorage,
   type StorageNotice,
 } from './storage'
+import { localDateKey } from './clock'
 import { readTestAnswer } from './testHook'
 
 export type GameStatus =
@@ -72,6 +76,8 @@ export type GameDeps = {
   prefersReducedMotion: () => boolean
   setTimer: (fn: () => void, ms: number) => unknown
   storage: SaveStorage
+  // The only clock read besides clock.ts; injectable for tests (R-DATE-3).
+  now?: () => Date
   // The single "finish game" seam; Phase 5 hangs streaks off it.
   onGameFinished?: (key: BoardKey, outcome: FinishedOutcome) => void
 }
@@ -99,6 +105,10 @@ export type GameState = {
   restores: Restores
   pendingRestore: PendingRestore | null
   streakRev: number
+  // Local calendar day (YYYY-MM-DD) as of the last finish or reset.
+  today: string
+  // Day Streak value to announce when the reveal ends; transient (D-21).
+  dayToastDue: number | null
   finishNote: { won: boolean; winStreak: number; prev: number } | null
   finishedInSession: boolean
   storageOk: boolean
@@ -227,6 +237,7 @@ export function createGameStore(deps: GameDeps) {
   let storageToastShown = false
   let clock = 0
   let resetFloor = -1
+  const now = deps.now ?? (() => new Date())
 
   return create<GameState>()(
     persist(
@@ -252,8 +263,23 @@ export function createGameStore(deps: GameDeps) {
             if (Object.keys(extra).length > 0) set(extra)
             return
           }
+          // R-RESTORE-1: refill first, then credit the local day (D-21: both
+          // recorded at submit; the toast waits for the reveal).
+          const today = localDateKey(now())
+          const refilled = {
+            dayStreak: state.dayStreak,
+            restores: refill(state.restores, today),
+            pendingRestore: state.pendingRestore,
+          }
+          const { slice, credited } = creditDay(refilled, today)
+          const streakChanged = credited || refilled.restores !== state.restores
           set({
             ...extra,
+            today,
+            ...(streakChanged
+              ? { ...slice, streakRev: state.streakRev + 1 }
+              : {}),
+            ...(credited ? { dayToastDue: slice.dayStreak.current } : {}),
             stats: { ...state.stats, [key]: next },
             finishNote: {
               won: outcome === 'won',
@@ -262,6 +288,21 @@ export function createGameStore(deps: GameDeps) {
             },
           })
           deps.onGameFinished?.(key, outcome)
+        }
+
+        function showDueDayToast() {
+          const due = get().dayToastDue
+          if (due === null) return
+          set({
+            dayToastDue: null,
+            toast: { id: ++toastSeq, text: dayStreakToast(due), kind: 'info' },
+          })
+        }
+
+        // Reset state: Restores refilled for the current month (R-RESTORE-11).
+        function freshToday() {
+          const today = localDateKey(now())
+          return { today, restores: { month: monthOf(today), used: 0 } }
         }
 
         // Higher than any id this tab has seen, including during an await.
@@ -294,6 +335,7 @@ export function createGameStore(deps: GameDeps) {
             shakeRow: -1,
             finishedInSession: false,
             finishNote: null,
+            dayToastDue: null,
             dialog: null,
           })
           if (!saved) {
@@ -344,6 +386,8 @@ export function createGameStore(deps: GameDeps) {
           boards: {},
           wordubadoInfoSeen: false,
           ...streakDefaults(),
+          today: localDateKey(now()),
+          dayToastDue: null,
           finishNote: null,
           finishedInSession: false,
           storageOk: deps.storage.isOk(),
@@ -406,7 +450,9 @@ export function createGameStore(deps: GameDeps) {
               boards: {},
               wordubadoInfoSeen: false,
               ...streakDefaults(),
+              ...freshToday(),
               streakRev: get().streakRev + 1,
+              dayToastDue: null,
               finishNote: null,
               dialog: null,
               infoOpen: false,
@@ -479,7 +525,9 @@ export function createGameStore(deps: GameDeps) {
                 boards: {},
                 wordubadoInfoSeen: false,
                 ...streakDefaults(),
+                ...freshToday(),
                 streakRev: s0.streakRev + 1,
+                dayToastDue: null,
                 finishNote: null,
                 answer: '',
                 rows: [],
@@ -585,6 +633,7 @@ export function createGameStore(deps: GameDeps) {
             if (!canForfeit(status, rows.length, ATTEMPTS(length))) return
             set({ status: 'gave-up', finishedInSession: true })
             finishGame(boardKey(mode, length), 'gave-up')
+            showDueDayToast()
           },
 
           forfeitNewGame() {
@@ -609,7 +658,17 @@ export function createGameStore(deps: GameDeps) {
               current: '',
               status: 'loading',
             })
+            const due = get().dayToastDue
             void get().startGame(length, mode)
+            if (due !== null) {
+              set({
+                toast: {
+                  id: ++toastSeq,
+                  text: dayStreakToast(due),
+                  kind: 'info',
+                },
+              })
+            }
           },
 
           async startGame(length, mode = get().mode) {
@@ -637,6 +696,7 @@ export function createGameStore(deps: GameDeps) {
               shakeRow: -1,
               finishedInSession: false,
               finishNote: null,
+              dayToastDue: null,
               dialog: null,
             })
             try {
@@ -769,6 +829,7 @@ export function createGameStore(deps: GameDeps) {
               last.letters,
               last.states,
             )
+            const due = get().dayToastDue
             if (last.states.every((s) => s === 'correct')) {
               set({
                 keyStates: merged,
@@ -779,13 +840,29 @@ export function createGameStore(deps: GameDeps) {
                   text: PRAISE[rows.length - 1] ?? PRAISE[PRAISE.length - 1],
                   kind: 'info',
                 },
+                dayToastDue: null,
               })
+              // Queue the Day Streak toast after the praise toast has played.
+              if (due !== null) {
+                const token = get().loadToken
+                deps.setTimer(() => {
+                  if (get().loadToken !== token) return
+                  set({
+                    toast: {
+                      id: ++toastSeq,
+                      text: dayStreakToast(due),
+                      kind: 'info',
+                    },
+                  })
+                }, TOAST_LIFE_MS)
+              }
             } else if (rows.length >= BOARD_CONFIG[length].attempts) {
               set({
                 keyStates: merged,
                 status: 'lost',
                 finishedInSession: true,
               })
+              showDueDayToast()
             } else {
               set({ keyStates: merged, status: 'playing' })
             }
@@ -829,6 +906,7 @@ const defaultDeps: GameDeps = {
     false,
   setTimer: (fn, ms) => globalThis.setTimeout(fn, ms),
   storage: defaultSaveStorage,
+  now: () => new Date(),
 }
 
 export const useGameStore = createGameStore(defaultDeps)

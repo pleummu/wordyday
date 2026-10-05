@@ -3,7 +3,7 @@ import { createGameStore, revealDurationMs, type GameDeps } from './gameStore'
 import type { Pools } from '../data/wordData'
 import type { WordLength } from '../logic/boards'
 import { score } from '../logic/score'
-import { CORRUPT_TOAST, PRAISE } from './copy'
+import { CORRUPT_TOAST, PRAISE, TOAST_LIFE_MS } from './copy'
 import { createSaveStorage } from './storage'
 import {
   createMemoryStorage,
@@ -1537,5 +1537,129 @@ describe('statistics dialog', () => {
     store.setState({ dialog: null, infoOpen: true })
     store.getState().openStats()
     expect(store.getState().dialog).toBeNull()
+  })
+})
+
+describe('Day Streak (STRK-02, D-11, D-21)', () => {
+  function withClock(initial: string) {
+    const clock = { at: new Date(initial) }
+    const ctx = setup({ now: () => clock.at })
+    return { ...ctx, clock }
+  }
+  const DAY = '2026-06-03T09:00:00'
+
+  async function win(ctx: ReturnType<typeof withClock>) {
+    await ctx.store.getState().startGame(5)
+    type(ctx.store, 'crane')
+    ctx.store.getState().submit()
+  }
+
+  it('a win credits at submit and the toast follows the praise', async () => {
+    const ctx = withClock(DAY)
+    const rev0 = ctx.store.getState().streakRev
+    await win(ctx)
+    const s = ctx.store.getState()
+    expect(s.dayStreak).toEqual({
+      current: 1,
+      longest: 1,
+      lastActiveDate: '2026-06-03',
+    })
+    expect(s.streakRev).toBe(rev0 + 1)
+    expect(s.toast).toBeNull()
+    const before = ctx.timers.length
+    s.finishReveal()
+    expect(ctx.store.getState().toast?.text).toBe(PRAISE[0])
+    const queued = ctx.timers.slice(before)
+    expect(queued).toHaveLength(1)
+    expect(queued[0].ms).toBe(TOAST_LIFE_MS)
+    queued[0].fn()
+    expect(ctx.store.getState().toast?.text).toBe('Day streak: 1')
+  })
+
+  it('EC-33 a loss credits and toasts at once', async () => {
+    const ctx = withClock(DAY)
+    await ctx.store.getState().startGame(5)
+    for (const w of ['house', 'ghost', 'house', 'ghost', 'house', 'ghost']) {
+      type(ctx.store, w)
+      ctx.store.getState().submit()
+      ctx.store.getState().finishReveal()
+    }
+    expect(ctx.store.getState().status).toBe('lost')
+    expect(ctx.store.getState().dayStreak.current).toBe(1)
+    expect(ctx.store.getState().toast?.text).toBe('Day streak: 1')
+  })
+
+  it('EC-34 Give Up credits', async () => {
+    const ctx = withClock(DAY)
+    await ctx.store.getState().startGame(5)
+    for (const w of ['house', 'ghost', 'house', 'ghost']) {
+      type(ctx.store, w)
+      ctx.store.getState().submit()
+      ctx.store.getState().finishReveal()
+    }
+    ctx.store.getState().giveUp()
+    expect(ctx.store.getState().dayStreak.current).toBe(1)
+    expect(ctx.store.getState().toast?.text).toBe('Day streak: 1')
+  })
+
+  it('EC-35 a Forfeit credits', async () => {
+    const ctx = withClock(DAY)
+    await ctx.store.getState().startGame(5)
+    for (const w of ['house', 'ghost', 'house', 'ghost']) {
+      type(ctx.store, w)
+      ctx.store.getState().submit()
+      ctx.store.getState().finishReveal()
+    }
+    ctx.store.getState().forfeitNewGame()
+    expect(ctx.store.getState().dayStreak.current).toBe(1)
+    expect(ctx.store.getState().toast?.text).toBe('Day streak: 1')
+  })
+
+  it('a second finish on the same day adds nothing and queues no toast', async () => {
+    const ctx = withClock(DAY)
+    await win(ctx)
+    ctx.store.getState().finishReveal()
+    const rev = ctx.store.getState().streakRev
+    const timers = ctx.timers.length
+    await win(ctx)
+    ctx.store.getState().finishReveal()
+    expect(ctx.store.getState().dayStreak.current).toBe(1)
+    expect(ctx.store.getState().streakRev).toBe(rev)
+    expect(ctx.timers.length).toBe(timers + 1)
+    expect(ctx.store.getState().toast?.text).toBe(PRAISE[0])
+  })
+
+  it('EC-30 a clock moved backwards changes nothing', async () => {
+    const ctx = withClock(DAY)
+    await win(ctx)
+    ctx.store.getState().finishReveal()
+    ctx.clock.at = new Date('2026-06-01T09:00:00')
+    await win(ctx)
+    expect(ctx.store.getState().dayStreak).toEqual({
+      current: 1,
+      longest: 1,
+      lastActiveDate: '2026-06-03',
+    })
+  })
+
+  it('resetAll zeroes the streak and refills Restores (R-RESTORE-11)', async () => {
+    const ctx = withClock(DAY)
+    await win(ctx)
+    ctx.store.getState().resetAll()
+    const s = ctx.store.getState()
+    expect(s.dayStreak).toEqual({
+      current: 0,
+      longest: 0,
+      lastActiveDate: null,
+    })
+    expect(s.restores).toEqual({ month: '2026-06', used: 0 })
+  })
+
+  it('applyExternal never sets a Day Streak toast', async () => {
+    const ctx = withClock(DAY)
+    await ctx.store.getState().startGame(5)
+    ctx.store.getState().applyExternal(null)
+    expect(ctx.store.getState().toast?.text).not.toMatch(/Day streak/)
+    expect(ctx.store.getState().dayToastDue).toBeNull()
   })
 })

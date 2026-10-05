@@ -994,6 +994,18 @@ dialog.modal:has(#stats-panel) .modal-card {
   font-size: var(--font-size-label);
 }
 
+.stats-divider {
+  border: 0;
+  border-top: 1px solid var(--tile-empty-border);
+  margin: var(--space-2) 0;
+}
+
+.stats-footer {
+  margin: 0;
+  font-size: var(--font-size-label);
+  font-weight: 600;
+}
+
 .dist {
   list-style: none;
   margin: 0;

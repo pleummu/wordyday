@@ -40,6 +40,9 @@ beforeEach(async () => {
     stats: emptyStats(),
     storageOk: true,
     finishedInSession: false,
+    dayStreak: { current: 0, longest: 0, lastActiveDate: null },
+    restores: { month: '', used: 0 },
+    today: '2026-06-03',
   })
   loadPools.mockReset()
   loadPools.mockImplementation(() => Promise.resolve(pools))
@@ -93,4 +96,25 @@ it('reopening resets the view to the current Board', () => {
   expect(
     screen.getByRole('radio', { name: 'Normal' }).getAttribute('aria-checked'),
   ).toBe('true')
+})
+
+it('shows the global footer on a fresh store', () => {
+  render(<App />)
+  act(() => useGameStore.getState().openStats())
+  const dlg = screen.getByRole('dialog', { name: 'Statistics' })
+  expect(dlg.textContent).toContain('Day streak 0 · Best 0')
+  expect(dlg.textContent).toContain('Restores left: 3/3')
+})
+
+it('shows the seeded Day Streak and remaining Restores on every tab', () => {
+  useGameStore.setState({
+    dayStreak: { current: 5, longest: 9, lastActiveDate: '2026-06-03' },
+    restores: { month: '2026-06', used: 1 },
+  })
+  render(<App />)
+  act(() => useGameStore.getState().openStats())
+  fireEvent.click(screen.getByRole('tab', { name: 'All lengths' }))
+  const dlg = screen.getByRole('dialog', { name: 'Statistics' })
+  expect(dlg.textContent).toContain('Day streak 5 · Best 9')
+  expect(dlg.textContent).toContain('Restores left: 2/3')
 })
