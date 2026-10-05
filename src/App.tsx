@@ -9,6 +9,7 @@ import LoadingNotice from './components/LoadingNotice'
 import NewGameConfirm from './components/NewGameConfirm'
 import ResetConfirm from './components/ResetConfirm'
 import RestorePrompt from './components/RestorePrompt'
+import StreakBreakModal from './components/StreakBreakModal'
 import SettingsModal from './components/SettingsModal'
 import StatsModal from './components/StatsModal'
 import Toast from './components/Toast'
@@ -60,6 +61,7 @@ export default function App() {
       <StatsModal />
       <ResetConfirm />
       <RestorePrompt />
+      <StreakBreakModal />
       <LoadingNotice active={status === 'loading'} />
       <Header />
       <main className="board-area">

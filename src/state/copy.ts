@@ -112,5 +112,8 @@ export const restorePromptBody = (streak: number, left: number) =>
   `Your ${streak}-day streak broke. Restore it? (${left} left this month)`
 export const RESTORE = 'Restore'
 export const NO = 'No'
+export const BREAK_HEADING = 'Fresh start'
+export const BREAK_BODY = 'Your streak ended. Start a new one today!'
+export const OK = 'OK'
 export const restoreToast = (n: number) =>
   `Streak restored. ${n} left this month.`
