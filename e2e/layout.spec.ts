@@ -166,3 +166,43 @@ test('forfeit row fits at 320x500 with 5 letters in normal', async ({
   await guessAll(page, ['house', 'ghost', 'plant', 'mouse'])
   await expectForfeitFits(page, 500, 'Row 6, column 5, empty')
 })
+
+for (const h of [500, 568, 640]) {
+  for (const mode of ['normal', 'wordubado'] as const) {
+    test(`header fits title and actions at 320x${h} in ${mode}`, async ({
+      page,
+    }) => {
+      await fixAnswers(page)
+      await page.setViewportSize({ width: 320, height: h })
+      await page.goto('/')
+      await waitForReady(page)
+      if (mode === 'wordubado') await turnOnWordubado(page)
+      await expectNoScroll(page, h)
+      const title = (await page.locator('h1.title').boundingBox())!
+      const actions = (await page.locator('.header-actions').boundingBox())!
+      const overlap =
+        title.x < actions.x + actions.width &&
+        actions.x < title.x + title.width &&
+        title.y < actions.y + actions.height &&
+        actions.y < title.y + title.height
+      expect(overlap).toBe(false)
+      for (const name of ['Statistics', 'Settings']) {
+        const b = (await page.getByRole('button', { name }).boundingBox())!
+        expect(b.width).toBeCloseTo(36, 0)
+        expect(b.height).toBeCloseTo(36, 0)
+      }
+    })
+  }
+}
+
+test('header action buttons are 40 px at 1280x720', async ({ page }) => {
+  await fixAnswers(page)
+  await page.setViewportSize({ width: 1280, height: 720 })
+  await page.goto('/')
+  await waitForReady(page)
+  for (const name of ['Statistics', 'Settings']) {
+    const b = (await page.getByRole('button', { name }).boundingBox())!
+    expect(b.width).toBeCloseTo(40, 0)
+    expect(b.height).toBeCloseTo(40, 0)
+  }
+})

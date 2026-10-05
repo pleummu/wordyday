@@ -12,7 +12,9 @@ test.beforeEach(async ({ page }) => {
 })
 
 async function saved(page: Page) {
-  const raw = await page.evaluate(() => localStorage.getItem('unlimited-wordle'))
+  const raw = await page.evaluate(() =>
+    localStorage.getItem('unlimited-wordle'),
+  )
   return JSON.parse(raw ?? 'null') as {
     version: number
     state: { stats: Record<string, Record<string, unknown>> }
