@@ -1,4 +1,11 @@
-import { BOARD_KEYS, STAT_CAP, type BoardKey, type BoardStats } from './save'
+import {
+  BOARD_KEYS,
+  STAT_CAP,
+  boardKey,
+  type BoardKey,
+  type BoardStats,
+} from './save'
+import type { Mode } from './boards'
 
 export type FinishedOutcomeLike = 'won' | 'lost' | 'gave-up' | 'forfeit'
 
@@ -50,4 +57,79 @@ export function nextSeq(stats: Record<BoardKey, BoardStats>): number {
     if (l) max = Math.max(max, l.seq)
   }
   return max + 1
+}
+
+export type StatsTab = 4 | 5 | 6 | 'all'
+
+export type StatsView = {
+  played: number
+  wins: number
+  winPct: number | null
+  winStreak: number | null
+  bestWinStreak: number | null
+  gaveUp: number
+  dist: number[]
+  highlightRow: number | null
+  avgGuesses: number | null
+}
+
+// Zero-safe view for the Statistics dialog (R-STAT-5): a ratio is null when
+// its divisor is 0, never NaN or Infinity.
+export function deriveStats(
+  stats: Record<BoardKey, BoardStats>,
+  mode: Mode,
+  tab: StatsTab,
+): StatsView {
+  let played = 0
+  let wins = 0
+  let gaveUp = 0
+  let dist: number[]
+  let winStreak: number | null
+  let bestWinStreak: number | null
+  let highlightRow: number | null = null
+  if (tab === 'all') {
+    dist = new Array<number>(7).fill(0)
+    winStreak = null
+    bestWinStreak = null
+    let bestSeq = -1
+    for (const n of [4, 5, 6] as const) {
+      const b = stats[boardKey(mode, n)]
+      played += b.played
+      wins += b.wins
+      gaveUp += b.gaveUp
+      b.dist.forEach((c, i) => {
+        dist[i] += c
+      })
+      if (b.last && b.last.won && b.last.seq > bestSeq) {
+        bestSeq = b.last.seq
+        highlightRow = b.last.guesses
+      }
+    }
+  } else {
+    const b = stats[boardKey(mode, tab)]
+    played = b.played
+    wins = b.wins
+    gaveUp = b.gaveUp
+    dist = b.dist.slice()
+    winStreak = b.winStreak
+    bestWinStreak = b.bestWinStreak
+    highlightRow = b.last && b.last.won ? b.last.guesses : null
+  }
+  let total = 0
+  let sum = 0
+  dist.forEach((c, i) => {
+    total += c
+    sum += c * (i + 1)
+  })
+  return {
+    played,
+    wins,
+    winPct: played > 0 ? Math.round((wins / played) * 100) : null,
+    winStreak,
+    bestWinStreak,
+    gaveUp,
+    dist,
+    highlightRow,
+    avgGuesses: total > 0 ? sum / total : null,
+  }
 }

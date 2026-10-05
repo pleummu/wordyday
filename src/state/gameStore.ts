@@ -50,7 +50,7 @@ import { readTestAnswer } from './testHook'
 
 export type GameStatus =
   'loading' | 'error' | 'playing' | 'revealing' | 'won' | 'lost' | 'gave-up'
-export type DialogName = 'giveUp' | 'newGame' | 'settings' | 'reset'
+export type DialogName = 'giveUp' | 'newGame' | 'settings' | 'reset' | 'stats'
 export type FinishedOutcome = 'won' | 'lost' | 'gave-up' | 'forfeit'
 
 export function isFinished(status: GameStatus): boolean {
@@ -111,6 +111,7 @@ export type GameState = {
   openDialog(name: 'giveUp' | 'newGame'): void
   closeDialog(): void
   openSettings(): void
+  openStats(): void
   openReset(): void
   cancelReset(): void
   resetAll(): void
@@ -376,6 +377,12 @@ export function createGameStore(deps: GameDeps) {
             const { dialog, infoOpen } = get()
             if (dialog !== null || infoOpen) return
             set({ dialog: 'settings', settingsFocus: 'close' })
+          },
+
+          openStats() {
+            const { dialog, infoOpen, status } = get()
+            if (dialog !== null || infoOpen || status === 'revealing') return
+            set({ dialog: 'stats' })
           },
 
           openReset() {

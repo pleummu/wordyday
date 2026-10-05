@@ -1510,3 +1510,32 @@ describe('stats recording (D-07, D-12, D-21)', () => {
     expect(onGameFinished).toHaveBeenCalledTimes(1)
   })
 })
+
+describe('statistics dialog', () => {
+  it('openStats opens and closeDialog closes', async () => {
+    const { store } = await started()
+    store.getState().openStats()
+    expect(store.getState().dialog).toBe('stats')
+    store.getState().closeDialog()
+    expect(store.getState().dialog).toBeNull()
+  })
+
+  it('openStats is ignored while status is revealing (D-21)', async () => {
+    const { store } = await started()
+    type(store, 'house')
+    store.getState().submit()
+    expect(store.getState().status).toBe('revealing')
+    store.getState().openStats()
+    expect(store.getState().dialog).toBeNull()
+  })
+
+  it('openStats is ignored while another dialog or the info popup is open', async () => {
+    const { store } = await started()
+    store.setState({ dialog: 'settings' })
+    store.getState().openStats()
+    expect(store.getState().dialog).toBe('settings')
+    store.setState({ dialog: null, infoOpen: true })
+    store.getState().openStats()
+    expect(store.getState().dialog).toBeNull()
+  })
+})
