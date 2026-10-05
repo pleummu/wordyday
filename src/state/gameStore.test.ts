@@ -9,7 +9,7 @@ import {
   createMemoryStorage,
   createThrowingStorage,
 } from '../test/storageDoubles'
-import { SAVE_KEY, SAVE_VERSION } from '../logic/save'
+import { BOARD_KEYS, SAVE_KEY, SAVE_VERSION, emptySave } from '../logic/save'
 
 const pools5: Pools = {
   answers: ['crane', 'slate'],
@@ -1150,7 +1150,10 @@ describe('sync', () => {
 })
 
 describe('newer-version saves (CR-01)', () => {
-  const v2Text = JSON.stringify({ state: { future: true }, version: 2 })
+  const v2Text = JSON.stringify({
+    state: { future: true },
+    version: SAVE_VERSION + 1,
+  })
 
   it('boot keeps the newer document and still plays in memory', async () => {
     const mem = createMemoryStorage({ [SAVE_KEY]: v2Text })
@@ -1353,5 +1356,42 @@ describe('reset drops deferred documents (WR-03)', () => {
     store.setState({ pendingExternal: raw })
     store.getState().switchBoard({ length: 4 })
     expect(store.getState().pendingExternal).toBeUndefined()
+  })
+})
+
+describe('v2 persisted slices', () => {
+  it('a fresh store persists the empty Phase 5 slices for the six Boards', async () => {
+    const { store, mem } = await started()
+    const doc = JSON.parse(mem.getItem(SAVE_KEY)!)
+    expect(Object.keys(doc.state.stats).sort()).toEqual([...BOARD_KEYS].sort())
+    const e = emptySave()
+    expect(doc.state.dayStreak).toEqual(e.dayStreak)
+    expect(doc.state.restores).toEqual({ month: '', used: 0 })
+    expect(doc.state.pendingRestore).toBeNull()
+    expect(doc.state.streakRev).toBe(0)
+    expect(store.getState().stats).toEqual(e.stats)
+  })
+
+  it('resetAll and applyExternal(null) restore the empty slices', async () => {
+    const { store } = await started()
+    const dirty = { ...emptySave().dayStreak, current: 4 }
+    store.setState({ dayStreak: dirty, streakRev: 3 })
+    store.getState().resetAll()
+    expect(store.getState().dayStreak.current).toBe(0)
+    expect(store.getState().streakRev).toBe(0)
+    store.setState({ dayStreak: dirty, streakRev: 3 })
+    store.getState().applyExternal(null)
+    expect(store.getState().dayStreak.current).toBe(0)
+    expect(store.getState().streakRev).toBe(0)
+    expect(store.getState().stats).toEqual(emptySave().stats)
+  })
+})
+
+describe('persist.migrate (IN-01)', () => {
+  it('IN-01 persist migrate throws instead of passing unvalidated data', () => {
+    const { store } = setup()
+    const migrate = store.persist.getOptions().migrate
+    expect(migrate).toBeDefined()
+    expect(() => migrate?.({}, 1)).toThrow(/loadSave/)
   })
 })

@@ -36,13 +36,8 @@ describe('createSaveStorage getItem', () => {
   it.each([
     ['not json', 'not json'],
     [
-      'tampered outcome',
-      envelope({
-        ...emptySave(),
-        boards: {
-          'normal-5': { answer: 'crane', guesses: [], outcome: 'won' },
-        },
-      }),
+      'tampered last pointer',
+      envelope({ ...emptySave(), last: { mode: 'hard', length: 5 } }),
     ],
     ['version 0', envelope(emptySave(), 0)],
   ])('backs up %s and notices corrupt once', (_n, raw) => {
@@ -113,7 +108,7 @@ describe('createSaveStorage setItem', () => {
 })
 
 describe('newer-version saves (CR-01)', () => {
-  const v2 = envelope({ future: true }, 2)
+  const v2 = envelope({ future: true }, SAVE_VERSION + 1)
   const v1 = { state: emptySave(), version: SAVE_VERSION }
 
   it('boot getItem keeps the document, no backup, storage-failed only', () => {
@@ -180,5 +175,50 @@ describe('createSaveStorage removeItem, notices and read', () => {
     expect(s.read(envelope(emptySave()))).toEqual(emptySave())
     expect(mem.dump()).toEqual({})
     expect(got).toEqual([])
+  })
+})
+
+describe('v1 to v2 upgrade through storage (D-18)', () => {
+  it('D-18 a v1 envelope in storage is read as the v2 document', () => {
+    const v1 = envelope(
+      {
+        boards: {
+          'normal-5': {
+            answer: 'crane',
+            guesses: ['house'],
+            outcome: 'playing',
+          },
+        },
+        last: { mode: 'wordubado', length: 4 },
+        wordubadoInfoSeen: true,
+      },
+      1,
+    )
+    const mem = createMemoryStorage({ [NAME]: v1 })
+    const s = createSaveStorage(() => mem)
+    const got = s.getItem(NAME) as {
+      state: ReturnType<typeof emptySave>
+      version: number
+    }
+    expect(got.version).toBe(SAVE_VERSION)
+    expect(got.state.last).toEqual({ mode: 'wordubado', length: 4 })
+    expect(got.state.boards['normal-5']?.answer).toBe('crane')
+    expect(got.state.stats).toEqual(emptySave().stats)
+    expect(got.state.restores).toEqual({ month: '', used: 0 })
+  })
+
+  it('round-trips a v2 document', () => {
+    const mem = createMemoryStorage()
+    const s = createSaveStorage(() => mem)
+    const doc = {
+      state: {
+        ...emptySave(),
+        streakRev: 4,
+        dayStreak: { current: 2, longest: 3, lastActiveDate: '2026-10-04' },
+      },
+      version: SAVE_VERSION,
+    }
+    s.setItem(NAME, doc)
+    expect(s.getItem(NAME)).toEqual(doc)
   })
 })

@@ -1,6 +1,6 @@
 import { BOARD_CONFIG, type Mode, type WordLength } from './boards'
 
-export const SAVE_VERSION = 1
+export const SAVE_VERSION = 2
 export const SAVE_KEY = 'unlimited-wordle'
 // Backup key for an unreadable document is SAVE_KEY + CORRUPT_SUFFIX.
 export const CORRUPT_SUFFIX = ':corrupt'
@@ -31,12 +31,71 @@ export type SavedGame = {
   id?: number
 }
 
-// Phase 5 adds dayStreak, restores, pendingRestore and boards[k].winStreak
-// through a v1 -> v2 migration.
+export const STAT_CAP = 1_000_000_000
+
+// Running counters per Board, not a game history (D-19).
+export type BoardStats = {
+  played: number
+  wins: number
+  gaveUp: number
+  dist: number[]
+  winStreak: number
+  bestWinStreak: number
+  last: { won: boolean; guesses: number; seq: number } | null
+  lastCounted: { id: number; answer: string } | null
+}
+
+export type DayStreak = {
+  current: number
+  longest: number
+  lastActiveDate: string | null
+}
+
+// month is '' (never refilled yet) or 'YYYY-MM'.
+export type Restores = { month: string; used: number }
+
+export type PendingRestore = {
+  streak: number
+  missed: number
+  creditDeferred: boolean
+}
+
 export type SaveDoc = {
   boards: Partial<Record<BoardKey, SavedGame>>
   last: { mode: Mode; length: WordLength }
   wordubadoInfoSeen: boolean
+  stats: Record<BoardKey, BoardStats>
+  dayStreak: DayStreak
+  restores: Restores
+  pendingRestore: PendingRestore | null
+  streakRev: number
+}
+
+function lengthOfKey(key: BoardKey): WordLength {
+  return Number(key.split('-')[1]) as WordLength
+}
+
+export function emptyBoardStats(key: BoardKey): BoardStats {
+  return {
+    played: 0,
+    wins: 0,
+    gaveUp: 0,
+    dist: new Array<number>(BOARD_CONFIG[lengthOfKey(key)].attempts).fill(0),
+    winStreak: 0,
+    bestWinStreak: 0,
+    last: null,
+    lastCounted: null,
+  }
+}
+
+export function emptyStats(): Record<BoardKey, BoardStats> {
+  const out = {} as Record<BoardKey, BoardStats>
+  for (const k of BOARD_KEYS) out[k] = emptyBoardStats(k)
+  return out
+}
+
+export function emptyDayStreak(): DayStreak {
+  return { current: 0, longest: 0, lastActiveDate: null }
 }
 
 export function emptySave(): SaveDoc {
@@ -44,6 +103,11 @@ export function emptySave(): SaveDoc {
     boards: {},
     last: { mode: 'normal', length: 5 },
     wordubadoInfoSeen: false,
+    stats: emptyStats(),
+    dayStreak: emptyDayStreak(),
+    restores: { month: '', used: 0 },
+    pendingRestore: null,
+    streakRev: 0,
   }
 }
 
@@ -67,7 +131,22 @@ export function canForfeit(
   )
 }
 
-export const MIGRATIONS: Readonly<Record<number, (s: unknown) => unknown>> = {}
+// v1 -> v2: add the Phase 5 slices, all at zero. Boards, last and the info flag
+// are untouched. A non-object is returned as is so validation rejects it.
+export const MIGRATIONS: Readonly<Record<number, (s: unknown) => unknown>> = {
+  1: (s) => {
+    if (typeof s !== 'object' || s === null || Array.isArray(s)) return s
+    const e = emptySave()
+    return {
+      ...(s as Record<string, unknown>),
+      stats: e.stats,
+      dayStreak: e.dayStreak,
+      restores: e.restores,
+      pendingRestore: e.pendingRestore,
+      streakRev: e.streakRev,
+    }
+  },
+}
 
 export function migrateSave(
   state: unknown,
@@ -215,6 +294,118 @@ export function mergeBoards(
   return out
 }
 
+function isCount(x: unknown, max = STAT_CAP): x is number {
+  return typeof x === 'number' && Number.isSafeInteger(x) && x >= 0 && x <= max
+}
+
+function validateBoardStats(x: unknown, key: BoardKey): BoardStats {
+  const fallback = emptyBoardStats(key)
+  if (!isObject(x)) return fallback
+  const length = lengthOfKey(key)
+  const attempts = BOARD_CONFIG[length].attempts
+  const { played, wins, gaveUp, dist, winStreak, bestWinStreak } = x
+  if (
+    !isCount(played) ||
+    !isCount(wins) ||
+    !isCount(gaveUp) ||
+    !isCount(winStreak) ||
+    !isCount(bestWinStreak) ||
+    wins > played
+  ) {
+    return fallback
+  }
+  if (!Array.isArray(dist) || dist.length !== attempts) return fallback
+  if (!(dist as unknown[]).every((d) => isCount(d))) return fallback
+  let last: BoardStats['last'] = null
+  if (x.last !== null) {
+    const l = x.last
+    if (
+      !isObject(l) ||
+      typeof l.won !== 'boolean' ||
+      !isCount(l.guesses, attempts) ||
+      l.guesses < 1 ||
+      !isCount(l.seq)
+    ) {
+      return fallback
+    }
+    last = { won: l.won, guesses: l.guesses, seq: l.seq }
+  }
+  let lastCounted: BoardStats['lastCounted'] = null
+  if (x.lastCounted !== null) {
+    const c = x.lastCounted
+    if (
+      !isObject(c) ||
+      !isCount(c.id) ||
+      typeof c.answer !== 'string' ||
+      c.answer.length !== length ||
+      !/^[a-z]+$/.test(c.answer)
+    ) {
+      return fallback
+    }
+    lastCounted = { id: c.id, answer: c.answer }
+  }
+  return {
+    played,
+    wins,
+    gaveUp,
+    dist: [...(dist as number[])],
+    winStreak,
+    bestWinStreak,
+    last,
+    lastCounted,
+  }
+}
+
+function validateStats(x: unknown): Record<BoardKey, BoardStats> {
+  const out = {} as Record<BoardKey, BoardStats>
+  const src = isObject(x) ? x : {}
+  for (const k of BOARD_KEYS) {
+    out[k] = validateBoardStats(has(src, k) ? src[k] : null, k)
+  }
+  return out
+}
+
+const DATE_RE = /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/
+const MONTH_RE = /^\d{4}-(0[1-9]|1[0-2])$/
+
+function validateDayStreak(x: unknown): DayStreak {
+  if (!isObject(x)) return emptyDayStreak()
+  const { current, longest, lastActiveDate } = x
+  if (!isCount(current) || !isCount(longest)) return emptyDayStreak()
+  if (lastActiveDate !== null) {
+    if (typeof lastActiveDate !== 'string' || !DATE_RE.test(lastActiveDate)) {
+      return emptyDayStreak()
+    }
+  }
+  return { current, longest, lastActiveDate }
+}
+
+function validateRestores(x: unknown): Restores {
+  const fallback = { month: '', used: 0 }
+  if (!isObject(x)) return fallback
+  const { month, used } = x
+  if (typeof month !== 'string' || (month !== '' && !MONTH_RE.test(month))) {
+    return fallback
+  }
+  if (typeof used !== 'number' || !Number.isInteger(used)) return fallback
+  return { month, used: Math.min(3, Math.max(0, used)) }
+}
+
+function validatePending(x: unknown): PendingRestore | null {
+  if (!isObject(x)) return null
+  const { streak, missed, creditDeferred } = x
+  if (
+    !isCount(streak) ||
+    streak < 1 ||
+    !isCount(missed, 4) ||
+    missed < 1 ||
+    typeof creditDeferred !== 'boolean'
+  ) {
+    return null
+  }
+  return { streak, missed, creditDeferred }
+}
+
 export function validateSave(x: unknown): SaveDoc | null {
   if (!isObject(x)) return null
   const { boards, last, wordubadoInfoSeen } = x
@@ -233,13 +424,19 @@ export function validateSave(x: unknown): SaveDoc | null {
     if (!has(boards, key)) continue
     const length = Number(key.split('-')[1]) as WordLength
     const game = validateGame(boards[key], length)
-    if (!game) return null
+    // WR-03: one malformed Board is skipped; the other Boards are kept.
+    if (!game) continue
     out[key] = game
   }
   return {
     boards: out,
     last: { mode: last.mode, length: last.length },
     wordubadoInfoSeen,
+    stats: validateStats(x.stats),
+    dayStreak: validateDayStreak(x.dayStreak),
+    restores: validateRestores(x.restores),
+    pendingRestore: validatePending(x.pendingRestore),
+    streakRev: isCount(x.streakRev) ? x.streakRev : 0,
   }
 }
 

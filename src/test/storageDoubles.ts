@@ -1,3 +1,5 @@
+import { SAVE_VERSION, emptySave, type SaveDoc } from '../logic/save'
+
 export function createMemoryStorage(
   initial: Record<string, string> = {},
 ): Storage & { dump(): Record<string, string> } {
@@ -40,4 +42,13 @@ export function createThrowingStorage(flags: {
       inner.setItem(k, v)
     },
   }
+}
+
+// A full v2 document: the empty save with overrides on top.
+export function v2Save(overrides: Partial<SaveDoc> = {}): SaveDoc {
+  return { ...emptySave(), ...overrides }
+}
+
+export function saveEnvelope(state: unknown, version = SAVE_VERSION): string {
+  return JSON.stringify({ state, version })
 }

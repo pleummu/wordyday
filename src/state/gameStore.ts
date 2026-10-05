@@ -14,11 +14,14 @@ import {
   maxGameId,
   mergeBoards,
   sameGame,
-  migrateSave,
   canForfeit,
   resolveOutcome,
   validateSave,
   type BoardKey,
+  type BoardStats,
+  type DayStreak,
+  type PendingRestore,
+  type Restores,
   type SaveDoc,
   type SavedGame,
 } from '../logic/save'
@@ -87,6 +90,11 @@ export type GameState = {
   dialog: DialogName | null
   boards: Partial<Record<BoardKey, SavedGame>>
   wordubadoInfoSeen: boolean
+  stats: Record<BoardKey, BoardStats>
+  dayStreak: DayStreak
+  restores: Restores
+  pendingRestore: PendingRestore | null
+  streakRev: number
   finishedInSession: boolean
   storageOk: boolean
   settingsFocus: 'close' | 'reset'
@@ -158,6 +166,22 @@ function docFromState(s: GameState): SaveDoc {
     boards,
     last: { mode: s.mode, length: s.length },
     wordubadoInfoSeen: s.wordubadoInfoSeen,
+    stats: s.stats,
+    dayStreak: s.dayStreak,
+    restores: s.restores,
+    pendingRestore: s.pendingRestore,
+    streakRev: s.streakRev,
+  }
+}
+
+function streakDefaults() {
+  const e = emptySave()
+  return {
+    stats: e.stats,
+    dayStreak: e.dayStreak,
+    restores: e.restores,
+    pendingRestore: e.pendingRestore,
+    streakRev: e.streakRev,
   }
 }
 
@@ -167,6 +191,11 @@ function mergeDocIntoState(persisted: unknown, current: GameState): GameState {
     ...current,
     boards: doc.boards,
     wordubadoInfoSeen: doc.wordubadoInfoSeen,
+    stats: doc.stats,
+    dayStreak: doc.dayStreak,
+    restores: doc.restores,
+    pendingRestore: doc.pendingRestore,
+    streakRev: doc.streakRev,
     mode: doc.last.mode,
     length: doc.last.length,
     status: 'loading',
@@ -264,6 +293,7 @@ export function createGameStore(deps: GameDeps) {
           dialog: null,
           boards: {},
           wordubadoInfoSeen: false,
+          ...streakDefaults(),
           finishedInSession: false,
           storageOk: deps.storage.isOk(),
           settingsFocus: 'close',
@@ -318,6 +348,7 @@ export function createGameStore(deps: GameDeps) {
               gameId: 0,
               boards: {},
               wordubadoInfoSeen: false,
+              ...streakDefaults(),
               dialog: null,
               infoOpen: false,
               mode: 'normal',
@@ -388,6 +419,7 @@ export function createGameStore(deps: GameDeps) {
               set({
                 boards: {},
                 wordubadoInfoSeen: false,
+                ...streakDefaults(),
                 answer: '',
                 rows: [],
                 current: '',
@@ -697,7 +729,13 @@ export function createGameStore(deps: GameDeps) {
         storage: deps.storage,
         partialize: docFromState,
         merge: mergeDocIntoState,
-        migrate: (p, v) => migrateSave(p, v) as SaveDoc,
+        // Migrations run in loadSave because the storage adapter always
+        // reports SAVE_VERSION; reaching this means that contract broke (IN-01).
+        migrate: () => {
+          throw new Error(
+            'persist.migrate must not run: migrations live in loadSave (MIGRATIONS)',
+          )
+        },
       },
     ),
   )

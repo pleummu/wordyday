@@ -5,7 +5,10 @@ import {
   SAVE_VERSION,
   boardKey,
   canForfeit,
+  STAT_CAP,
+  emptyBoardStats,
   emptySave,
+  emptyStats,
   gameIdOf,
   loadSave,
   maxGameId,
@@ -20,7 +23,7 @@ import {
   type SavedGame,
 } from './save'
 
-// Phase 5's v1 -> v2 migration test must feed this fixture through the chain.
+// The v1 -> v2 migration test (D-18) feeds this fixture through the chain.
 const V1_FIXTURE = {
   boards: {
     'normal-5': { answer: 'crane', guesses: ['house'], outcome: 'playing' },
@@ -34,6 +37,15 @@ const V1_FIXTURE = {
   last: { mode: 'wordubado', length: 4 },
   wordubadoInfoSeen: true,
 }
+
+const V2_ZERO = {
+  stats: emptyStats(),
+  dayStreak: { current: 0, longest: 0, lastActiveDate: null },
+  restores: { month: '', used: 0 },
+  pendingRestore: null,
+  streakRev: 0,
+}
+const V1_AS_V2 = { ...V1_FIXTURE, ...V2_ZERO }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const clone = () => structuredClone(V1_FIXTURE) as Record<string, any>
@@ -63,6 +75,7 @@ describe('boardKey', () => {
       boards: {},
       last: { mode: 'normal', length: 5 },
       wordubadoInfoSeen: false,
+      ...V2_ZERO,
     })
   })
 })
@@ -101,9 +114,12 @@ describe('canForfeit', () => {
 })
 
 describe('migrateSave', () => {
-  it('v1 is returned unchanged', () => {
+  it('the current version is returned unchanged', () => {
     const x = { a: 1 }
-    expect(migrateSave(x, 1)).toBe(x)
+    expect(migrateSave(x, SAVE_VERSION)).toBe(x)
+  })
+  it('D-18 migrateSave v1 to v2 keeps boards, last and wordubadoInfoSeen and zeroes every streak and stat', () => {
+    expect(validateSave(migrateSave(clone(), 1))).toEqual(V1_AS_V2)
   })
   it('version 0 throws', () => {
     expect(() => migrateSave({}, 0)).toThrow()
@@ -117,14 +133,14 @@ describe('migrateSave', () => {
   it('missing step throws', () => {
     expect(() => migrateSave({}, 1, 3, { 1: (s) => s })).toThrow()
   })
-  it('SAVE_VERSION is 1', () => {
-    expect(SAVE_VERSION).toBe(1)
+  it('SAVE_VERSION is 2', () => {
+    expect(SAVE_VERSION).toBe(2)
   })
 })
 
 describe('validateSave', () => {
-  it('accepts the v1 fixture unchanged', () => {
-    expect(validateSave(V1_FIXTURE)).toEqual(V1_FIXTURE)
+  it('accepts the v1 fixture with zeroed new slices', () => {
+    expect(validateSave(V1_FIXTURE)).toEqual(V1_AS_V2)
   })
   it('accepts the empty save', () => {
     expect(validateSave(emptySave())).toEqual(emptySave())
@@ -135,11 +151,16 @@ describe('validateSave', () => {
     d.boards['normal-5'].extra = 1
     d.last.extra = 1
     const out = validateSave(d)
-    expect(out).toEqual(V1_FIXTURE)
+    expect(out).toEqual(V1_AS_V2)
     expect(Object.keys(out as object)).toEqual([
       'boards',
       'last',
       'wordubadoInfoSeen',
+      'stats',
+      'dayStreak',
+      'restores',
+      'pendingRestore',
+      'streakRev',
     ])
   })
   it.each([
@@ -217,8 +238,8 @@ describe('validateSave', () => {
     ],
     ['unknown outcome', { answer: 'crane', guesses: [], outcome: 'forfeit' }],
     ['null board', null],
-  ])('rejects %s', (_n, board) => {
-    expect(validateSave(withBoard('normal-5', board))).toBeNull()
+  ])('skips a Board with %s (WR-03)', (_n, board) => {
+    expect(validateSave(withBoard('normal-5', board))?.boards).toEqual({})
   })
   it('rejects a bad last and flag', () => {
     for (const patch of [
@@ -232,10 +253,12 @@ describe('validateSave', () => {
       expect(validateSave({ ...clone(), ...patch })).toBeNull()
     }
   })
-  it('one bad board rejects the whole document', () => {
+  it('WR-03 one malformed Board is skipped and the rest are kept', () => {
     const d = clone()
-    d.boards['normal-4'] = { answer: 'x', guesses: [], outcome: 'playing' }
-    expect(validateSave(d)).toBeNull()
+    d.boards['normal-4'] = { answer: 'x1', guesses: [], outcome: 'playing' }
+    const out = validateSave(d)
+    expect(out?.boards['normal-4']).toBeUndefined()
+    expect(out?.boards).toEqual(V1_FIXTURE.boards)
   })
 })
 
@@ -257,16 +280,16 @@ describe('loadSave', () => {
     expect(loadSave(raw)).toEqual({ ok: false, reason: 'invalid' })
   })
   it.each([
-    [wrap(V1_FIXTURE, 2)],
+    [wrap(V1_FIXTURE, SAVE_VERSION + 1)],
     [wrap(V1_FIXTURE, 99)],
-    [wrap({ future: true }, 2)],
+    [wrap({ future: true }, SAVE_VERSION + 1)],
   ])('flags %s as newer, not invalid (CR-01)', (raw) => {
     expect(loadSave(raw)).toEqual({ ok: false, reason: 'newer' })
   })
-  it('loads a valid v1 document', () => {
+  it('loads a valid v1 document as v2 with zeroed slices', () => {
     expect(loadSave(wrap(V1_FIXTURE, 1))).toEqual({
       ok: true,
-      doc: V1_FIXTURE,
+      doc: V1_AS_V2,
     })
   })
 })
@@ -293,16 +316,16 @@ describe('game ids', () => {
     expect(
       validateSave(withBoard('normal-5', withId))?.boards['normal-5'],
     ).toEqual(withId)
-    expect(validateSave(clone())).toEqual(V1_FIXTURE)
+    expect(validateSave(clone())).toEqual(V1_AS_V2)
     const noId = validateSave(clone())?.boards['normal-5']
     expect(noId && 'id' in noId).toBe(false)
   })
 
   it.each([-1, 1.5, '3', null, Number.MAX_SAFE_INTEGER + 1, NaN])(
-    'rejects bad id %s',
+    'skips a Board with bad id %s (WR-03)',
     (id) => {
       const bad = { answer: 'crane', guesses: [], outcome: 'playing', id }
-      expect(validateSave(withBoard('normal-5', bad))).toBeNull()
+      expect(validateSave(withBoard('normal-5', bad))?.boards).toEqual({})
     },
   )
 
@@ -423,5 +446,99 @@ describe('mergeBoards', () => {
     expect(
       mergeBoards({}, { 'normal-4': g(2, 'yeet', [], 'playing') }, 2),
     ).toEqual({})
+  })
+})
+
+describe('v2 slice validation (T-05-01, T-05-02)', () => {
+  const doc = (patch: Record<string, unknown>) => ({ ...clone(), ...patch })
+  const statsWith = (key: string, patch: Record<string, unknown>) => {
+    const stats = emptyStats() as unknown as Record<string, unknown>
+    stats[key] = { ...emptyBoardStats('normal-5'), ...patch }
+    return stats
+  }
+
+  it('keeps a valid stats entry', () => {
+    const good = {
+      ...emptyBoardStats('normal-5'),
+      played: 3,
+      wins: 2,
+      dist: [0, 2, 0, 0, 0, 0],
+      winStreak: 2,
+      bestWinStreak: 2,
+      last: { won: true, guesses: 2, seq: 4 },
+      lastCounted: { id: 3, answer: 'crane' },
+    }
+    const out = validateSave(doc({ stats: statsWith('normal-5', good) }))
+    expect(out?.stats['normal-5']).toEqual(good)
+  })
+
+  it.each([
+    ['negative counter', { played: -1 }],
+    ['over the cap', { played: STAT_CAP + 1, wins: 0 }],
+    ['wins above played', { played: 1, wins: 2 }],
+    ['dist of the wrong length', { dist: [0, 0] }],
+    ['bad last', { last: { won: true, guesses: 9, seq: 1 } }],
+    ['bad lastCounted', { lastCounted: { id: 1, answer: 'cran' } }],
+  ])(
+    'a malformed stats entry (%s) falls back for that Board only',
+    (_n, patch) => {
+      const stats = statsWith('normal-5', patch)
+      stats['normal-4'] = { ...emptyBoardStats('normal-4'), played: 2, wins: 1 }
+      const out = validateSave(doc({ stats }))
+      expect(out?.stats['normal-5']).toEqual(emptyBoardStats('normal-5'))
+      expect(out?.stats['normal-4'].played).toBe(2)
+      expect(out?.boards).toEqual(V1_FIXTURE.boards)
+    },
+  )
+
+  it.each([
+    [
+      'dayStreak',
+      { dayStreak: { current: 1, longest: 1, lastActiveDate: '2026-13-01' } },
+    ],
+    ['dayStreak', { dayStreak: 'x' }],
+    ['restores', { restores: { month: '2026-13', used: 1 } }],
+    [
+      'pendingRestore',
+      { pendingRestore: { streak: 3, missed: 5, creditDeferred: false } },
+    ],
+  ])(
+    'a malformed %s falls back to its default and keeps Boards',
+    (name, patch) => {
+      const out = validateSave(doc(patch)) as unknown as Record<string, unknown>
+      expect(out[name]).toEqual((V2_ZERO as Record<string, unknown>)[name])
+      expect((out as { boards: unknown }).boards).toEqual(V1_FIXTURE.boards)
+    },
+  )
+
+  it('accepts a valid dayStreak and pendingRestore', () => {
+    const dayStreak = { current: 5, longest: 9, lastActiveDate: '2026-10-04' }
+    const pendingRestore = { streak: 5, missed: 2, creditDeferred: true }
+    const out = validateSave(doc({ dayStreak, pendingRestore }))
+    expect(out?.dayStreak).toEqual(dayStreak)
+    expect(out?.pendingRestore).toEqual(pendingRestore)
+  })
+
+  it('EC-44 restores.used 7 is clamped to 3 on load', () => {
+    expect(
+      validateSave(doc({ restores: { month: '2026-10', used: 7 } }))?.restores,
+    ).toEqual({ month: '2026-10', used: 3 })
+    expect(
+      validateSave(doc({ restores: { month: '2026-10', used: -1 } }))?.restores
+        .used,
+    ).toBe(0)
+    expect(
+      validateSave(doc({ restores: { month: '2026-10', used: 1.5 } }))
+        ?.restores,
+    ).toEqual({ month: '', used: 0 })
+  })
+
+  it('ignores __proto__ and unknown keys in stats', () => {
+    const stats = JSON.parse(
+      '{"__proto__":{"played":5},"evil-9":{}}',
+    ) as Record<string, unknown>
+    const out = validateSave(doc({ stats }))
+    expect(Object.keys(out?.stats ?? {})).toEqual([...BOARD_KEYS])
+    expect(out?.stats).toEqual(emptyStats())
   })
 })
