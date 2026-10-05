@@ -247,7 +247,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 05-03-PLAN.md — Statistics button and dialog (mode toggle, 4/5/6/All tabs, zero-safe stats), three-action header at 320 px
+- [x] 05-03-PLAN.md — Statistics button and dialog (mode toggle, 4/5/6/All tabs, zero-safe stats), three-action header at 320 px
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
@@ -330,7 +330,7 @@ Plans:
 | 2. Playable Normal Game | 11/11 | Complete   | 2026-10-01 |
 | 3. Wordubado Mode and Slang | 6/6 | Complete    | 2026-10-02 |
 | 4. Six Boards and Persistence | 12/12 | Complete   | 2026-10-04 |
-| 5. Stats, Streaks and Restore | 2/8 | In Progress|  |
+| 5. Stats, Streaks and Restore | 3/8 | In Progress|  |
 | 6. Result Screen, Share and Definitions | 0/TBD | Not started | - |
 | 7. Themes, Accessibility and Polish | 0/TBD | Not started | - |
 | 8. E2E, CI Hardening and Pipeline Docs | 0/TBD | Not started | - |

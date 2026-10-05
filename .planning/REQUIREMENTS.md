@@ -53,10 +53,10 @@
 
 ### Statistics (STAT)
 
-- [ ] **STAT-01**: User can view games played, win rate, current/longest Win Streak, guess distribution and average guesses (won games only)
-- [ ] **STAT-02**: Stats have tabs 4 / 5 / 6 / All, kept separate for Normal and Wordubado; the All tab shows totals only (no Win Streak)
+- [x] **STAT-01**: User can view games played, win rate, current/longest Win Streak, guess distribution and average guesses (won games only)
+- [x] **STAT-02**: Stats have tabs 4 / 5 / 6 / All, kept separate for Normal and Wordubado; the All tab shows totals only (no Win Streak)
 - [ ] **STAT-03**: User can see Day Streak (current/longest) and "Restores left: N/3" globally
-- [ ] **STAT-04**: Stats handle zero games without errors (no division by zero)
+- [x] **STAT-04**: Stats handle zero games without errors (no division by zero)
 
 ### Result and Share (RSLT)
 
@@ -168,10 +168,10 @@
 | SAVE-09 | Phase 4 | Complete |
 | UI-11 | Phase 4 | Complete |
 | QA-02 | Phase 5 | Complete |
-| STAT-01 | Phase 5 | Pending |
-| STAT-02 | Phase 5 | Pending |
+| STAT-01 | Phase 5 | Complete |
+| STAT-02 | Phase 5 | Complete |
 | STAT-03 | Phase 5 | Pending |
-| STAT-04 | Phase 5 | Pending |
+| STAT-04 | Phase 5 | Complete |
 | STRK-01 | Phase 5 | Complete |
 | STRK-02 | Phase 5 | Complete |
 | STRK-03 | Phase 5 | Pending |
