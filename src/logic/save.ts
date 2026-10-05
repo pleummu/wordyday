@@ -294,6 +294,42 @@ export function mergeBoards(
   return out
 }
 
+// Counters are picked, never summed: adding two copies of the same finish
+// would double-count it. Total order, so mergeBoardStats(a, b) equals
+// mergeBoardStats(b, a): 1. higher played; 2. smaller JSON.stringify.
+export function mergeBoardStats(a: BoardStats, b: BoardStats): BoardStats {
+  if (a.played !== b.played) return a.played > b.played ? a : b
+  return JSON.stringify(b) < JSON.stringify(a) ? b : a
+}
+
+// Per Board pick-one merge. A copy whose last counted game is at or below the
+// reset floor is pre-reset and is ignored.
+export function mergeStats(
+  mine: Record<BoardKey, BoardStats>,
+  theirs: Record<BoardKey, BoardStats>,
+  floor = -1,
+): Record<BoardKey, BoardStats> {
+  const out = {} as Record<BoardKey, BoardStats>
+  for (const k of BOARD_KEYS) {
+    const t = theirs[k]
+    const stale = t.lastCounted !== null && t.lastCounted.id <= floor
+    out[k] = stale ? mine[k] : mergeBoardStats(mine[k], t)
+  }
+  return out
+}
+
+export type StreakDoc = Pick<
+  SaveDoc,
+  'dayStreak' | 'restores' | 'pendingRestore' | 'streakRev'
+>
+
+// The Day Streak slice moves as one unit. Total order: 1. higher streakRev;
+// 2. smaller JSON.stringify. Every change to the slice bumps streakRev.
+export function pickStreak(a: StreakDoc, b: StreakDoc): StreakDoc {
+  if (a.streakRev !== b.streakRev) return a.streakRev > b.streakRev ? a : b
+  return JSON.stringify(b) < JSON.stringify(a) ? b : a
+}
+
 function isCount(x: unknown, max = STAT_CAP): x is number {
   return typeof x === 'number' && Number.isSafeInteger(x) && x >= 0 && x <= max
 }

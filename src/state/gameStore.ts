@@ -13,6 +13,9 @@ import {
   gameIdOf,
   maxGameId,
   mergeBoards,
+  mergeStats,
+  pickStreak,
+  type StreakDoc,
   sameGame,
   canForfeit,
   resolveOutcome,
@@ -169,6 +172,20 @@ function docFromState(s: GameState): SaveDoc {
     last: { mode: s.mode, length: s.length },
     wordubadoInfoSeen: s.wordubadoInfoSeen,
     stats: s.stats,
+    dayStreak: s.dayStreak,
+    restores: s.restores,
+    pendingRestore: s.pendingRestore,
+    streakRev: s.streakRev,
+  }
+}
+
+function pickFields(s: {
+  dayStreak: SaveDoc['dayStreak']
+  restores: SaveDoc['restores']
+  pendingRestore: SaveDoc['pendingRestore']
+  streakRev: number
+}): StreakDoc {
+  return {
     dayStreak: s.dayStreak,
     restores: s.restores,
     pendingRestore: s.pendingRestore,
@@ -382,6 +399,7 @@ export function createGameStore(deps: GameDeps) {
               boards: {},
               wordubadoInfoSeen: false,
               ...streakDefaults(),
+              streakRev: get().streakRev + 1,
               finishNote: null,
               dialog: null,
               infoOpen: false,
@@ -454,6 +472,7 @@ export function createGameStore(deps: GameDeps) {
                 boards: {},
                 wordubadoInfoSeen: false,
                 ...streakDefaults(),
+                streakRev: s0.streakRev + 1,
                 finishNote: null,
                 answer: '',
                 rows: [],
@@ -474,6 +493,10 @@ export function createGameStore(deps: GameDeps) {
             const state = get()
             const mine = docFromState(state).boards
             const merged = mergeBoards(mine, doc.boards, resetFloor)
+            // D-20: counters are picked, never summed; the streak slice
+            // follows the copy with the higher streakRev.
+            const mergedStats = mergeStats(state.stats, doc.stats, resetFloor)
+            const mergedStreak = pickStreak(pickFields(state), pickFields(doc))
             const seen = state.wordubadoInfoSeen || doc.wordubadoInfoSeen
             let changedForMe = seen !== state.wordubadoInfoSeen
             let behindThem = seen !== doc.wordubadoInfoSeen
@@ -481,10 +504,22 @@ export function createGameStore(deps: GameDeps) {
               if (!sameGame(merged[k], mine[k])) changedForMe = true
               if (!sameGame(merged[k], doc.boards[k])) behindThem = true
             }
+            const jm = JSON.stringify([mergedStats, mergedStreak])
+            if (jm !== JSON.stringify([state.stats, pickFields(state)])) {
+              changedForMe = true
+            }
+            if (jm !== JSON.stringify([doc.stats, pickFields(doc)])) {
+              behindThem = true
+            }
             // Nothing to do for either side: no set, so no ping-pong.
             if (!changedForMe && !behindThem) return
 
-            const base = { boards: merged, wordubadoInfoSeen: seen }
+            const base = {
+              boards: merged,
+              wordubadoInfoSeen: seen,
+              stats: mergedStats,
+              ...mergedStreak,
+            }
             const key = boardKey(state.mode, state.length)
             const next = merged[key]
             // We are ahead, or only other Boards changed: one silent set. The
