@@ -1395,3 +1395,106 @@ describe('persist.migrate (IN-01)', () => {
     expect(() => migrate?.({}, 1)).toThrow(/loadSave/)
   })
 })
+
+describe('stats recording (D-07, D-12, D-21)', () => {
+  function withRows(store: ReturnType<typeof setup>['store'], n: number) {
+    const rows = Array.from({ length: n }, () => ({
+      letters: 'house',
+      states: score('crane', 'house'),
+    }))
+    store.setState({ rows })
+  }
+
+  it('a win records stats and still calls the seam once, already while revealing', async () => {
+    const onGameFinished = vi.fn()
+    const ctx = setup({ onGameFinished })
+    await ctx.store.getState().startGame(4)
+    type(ctx.store, 'kind')
+    ctx.store.getState().submit()
+    const s = ctx.store.getState()
+    expect(s.status).toBe('revealing')
+    expect(s.stats['normal-4']).toMatchObject({
+      played: 1,
+      wins: 1,
+      winStreak: 1,
+    })
+    expect(s.finishNote).toEqual({ won: true, winStreak: 1, prev: 0 })
+    expect(onGameFinished).toHaveBeenCalledTimes(1)
+    expect(onGameFinished).toHaveBeenCalledWith('normal-4', 'won')
+  })
+
+  it('a following loss resets the streak and reports the previous one', async () => {
+    const { store } = setup()
+    await store.getState().startGame(4)
+    type(store, 'kind')
+    store.getState().submit()
+    store.getState().finishReveal()
+    await store.getState().playAgain()
+    await vi.waitFor(() => expect(store.getState().status).toBe('playing'))
+    expect(store.getState().finishNote).toBeNull()
+    for (let i = 0; i < 5; i++) {
+      type(store, 'yeet')
+      store.getState().submit()
+      store.getState().finishReveal()
+    }
+    expect(store.getState().status).toBe('lost')
+    expect(store.getState().finishNote).toEqual({
+      won: false,
+      winStreak: 0,
+      prev: 1,
+    })
+    expect(store.getState().stats['normal-4']).toMatchObject({
+      played: 2,
+      winStreak: 0,
+      bestWinStreak: 1,
+    })
+  })
+
+  it('giveUp records played and gaveUp', async () => {
+    const { store } = await started()
+    withRows(store, 4)
+    store.getState().giveUp()
+    expect(store.getState().stats['normal-5']).toMatchObject({
+      played: 1,
+      gaveUp: 1,
+      winStreak: 0,
+    })
+  })
+
+  it('forfeitNewGame counts the game on the Board being left (D-07)', async () => {
+    const onGameFinished = vi.fn()
+    const ctx = setup({ onGameFinished })
+    await ctx.store.getState().startGame(5)
+    withRows(ctx.store, 4)
+    ctx.store.getState().forfeitNewGame()
+    expect(ctx.store.getState().stats['normal-5']).toMatchObject({
+      played: 1,
+      gaveUp: 1,
+    })
+    expect(onGameFinished).toHaveBeenCalledWith('normal-5', 'forfeit')
+  })
+
+  it('loadBoard and startGame clear finishNote', async () => {
+    const { store } = await started()
+    withRows(store, 4)
+    store.getState().giveUp()
+    expect(store.getState().finishNote).not.toBeNull()
+    await store.getState().startGame(5)
+    expect(store.getState().finishNote).toBeNull()
+    store.setState({ finishNote: { won: true, winStreak: 1, prev: 0 } })
+    await store.getState().resume()
+    expect(store.getState().finishNote).toBeNull()
+  })
+
+  it('does not count the same game twice', async () => {
+    const onGameFinished = vi.fn()
+    const ctx = setup({ onGameFinished })
+    await ctx.store.getState().startGame(5)
+    withRows(ctx.store, 4)
+    ctx.store.getState().giveUp()
+    ctx.store.setState({ status: 'playing' })
+    ctx.store.getState().giveUp()
+    expect(ctx.store.getState().stats['normal-5'].played).toBe(1)
+    expect(onGameFinished).toHaveBeenCalledTimes(1)
+  })
+})

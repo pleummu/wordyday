@@ -15,6 +15,7 @@ type BannerProps = {
   attemptsUsed: number
   maxAttempts: number
   onPlayAgain: () => void
+  streakLine?: string | null
 }
 
 export default function Banner({
@@ -24,6 +25,7 @@ export default function Banner({
   attemptsUsed,
   maxAttempts,
   onPlayAgain,
+  streakLine,
 }: BannerProps) {
   const button = useRef<HTMLButtonElement>(null)
   useEffect(() => {
@@ -33,13 +35,19 @@ export default function Banner({
   }, [])
   const won = status === 'won'
   return (
-    <section className="banner" data-result={status} aria-live="polite">
+    <section
+      className="banner"
+      data-result={status}
+      data-streak={streakLine ? '' : undefined}
+      aria-live="polite"
+    >
       <h2 className="banner-heading">
         {won ? winHeading(attemptsUsed, maxAttempts) : lossHeading(answer)}
       </h2>
       <p className="banner-body">
         {won ? WIN_BODY : status === 'gave-up' ? GAVE_UP_BODY : LOSS_BODY}
       </p>
+      {streakLine ? <p className="banner-streak">{streakLine}</p> : null}
       <button
         ref={button}
         type="button"

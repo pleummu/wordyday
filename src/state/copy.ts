@@ -62,3 +62,14 @@ export const STORAGE_FAILED_TOAST =
   "Saving isn't working in this browser. Your progress will be lost when you close this tab."
 export const OTHER_TAB_TOAST = 'Updated from your other tab.'
 export const LONG_TOAST_MS = 4000
+
+export const WIN_STREAK_RESET = 'Win streak reset'
+
+export function winStreakLine(note: {
+  won: boolean
+  winStreak: number
+  prev: number
+}): string | null {
+  if (note.won) return `Win streak: ${note.winStreak}`
+  return note.prev > 0 ? WIN_STREAK_RESET : null
+}

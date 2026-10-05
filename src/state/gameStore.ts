@@ -26,6 +26,7 @@ import {
   type SavedGame,
 } from '../logic/save'
 import { score, type TileState } from '../logic/score'
+import { nextSeq, recordResult } from '../logic/stats'
 import {
   ALL_DATA_RESET,
   CORRUPT_TOAST,
@@ -95,6 +96,7 @@ export type GameState = {
   restores: Restores
   pendingRestore: PendingRestore | null
   streakRev: number
+  finishNote: { won: boolean; winStreak: number; prev: number } | null
   finishedInSession: boolean
   storageOk: boolean
   settingsFocus: 'close' | 'reset'
@@ -211,7 +213,36 @@ export function createGameStore(deps: GameDeps) {
   return create<GameState>()(
     persist(
       (set, get) => {
-        function finishGame(key: BoardKey, outcome: FinishedOutcome) {
+        // Recorded once per (Board, game id, answer), at submit time (D-21).
+        // `extra` rides in the same set so the persisted write never sees a counted
+        // game that is still stored as playing.
+        function finishGame(
+          key: BoardKey,
+          outcome: FinishedOutcome,
+          extra: Partial<GameState> = {},
+        ) {
+          const state = get()
+          const prevStats = state.stats[key]
+          const next = recordResult(prevStats, {
+            outcome,
+            guesses: state.rows.length,
+            id: state.gameId,
+            answer: state.answer,
+            seq: nextSeq(state.stats),
+          })
+          if (next === prevStats) {
+            if (Object.keys(extra).length > 0) set(extra)
+            return
+          }
+          set({
+            ...extra,
+            stats: { ...state.stats, [key]: next },
+            finishNote: {
+              won: outcome === 'won',
+              winStreak: next.winStreak,
+              prev: prevStats.winStreak,
+            },
+          })
           deps.onGameFinished?.(key, outcome)
         }
 
@@ -244,6 +275,7 @@ export function createGameStore(deps: GameDeps) {
             keyStates: {},
             shakeRow: -1,
             finishedInSession: false,
+            finishNote: null,
             dialog: null,
           })
           if (!saved) {
@@ -294,6 +326,7 @@ export function createGameStore(deps: GameDeps) {
           boards: {},
           wordubadoInfoSeen: false,
           ...streakDefaults(),
+          finishNote: null,
           finishedInSession: false,
           storageOk: deps.storage.isOk(),
           settingsFocus: 'close',
@@ -349,6 +382,7 @@ export function createGameStore(deps: GameDeps) {
               boards: {},
               wordubadoInfoSeen: false,
               ...streakDefaults(),
+              finishNote: null,
               dialog: null,
               infoOpen: false,
               mode: 'normal',
@@ -420,6 +454,7 @@ export function createGameStore(deps: GameDeps) {
                 boards: {},
                 wordubadoInfoSeen: false,
                 ...streakDefaults(),
+                finishNote: null,
                 answer: '',
                 rows: [],
                 current: '',
@@ -475,6 +510,7 @@ export function createGameStore(deps: GameDeps) {
                 ...base,
                 loadToken: state.loadToken + 1,
                 pendingExternal: undefined,
+                finishNote: null,
                 answer: next.answer,
                 gameId: gameIdOf(next),
                 rows,
@@ -513,11 +549,10 @@ export function createGameStore(deps: GameDeps) {
             set({ dialog: null })
             const { status, rows, length, mode, boards, answer, gameId } = get()
             if (!canForfeit(status, rows.length, ATTEMPTS(length))) return
-            finishGame(boardKey(mode, length), 'forfeit')
             // The snapshot is the forfeited game stored as finished so it can
-            // never be replayed or re-finished; Phase 5 counts it from the
-            // seam, not from this outcome.
-            set({
+            // never be replayed or re-finished; it is counted here in the same
+            // set so no write ever holds a counted game stored as playing.
+            finishGame(boardKey(mode, length), 'forfeit', {
               boards: {
                 ...boards,
                 [boardKey(mode, length)]: {
@@ -559,6 +594,7 @@ export function createGameStore(deps: GameDeps) {
               toast: null,
               shakeRow: -1,
               finishedInSession: false,
+              finishNote: null,
               dialog: null,
             })
             try {
