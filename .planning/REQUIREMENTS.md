@@ -44,7 +44,7 @@
 
 - [x] **STRK-01**: Each Board has a Win Streak: +1 on a win; resets to 0 on a loss, Give Up or Forfeit
 - [x] **STRK-02**: User has one global Day Streak: +1 at most once per local calendar day when any game finishes (win, loss or Give Up)
-- [ ] **STRK-03**: Missed days are computed from local calendar dates (DST-safe); a clock moved backwards counts as 0 missed days and never overwrites lastActiveDate
+- [x] **STRK-03**: Missed days are computed from local calendar dates (DST-safe); a clock moved backwards counts as 0 missed days and never overwrites lastActiveDate
 - [ ] **STRK-04**: The missed-day check runs on app open, when the tab regains focus and when the date changes; running it again gives the same result
 - [ ] **STRK-05**: Any missed day resets every Board's Win Streak to 0; a Restore never brings them back
 - [ ] **STRK-06**: If Day Streak > 0, missed ≤ 4 and a Restore is left this month, the user sees a blocking Restore prompt ("Your N-day streak broke. Restore it? (K left this month)") and cannot play until they answer; otherwise the Day Streak resets to 0 with no prompt
@@ -55,7 +55,7 @@
 
 - [x] **STAT-01**: User can view games played, win rate, current/longest Win Streak, guess distribution and average guesses (won games only)
 - [x] **STAT-02**: Stats have tabs 4 / 5 / 6 / All, kept separate for Normal and Wordubado; the All tab shows totals only (no Win Streak)
-- [ ] **STAT-03**: User can see Day Streak (current/longest) and "Restores left: N/3" globally
+- [x] **STAT-03**: User can see Day Streak (current/longest) and "Restores left: N/3" globally
 - [x] **STAT-04**: Stats handle zero games without errors (no division by zero)
 
 ### Result and Share (RSLT)
@@ -170,11 +170,11 @@
 | QA-02 | Phase 5 | Complete |
 | STAT-01 | Phase 5 | Complete |
 | STAT-02 | Phase 5 | Complete |
-| STAT-03 | Phase 5 | Pending |
+| STAT-03 | Phase 5 | Complete |
 | STAT-04 | Phase 5 | Complete |
 | STRK-01 | Phase 5 | Complete |
 | STRK-02 | Phase 5 | Complete |
-| STRK-03 | Phase 5 | Pending |
+| STRK-03 | Phase 5 | Complete |
 | STRK-04 | Phase 5 | Pending |
 | STRK-05 | Phase 5 | Pending |
 | STRK-06 | Phase 5 | Pending |

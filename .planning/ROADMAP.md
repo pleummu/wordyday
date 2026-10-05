@@ -251,7 +251,7 @@ Plans:
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
-- [ ] 05-04-PLAN.md — Day Streak credit once per local day, queued toast, Stats footer, date helpers and TZ matrix
+- [x] 05-04-PLAN.md — Day Streak credit once per local day, queued toast, Stats footer, date helpers and TZ matrix
 
 **Wave 5** *(blocked on Wave 4 completion)*
 
@@ -330,7 +330,7 @@ Plans:
 | 2. Playable Normal Game | 11/11 | Complete   | 2026-10-01 |
 | 3. Wordubado Mode and Slang | 6/6 | Complete    | 2026-10-02 |
 | 4. Six Boards and Persistence | 12/12 | Complete   | 2026-10-04 |
-| 5. Stats, Streaks and Restore | 3/8 | In Progress|  |
+| 5. Stats, Streaks and Restore | 4/8 | In Progress|  |
 | 6. Result Screen, Share and Definitions | 0/TBD | Not started | - |
 | 7. Themes, Accessibility and Polish | 0/TBD | Not started | - |
 | 8. E2E, CI Hardening and Pipeline Docs | 0/TBD | Not started | - |
