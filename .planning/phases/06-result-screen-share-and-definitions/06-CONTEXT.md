@@ -32,6 +32,9 @@ Already locked elsewhere and not re-decided here:
 - **Phase 5 D-12:** the banner Win Streak line, which this phase absorbs (see D-05).
 - **Phase 5 D-14:** the non-dismissable Restore prompt wins over other dialogs.
 - **Phase 5 D-21:** a finished game is recorded at submit; UI effects fire at `finishReveal`.
+- **GLOSSARY Forfeit:** a Forfeit starts a new game and does not reveal the answer, so a Forfeit gets **no** Result modal.
+
+(Note: "D-21" below in this file is the Phase 6 input-block rule; references to the recording rule always say "Phase 5 D-21".)
 
 ### Result screen form
 - **D-01:** The result screen is a **Result modal plus a slim banner**.
@@ -100,6 +103,33 @@ Already locked elsewhere and not re-decided here:
 
   Sharing must always be possible.
 
+### Win moment and timing (added 2026-10-06)
+- **D-20:** **The auto-open waits briefly after the reveal.**
+  - Win: let the existing row bounce (`.row[data-bounce]`) finish, then pause ~400ms, then open the Result modal. That is about 1.3s after reveal end at length 5.
+  - Loss: pause ~600ms after reveal end so the last row's colours register, then open the modal.
+  - Give Up: there is no reveal, so the modal opens right after the confirm (D-02).
+  - The exact millisecond values are tunable in the UI spec. They must be derived from the same timing source as `revealDurationMs` so E2E stays deterministic.
+- **D-21:** **Input is blocked during the pause, and the modal always opens.**
+  - From reveal end until the modal opens, the player cannot type, switch Board or open other dialogs. This avoids the modal opening on the wrong Board.
+  - The Restore prompt and the break modal still take priority (D-03).
+- **D-22:** **Wins get a gentle modal flourish.** For example, a soft scale-in or a subtle accent on the win heading. Losses and Give Ups open plainly. The style is up to the UI spec, and it must stay soft and minimal: no confetti.
+- **D-23:** **Under reduced motion there is no flourish, and a short pause (~300ms) remains** after the shortened reveal, so the final colours are seen before the modal fades in.
+
+### Definition remembered state (added 2026-10-06)
+- **D-24:** **Once revealed, the definition stays revealed while the player stays on that Board.** Closing the modal and pressing "See result" shows it already open, with no second click and no second lookup.
+- **D-25:** **The revealed state is in memory only.** A reload or a Board switch hides it again. Nothing is added to the versioned saved doc, so no migration is needed. Play again always resets it.
+- **D-26:** **Failed lookups are not cached.** If the area is revealed, shows "Definition unavailable" and the modal is closed, reopening it retries the lookup automatically. Try again (D-10) still works inside the modal. Only successful lookups are cached for the session.
+
+### Share preview and feedback (added 2026-10-06)
+- **D-27:** **The modal has no emoji-grid preview.** There is just the Share button, because the real grid is already on the Board and the modal must fit at 320x500.
+- **D-28:** **After a successful copy, the Share button briefly reads "Copied ✓" (~2s)** and then returns to "Share". The "Copied" toast (R-SHARE-3) still shows. Screen readers get the announcement from one place, not twice. The share-sheet path (D-17) changes neither the button nor the toast.
+- **D-29:** **Share appears in the modal only.** The slim banner keeps just See result and Play again (D-01).
+
+### Keyboard flow (added 2026-10-06)
+- **D-30:** **When the Result modal opens, Play again gets focus**, so Enter starts the next game. This resolves the "focuses its primary action" item below.
+  - Guard against an accidental restart: a held or repeated Enter from the final submit must not trigger Play again when the modal opens. The method is Claude's discretion, e.g. ignore `e.repeat` or wait for a keyup.
+- **D-31:** **When the modal is closed on a finished Board, typing letters and pressing Enter do nothing.** This is today's behaviour: `typeLetter` and `submit` require `status === 'playing'`. A new game starts only on Play again (R-BOARD-4). Enter on a focused banner button still presses that button (`data-own-enter`).
+
 ### Claude's Discretion
 - **How curated slang definitions reach the browser.** For example, add definitions to the existing lazy `words-N.json` chunk, or ship a separate lazy slang-definitions chunk.
   - They must stay out of the entry bundle (WORD-09 / `scripts/check-bundle.mjs`).
@@ -114,7 +144,7 @@ Already locked elsewhere and not re-decided here:
 - **The touch-device check.** How to detect "phone or tablet" robustly, including iPadOS reporting as desktop. Research the iOS Web Share and clipboard behaviour, including the user-activation requirement: share and copy must run directly in the click handler.
 - **Modal ordering with the Restore prompt, the break modal and the Day Streak toast (D-03).**
 - **Focus:**
-  - Opening the modal focuses its primary action.
+  - Opening the modal focuses Play again (D-30).
   - Closing it returns focus to the banner's "See result" button or a sensible target.
   - The existing banner `autoFocus` logic adapts.
 - **Banner text.** The exact slimmed banner wording (e.g. "Solved in 4" / "The word was CRANE"), plus all modal copy and layout, go in the Phase 6 UI spec.
@@ -156,6 +186,9 @@ Already locked elsewhere and not re-decided here:
 - `src/components/StatsModal.tsx` and `src/logic/stats.ts`: stats maths, the distribution chart, the highlight and the empty-state rules. Reuse them for D-04.
 - `src/components/Banner.tsx`: the existing finished-state banner (heading, body, streak line, Play again, autoFocus). Slim it down and add "See result".
 - `src/components/Toast.tsx`: for "Copied".
+- `src/styles/game.css`: the existing `bounce` keyframes on `.row[data-bounce]` (400ms, 100ms stagger) and the reduced-motion overrides. D-20 times the modal open after this bounce.
+- `src/state/gameStore.ts` `revealDurationMs(length, reduced)`: the single timing source to derive the D-20/D-23 pauses from.
+- `src/components/usePhysicalKeyboard.ts`: ignores keys while a `dialog[open]` exists, and defers Enter to `[data-own-enter]` buttons (D-30/D-31).
 - `src/state/copy.ts`: all UI strings, including `winHeading`, `lossHeading`, `GAVE_UP_BODY` and `winStreakLine` (to be retired per D-05).
 - `src/logic/score.ts`: tile states for building the emoji grid.
 - `src/data/wordData.ts`: lazy per-length pools (`answers`, `slang`, `guesses`).
@@ -163,7 +196,7 @@ Already locked elsewhere and not re-decided here:
 ### Established Patterns
 - Every user-facing string lives in `src/state/copy.ts`.
 - Dialogs are a single `dialog: DialogName | null` field in `gameStore`. `isInputBlocked` covers dialogs, `infoOpen` and `pendingRestore`.
-- Effects fire at `finishReveal`, and recording happens at submit (D-21). The modal auto-open hangs off `finishReveal` and the Give Up confirm.
+- Effects fire at `finishReveal`, and recording happens at submit (Phase 5 D-21). The modal auto-open hangs off `finishReveal` (after the D-20 pause) and the Give Up confirm.
 - Pure logic lives in `src/logic/**` with node-env Vitest tests. The share-text builder should be a pure function there (inputs: mode, length, rows/states, max attempts, outcome, colourBlind, origin).
 - The E2E layout checks (`e2e/layout.spec.ts`) cover 320x500 with no scroll.
 
@@ -185,6 +218,7 @@ Already locked elsewhere and not re-decided here:
   - a small distribution chart
   - [Share] [Play again]
 - The closed state shows the banner "Solved in 4" with [See result] [Play again].
+- The win moment: the green row bounces, a short beat follows, then the modal arrives with a gentle flourish. The feel is soft, not flashy.
 - The dictionary preview the owner picked shows the part of speech aligned left, with the sense text beside it, and a small source credit at the bottom right.
 
 </specifics>
@@ -199,4 +233,4 @@ Already locked elsewhere and not re-decided here:
 ---
 
 *Phase: 06-result-screen-share-and-definitions*
-*Context gathered: 2026-10-05*
+*Context gathered: 2026-10-05; updated 2026-10-06 (D-20..D-31)*

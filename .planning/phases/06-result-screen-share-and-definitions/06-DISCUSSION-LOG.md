@@ -109,6 +109,96 @@
 
 ---
 
+# Update session: 2026-10-06
+
+**Areas discussed:** Win moment and timing, Definition remembered state, Share preview and feedback, Keyboard flow for Play again
+
+## Win moment and timing
+
+| Win timing | | Selected |
+|--------|-------------|----------|
+| After the bounce + short pause (~400ms) | | ✓ |
+| Right at reveal end | | |
+| Longer pause (~2s) | | |
+
+| Loss timing | | Selected |
+|--------|-------------|----------|
+| Short pause (~600ms), same feel as win | | ✓ |
+| Right at reveal end | | |
+| You decide | | |
+
+| Extra celebration | | Selected |
+|--------|-------------|----------|
+| No, the bounce is enough | | |
+| Gentle modal flourish | Wins only | ✓ |
+| Confetti | | |
+
+| Input during pause | | Selected |
+|--------|-------------|----------|
+| Blocked; modal always opens | | ✓ |
+| Any action cancels the auto-open | | |
+
+| Reduced motion | | Selected |
+|--------|-------------|----------|
+| No flourish, short pause kept (~300ms) | | ✓ |
+| No flourish, open instantly | | |
+
+## Definition remembered state
+
+| Reopen via See result | | Selected |
+|--------|-------------|----------|
+| Still revealed | | ✓ |
+| Hidden again | | |
+
+| Reload / Board switch | | Selected |
+|--------|-------------|----------|
+| Hidden again (in memory only) | | ✓ |
+| Still revealed (persisted) | | |
+
+| Failed lookup on reopen | | Selected |
+|--------|-------------|----------|
+| Retry automatically | | ✓ |
+| Keep unavailable + Try again | | |
+
+## Share preview and feedback
+
+| Preview | | Selected |
+|--------|-------------|----------|
+| No preview, just Share | | ✓ |
+| Small emoji preview above Share | | |
+
+| Copy feedback | | Selected |
+|--------|-------------|----------|
+| Button reads "Copied ✓" too | | ✓ |
+| Toast only | | |
+
+| Share where | | Selected |
+|--------|-------------|----------|
+| Modal only | | ✓ |
+| Modal and banner | | |
+
+## Keyboard flow for Play again
+
+| Initial focus | | Selected |
+|--------|-------------|----------|
+| Play again | | ✓ |
+| Share | | |
+| Show definition | | |
+
+| Typing on finished Board | | Selected |
+|--------|-------------|----------|
+| Nothing, as today | | ✓ |
+| Starts the next game | | |
+
+| Stray Enter | | Selected |
+|--------|-------------|----------|
+| Nothing | | ✓ |
+| Reopens the Result modal | | |
+
+**Claude's discretion added:** guard against a held or repeated Enter from the final submit triggering Play again.
+
+---
+
 ## Claude's Discretion
 
 - How slang definitions are shipped (lazy chunk shape)
