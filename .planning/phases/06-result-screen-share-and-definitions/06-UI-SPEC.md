@@ -1,7 +1,8 @@
 ---
 phase: 6
 slug: result-screen-share-and-definitions
-status: draft
+status: approved
+reviewed_at: 2026-10-12
 shadcn_initialized: false
 preset: none
 created: 2026-10-12
@@ -48,7 +49,7 @@ Exceptions (each a component size, not a spacing token):
 
 - Win heading accent bar: 32 x 4 px, radius `--radius-pill`.
 - "Try again" control in the definition panel: height 36 px (hit area meets WCAG 2.5.8; the modal's primary buttons stay 44 px).
-- Clipboard-fallback textarea: min-height 72 px (3 lines of 14/1.5 = 63 px plus 2 x 8 px padding rounded to 72 px, intentional).
+- Clipboard-fallback textarea: `rows="3"`, min-height 80 px (3 lines of 14/1.5 = 63 px plus 2 x 8 px padding = 79 px, rounded up to the 4 px grid).
 
 ---
 
@@ -80,7 +81,7 @@ Dominant (`--color-bg #fbfaf7`), secondary (`--color-surface #f0eee8`), text (`-
 | Share button | existing `.modal-button[data-variant='secondary']` (fill `--color-surface`) |
 | Show definition / Try again | same secondary variant |
 | Play again (modal and banner) | existing sage primary |
-| "See result" (banner) | fill `--color-bg`, 1px border `--tile-filled-border`, text `--color-text`, pill radius (on the banner's `--color-surface` it reads as a lighter, secondary pill) |
+| "See result" (banner) | fill `--color-bg`, 1px border `--color-muted`, text `--color-text`, pill radius (on the banner's `--color-surface` it reads as a lighter, secondary pill) |
 | Clipboard-fallback textarea | fill `--color-surface`, 1px border `--tile-empty-border`, radius `--radius-tile-sm` (10px), text `--color-text`; focus outline `2px solid var(--color-focus)` offset 2px |
 | Loss / Give Up banner border | `--color-error` (existing, unchanged); the modal itself has no red; losses open plainly |
 
@@ -141,7 +142,7 @@ Panel: `--color-surface` fill, radius 14, padding `var(--space-2) var(--space-3)
 |-------|---------|
 | Loading | One Label line "Looking it up..." (static text, no spinner and no animation, so nothing changes under reduced motion). `aria-busy="true"` on the panel. Aborts after 5 s (D-10) |
 | Slang (curated; Wordubado + word in that length's reviewed slang list; D-08, D-11) | One Body 16/400 line: the curated definition (max 69 characters, so at most two lines on a phone). No POS label, no credit line, no network call. The `crude` flag changes nothing |
-| Dictionary success (D-09) | Up to 2 rows (`<dl>`), each a two-column grid `grid-template-columns: 5.5em 1fr; column-gap: var(--space-2)`: POS (`<dt>`, Label 14/600, left aligned, lower case as returned, e.g. "noun") and sense (`<dd>`, Body 16/400). Sense text is cut at 100 characters at a word boundary with "…" (the full text is not shown; this keeps the panel short on a phone). Below the rows, right aligned (`text-align: end`): "Source: dictionaryapi.dev" Label-regular 14/400. The credit is plain text, not a link |
+| Dictionary success (D-09) | Up to 2 rows (`<dl>`), each a two-column grid `grid-template-columns: 80px 1fr; column-gap: var(--space-2)`: POS (`<dt>`, Label 14/600, left aligned, lower case as returned, e.g. "noun") and sense (`<dd>`, Body 16/400). Sense text is cut at 100 characters at a word boundary with "…" (the full text is not shown; this keeps the panel short on a phone). Below the rows, right aligned (`text-align: end`): "Source: dictionaryapi.dev" Label-regular 14/400. The credit is plain text, not a link |
 | Unavailable (offline, 404, timeout 5 s, network error, bad response shape; D-10) | Label 14/600 line "Definition unavailable" and, beneath it, a **Try again** secondary pill (height 36, min-width 96, left aligned). Retry returns to Loading and moves focus to the panel (not left on a removed button). No error colour; this is not alarming |
 
 - Failed lookups are not cached; reopening the modal with the area revealed retries automatically (D-26). Only successes are cached per word for the session (D-24). Play again, reload and Board switch hide the area again (D-25).
@@ -172,7 +173,7 @@ https://<window.location.origin>
 | Handler | `navigator.share(...)` and `navigator.clipboard.writeText(...)` are called synchronously in the click handler (user activation). The grid text is built before the click and cached; no `await` before the call |
 | Share-sheet result | Resolves: nothing visible changes (no toast, no button change). Rejects with `AbortError`: nothing happens (D-18). Any other rejection: fall back to the clipboard path |
 | Clipboard success (D-28) | Toast "Copied" (info kind, default 1860 ms). The Share button's visible label swaps to "Copied ✓" for 2000 ms then returns to "Share". The button keeps `aria-label="Share"` throughout and the swapped label is inside an `aria-hidden` span, so the only screen-reader announcement is the toast's `role="status"` (announced once, not twice). Button width does not change (fixed by flex 1) |
-| Clipboard failure (D-19) | Insert, directly under the actions row, a note and a read-only textarea: note "Couldn't copy. Select the text and copy it." (Label-regular 14/400), then `<textarea readonly rows="4" aria-label="Share text">` containing the share text, selected (`select()`) and focused. The Share button stays and can be pressed again. The fallback is removed when the modal closes or the player presses Play again. Added content makes the card scroll if needed; the textarea is scrolled into view |
+| Clipboard failure (D-19) | Insert, directly under the actions row, a note and a read-only textarea: note "Couldn't copy. Select the text and copy it." (Label-regular 14/400), then `<textarea readonly rows="3" aria-label="Share text">` containing the share text, selected (`select()`) and focused. The Share button stays and can be pressed again. The fallback is removed when the modal closes or the player presses Play again. Added content makes the card scroll if needed; the textarea is scrolled into view |
 | Banner | No Share button (D-29) |
 
 ### Slim result banner (D-01, D-05, D-29)
@@ -185,7 +186,7 @@ Replaces the Phase 4/5 banner contents inside the same `.banner` box (same `min-
 | Loss | The word was {ANSWER} | none |
 | Give Up | You gave up | The word was {ANSWER} |
 
-Below the text, one row of two pills, `gap: var(--space-2)`, `flex: 1 1 0; min-width: 0; max-width: 140px`, height 44 (36 at `max-height: 540px`): **See result** (neutral, `--color-bg` fill, 1px `--tile-filled-border`) then **Play again** (sage primary, existing `.play-again`; its `min-width: 128px` is lowered to 0 inside the banner row so two buttons fit 256 px at 320 px).
+Below the text, one row of two pills, `gap: var(--space-2)`, `flex: 1 1 0; min-width: 0; max-width: 140px`, height 44 (36 at `max-height: 540px`): **See result** (neutral, `--color-bg` fill, 1px `--color-muted`) then **Play again** (sage primary, existing `.play-again`; its `min-width: 128px` is lowered to 0 inside the banner row so two buttons fit 256 px at 320 px).
 
 Banner height proof: padding `var(--space-3)` x 2 = 32 + heading 24 + gap 8 + buttons 44 = 108 px (Give Up adds 17 + 8 = 133 px) inside `--controls-h` 148. At `max-height: 540px`: padding 8 x 2 + 24 + 8 + 36 = 84 px (Give Up 109 px) inside 124. `.banner` keeps `min-height: var(--controls-h)` and must not grow beyond it.
 
@@ -251,7 +252,7 @@ The existing `Toast` is a fixed layer in the page, which sits **underneath** a m
 - **Share:** accessible name stays "Share" across the copied state; "Copied" is announced once by the toast status region (D-28). Share-sheet path announces nothing extra. The textarea fallback has `aria-label="Share text"` and the note is adjacent plain text (`aria-describedby` on the textarea pointing at the note).
 - **Stats inside the modal:** same hidden-suffix accessible phrases as the Stats modal; chart rows say "{n} guesses: {count} wins" and append ", latest win" for the highlighted row.
 - **Targets:** modal primary and secondary buttons 44 px; Try again 36 px; banner buttons 44 px (36 px at `max-height: 540px`, matching the key height).
-- **Contrast:** all text is `--color-text` on `--color-bg` (about 13:1) or `--color-surface` (about 11:1). "See result" uses `--tile-filled-border` (`#a8a59c`) as a 1px border on `#fbfaf7`: about 2.3:1, below the 3:1 non-text guideline, so it is not the only cue; the button is identified by its text label and fill difference against the banner surface, which is acceptable for a labelled control. If the checker flags it, darken the border to `--color-muted` (about 3.8:1). Run axe with the Result modal open (win, loss, Give Up; definition revealed in each of loading/success/unavailable; fallback box shown).
+- **Contrast:** all text is `--color-text` on `--color-bg` (about 13:1) or `--color-surface` (about 11:1). "See result" uses a 1px `--color-muted` border (3.85:1 on `--color-bg`, 3.46:1 on the banner's `--color-surface`), meeting the 3:1 non-text guideline. Run axe with the Result modal open (win, loss, Give Up; definition revealed in each of loading/success/unavailable; fallback box shown).
 - **Keyboard-only flow:** finish a game, wait for the modal, Enter starts the next game (after the Enter-repeat guard), or Tab to Share/Show definition. Esc closes and focus lands on See result.
 
 ---
