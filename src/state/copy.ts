@@ -14,16 +14,10 @@ export const LOAD_ERROR =
   "Couldn't load the word list. Check your connection and try again."
 export const TRY_AGAIN = 'Try again'
 export const PLAY_AGAIN = 'Play again'
-export const LOSS_BODY = 'Better luck next time.'
-export const WIN_BODY = 'Ready for another?'
-
-export function lossHeading(answer: string): string {
-  return `The word was ${answer.toUpperCase()}`
-}
-
-export function winHeading(n: number, max: number): string {
-  return `You got it in ${n} of ${max}`
-}
+export const SEE_RESULT = 'See result'
+export const solvedIn = (n: number) => `Solved in ${n}`
+export const wordWasLine = (answer: string) =>
+  `The word was ${answer.toUpperCase()}`
 
 export const CONFIRM_KEEP = 'Keep playing'
 
@@ -41,7 +35,6 @@ export const GIVE_UP_HEADING = 'Give up?'
 export const GIVE_UP_BODY = 'This counts as a loss. Reveal the answer?'
 export const NEW_GAME_HEADING = 'New game?'
 export const NEW_GAME_BODY = 'This counts as a loss. Start a new game?'
-export const GAVE_UP_BODY = 'You gave up. Ready for another?'
 export const SETTINGS = 'Settings'
 export const SETTINGS_NOTE =
   'Your progress is saved in this browser only. Clearing site data or using another device starts fresh.'
@@ -63,17 +56,6 @@ export const STORAGE_FAILED_TOAST =
 export const OTHER_TAB_TOAST = 'Updated from your other tab.'
 export const LONG_TOAST_MS = 4000
 
-export const WIN_STREAK_RESET = 'Win streak reset'
-
-export function winStreakLine(note: {
-  won: boolean
-  winStreak: number
-  prev: number
-}): string | null {
-  if (note.won) return `Win streak: ${note.winStreak}`
-  return note.prev > 0 ? WIN_STREAK_RESET : null
-}
-
 export const STATISTICS = 'Statistics'
 export const MODE_LABEL = 'Mode'
 export const WORD_LENGTH = 'Word length'
@@ -86,6 +68,8 @@ export const BEST = 'Best'
 export const WIN_PCT_FULL = 'Win percentage'
 export const STREAK_FULL = 'Current win streak'
 export const BEST_FULL = 'Best win streak'
+export const streakFull = (n: number, reset: boolean) =>
+  `${STREAK_FULL} ${n}${reset ? ', reset' : ''}`
 export const GUESS_DISTRIBUTION = 'Guess distribution'
 export const NO_WINS_YET = 'No wins yet. Go play one!'
 export const EM_DASH = '—'

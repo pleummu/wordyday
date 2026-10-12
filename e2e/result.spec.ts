@@ -230,7 +230,7 @@ test.describe('Slim banner (D-01, D-05, D-29, D-31)', () => {
 
   test('Give Up banner', async ({ page }) => {
     await start(page)
-    await guessAll(page, ['house', 'ghost'])
+    await guessAll(page, ['house', 'ghost', 'plant', 'mouse'])
     await page.getByRole('button', { name: 'Give up' }).click()
     await page
       .getByRole('dialog', { name: 'Give up?' })
@@ -282,6 +282,7 @@ test.describe('Slim banner (D-01, D-05, D-29, D-31)', () => {
   test('Enter on a focused See result opens the modal', async ({ page }) => {
     await winInTwo(page)
     await closeResult(page)
+    await expect(page.getByRole('button', { name: 'See result' })).toBeFocused()
     await page.keyboard.press('Enter')
     await expect(resultDialog(page)).toBeVisible()
   })

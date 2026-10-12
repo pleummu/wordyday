@@ -218,7 +218,7 @@ for (const h of [500, 568, 640]) {
         } else if (outcome === 'lost') {
           await guessAll(page, LOST5)
         } else {
-          await guessAll(page, ['house', 'ghost'])
+          await guessAll(page, ['house', 'ghost', 'plant', 'mouse'])
           await page.getByRole('button', { name: 'Give up' }).click()
           await page
             .getByRole('dialog', { name: 'Give up?' })

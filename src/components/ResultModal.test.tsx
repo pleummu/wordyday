@@ -193,6 +193,58 @@ it('a held Enter is default-prevented, a single Enter is not', () => {
   expect(fireEvent.keyDown(btn, { key: 'Enter' })).toBe(true)
 })
 
+function streakCell() {
+  return dialog().querySelectorAll('.stat')[2] as HTMLElement
+}
+
+it('Streak cell reads reset after a loss that ended a streak', () => {
+  render(<App />)
+  act(() =>
+    finish('lost', ['house'], {
+      stats: emptyStats(),
+      finishedInSession: true,
+      finishNote: { won: false, winStreak: 0, prev: 3 },
+    }),
+  )
+  const cell = streakCell()
+  expect(cell.querySelector('.visually-hidden')!.textContent).toBe(
+    'Current win streak 0, reset',
+  )
+  expect(cell.querySelector('.stat-value')!.getAttribute('aria-hidden')).toBe(
+    'true',
+  )
+})
+
+it('Streak cell has no reset when there was no streak, on a win, or when restored', () => {
+  render(<App />)
+  act(() =>
+    finish('lost', ['house'], {
+      finishedInSession: true,
+      finishNote: { won: false, winStreak: 0, prev: 0 },
+    }),
+  )
+  expect(streakCell().querySelector('.visually-hidden')!.textContent).toBe(
+    'Current win streak 2',
+  )
+  act(() =>
+    useGameStore.setState({
+      finishNote: { won: true, winStreak: 2, prev: 1 },
+    }),
+  )
+  expect(streakCell().querySelector('.visually-hidden')!.textContent).toBe(
+    'Current win streak 2',
+  )
+  act(() =>
+    useGameStore.setState({
+      finishedInSession: false,
+      finishNote: { won: false, winStreak: 0, prev: 3 },
+    }),
+  )
+  expect(streakCell().querySelector('.visually-hidden')!.textContent).toBe(
+    'Current win streak 2',
+  )
+})
+
 it('Play again starts a new game and closes the modal', async () => {
   render(<App />)
   act(() => finish('won', ['crane']))

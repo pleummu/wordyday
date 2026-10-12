@@ -11,12 +11,12 @@ import {
   PLAYED,
   PLAY_AGAIN,
   STREAK,
-  STREAK_FULL,
   WIN_PCT,
   WIN_PCT_FULL,
   WORD_WAS_PREFIX,
   YOU_GAVE_UP,
   resultWinHeading,
+  streakFull,
 } from '../state/copy'
 import { useGameStore } from '../state/gameStore'
 import Modal from './Modal'
@@ -30,6 +30,8 @@ export default function ResultModal() {
   const mode = useGameStore((s) => s.mode)
   const answer = useGameStore((s) => s.answer)
   const stats = useGameStore((s) => s.stats)
+  const finishNote = useGameStore((s) => s.finishNote)
+  const finishedInSession = useGameStore((s) => s.finishedInSession)
   const flourish = useGameStore((s) => s.resultFlourish)
   const closeDialog = useGameStore((s) => s.closeDialog)
   const playAgain = useGameStore((s) => s.playAgain)
@@ -43,6 +45,12 @@ export default function ResultModal() {
         ? OUT_OF_GUESSES
         : YOU_GAVE_UP
 
+  const reset =
+    finishedInSession &&
+    finishNote !== null &&
+    !finishNote.won &&
+    finishNote.prev > 0
+
   // A held Enter or Space must not press Play again as the modal opens (D-30).
   function onKeyDownCapture(e: KeyboardEvent<HTMLDivElement>) {
     if (e.repeat && (e.key === 'Enter' || e.key === ' ')) e.preventDefault()
@@ -55,8 +63,7 @@ export default function ResultModal() {
       titleId="result-title"
       bodyId="result-answer"
       fallbackFocus={() =>
-        document.querySelector<HTMLElement>('[data-see-result]') ??
-        document.querySelector<HTMLElement>('.play-again')
+        document.querySelector<HTMLElement>('[data-see-result]')
       }
     >
       <div
@@ -85,7 +92,8 @@ export default function ResultModal() {
           <Stat
             value={String(v.winStreak ?? 0)}
             label={STREAK}
-            full={STREAK_FULL}
+            full={streakFull(v.winStreak ?? 0, reset)}
+            valueHidden
           />
           <Stat
             value={String(v.bestWinStreak ?? 0)}

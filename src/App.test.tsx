@@ -191,10 +191,10 @@ it('Give up confirm reveals the answer with the gave-up banner', () => {
     )!,
   )
   const banner = container.querySelector('section.banner') as HTMLElement
-  expect(within(banner).getByText('The word was CRANE')).toBeTruthy()
   expect(
-    within(banner).getByText('You gave up. Ready for another?'),
+    within(banner).getByRole('heading', { name: 'You gave up' }),
   ).toBeTruthy()
+  expect(within(banner).getByText('The word was CRANE')).toBeTruthy()
   // Give Up opens the Result modal in the same update.
   const result = container
     .querySelector('.result-heading')!
