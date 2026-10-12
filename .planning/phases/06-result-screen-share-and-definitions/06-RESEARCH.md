@@ -308,13 +308,19 @@ Not a rename/migration phase. No persisted-doc change (D-25): saved doc version 
 | A6 | Legacy tests import retired copy exports | Pitfall 11 | Planner must grep |
 | A7 | Playwright `page.clock` usable with this app's `setTimeout` timers | Code Examples | Fall back to computed `waitForTimeout` |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **Is dictionaryapi.dev actually up / CORS-open?** 522 on 2026-10-12 for all words.
    - Recommendation: plan a human-verify checkpoint to hit it from a real browser (devtools on the deployed preview) before sign-off; the code path already degrades to "Definition unavailable". Optionally the owner may want a fallback provider (out of scope unless raised; do not add silently).
+   - RESOLVED: 06-07 Task 2 (checkpoint:human-verify) has the owner click "Show definition" in a real browser, check the console for CORS errors and record in the SUMMARY whether the live lookup worked or showed "Definition unavailable". All automated tests stub the API (06-05). No fallback provider is added.
 2. **Does the staged `.planning/research/FEATURES.md` change matter?** Unrelated working-tree modification; ignore.
+   - RESOLVED: ignored; no plan touches it.
 3. **GZIP budget headroom:** current gzip sizes of words-N.json unknown here; plan a task to run `npm run build:words` and read the printed sizes, raise `GZIP_BUDGET` only with owner awareness if exceeded.
+   - RESOLVED: 06-06 Task 2 runs `npm run build:words`, reads the printed gzip sizes and must leave `GZIP_BUDGET` unchanged; if a length exceeds its budget the plan stops and reports a deviation for the owner. 06-07 Task 1 also runs `npm run check:bundle`.
 4. **SPEC.md §10 R-SHARE-1 update** (D-12) is a doc task to include.
+   - RESOLVED: 06-03 Task 2 rewrites the R-SHARE-1 header sentence in SPEC.md §10 (Wordubado `Unlimited Wordle - Wordubado 5 - 4/6`, Normal `Wordle 5 - 4/6`).
+5. **Do legacy tests import or assert the copy exports being retired (A6, Pitfall 11)?**
+   - RESOLVED: 06-02 Task 2 deletes the retired exports, greps `src` and `e2e` for every deleted name (acceptance: zero matches) and rewrites Banner.test.tsx and App.test.tsx; 06-01 Task 3 already scopes App.test.tsx's Give Up queries to the banner with `within()`. The legacy E2E specs that assert the old copy are migrated in 06-08.
 
 ## Environment Availability
 

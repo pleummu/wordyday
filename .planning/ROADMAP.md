@@ -286,7 +286,7 @@ Plans:
   3. User can share an emoji grid headed "Unlimited Wordle - Wordubado 5 - 4/6" (X/n for a loss, orange/blue squares in colour-blind mode) plus the site URL
   4. User on a phone gets the share sheet; otherwise the result is copied to the clipboard with a "Copied" toast
 
-**Plans**: 7 plans
+**Plans**: 8 plans
 
 Plans:
 **Wave 1**
@@ -295,11 +295,12 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 06-02-PLAN.md — Slim banner with See result, Win Streak moved into the modal, 320 px layout, legacy E2E migrated
+- [ ] 06-02-PLAN.md — Slim banner with See result, Win Streak moved into the modal, 320 px layout
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
 - [ ] 06-03-PLAN.md — Share text builder, share sheet vs clipboard, "Copied ✓", copy-failure box, SPEC R-SHARE-1 (D-12)
+- [ ] 06-08-PLAN.md — Legacy E2E specs migrated to the auto-opening Result modal (parallel with 06-03)
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
