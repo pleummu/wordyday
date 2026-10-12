@@ -291,7 +291,7 @@ Plans:
 Plans:
 **Wave 1**
 
-- [ ] 06-01-PLAN.md — Failing result E2E, timing.ts, store auto-open/skip/input block, ResultModal with Board stats
+- [x] 06-01-PLAN.md — Failing result E2E, timing.ts, store auto-open/skip/input block, ResultModal with Board stats
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
@@ -363,6 +363,6 @@ Plans:
 | 3. Wordubado Mode and Slang | 6/6 | Complete    | 2026-10-02 |
 | 4. Six Boards and Persistence | 12/12 | Complete   | 2026-10-04 |
 | 5. Stats, Streaks and Restore | 8/8 | Complete   | 2026-10-05 |
-| 6. Result Screen, Share and Definitions | 0/TBD | Not started | - |
+| 6. Result Screen, Share and Definitions | 1/8 | In Progress|  |
 | 7. Themes, Accessibility and Polish | 0/TBD | Not started | - |
 | 8. E2E, CI Hardening and Pipeline Docs | 0/TBD | Not started | - |
