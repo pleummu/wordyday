@@ -1,9 +1,9 @@
 import { STATISTICS } from '../state/copy'
-import { useGameStore } from '../state/gameStore'
+import { isBusy, useGameStore } from '../state/gameStore'
 
 export default function StatsButton() {
   const openStats = useGameStore((s) => s.openStats)
-  const busy = useGameStore((s) => s.status === 'revealing')
+  const busy = useGameStore(isBusy)
   return (
     <button
       type="button"

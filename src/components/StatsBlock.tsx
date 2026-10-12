@@ -13,7 +13,10 @@ export function Stat({
 }) {
   return (
     <div className="stat">
-      <span className="stat-value" aria-hidden={valueHidden ? 'true' : undefined}>
+      <span
+        className="stat-value"
+        aria-hidden={valueHidden ? 'true' : undefined}
+      >
         {value}
       </span>
       {full ? (

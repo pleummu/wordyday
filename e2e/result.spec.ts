@@ -158,9 +158,7 @@ test.describe('Result timing (D-20, D-21)', () => {
     await expect(
       page.getByRole('button', { name: 'Statistics', exact: true }),
     ).toBeDisabled()
-    await expect(
-      page.getByRole('switch', { name: 'Wordubado' }),
-    ).toBeDisabled()
+    await expect(page.getByRole('switch', { name: 'Wordubado' })).toBeDisabled()
     await expect(resultDialog(page)).toBeVisible({
       timeout: resultDelayMs('won', 5, false) + 1500,
     })

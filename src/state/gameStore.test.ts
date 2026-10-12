@@ -1,14 +1,15 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import {
   createGameStore,
+  isBusy,
   isInputBlocked,
-  revealDurationMs,
   type GameDeps,
 } from './gameStore'
 import type { Pools } from '../data/wordData'
 import type { WordLength } from '../logic/boards'
 import { score } from '../logic/score'
 import { CORRUPT_TOAST, PRAISE, TOAST_LIFE_MS } from './copy'
+import { resultDelayMs } from '../logic/timing'
 import { createSaveStorage } from './storage'
 import {
   createMemoryStorage,
@@ -51,6 +52,12 @@ async function started(reduced = false) {
   const ctx = setup({}, reduced)
   await ctx.store.getState().startGame(5)
   return ctx
+}
+
+// The pause before the Result modal has its own tests; other tests that keep
+// playing after a finish skip it.
+function skipResultPause(store: ReturnType<typeof setup>['store']) {
+  store.setState({ resultPending: false })
 }
 
 function type(store: ReturnType<typeof setup>['store'], word: string) {
@@ -229,16 +236,6 @@ describe('win and loss', () => {
   })
 })
 
-describe('revealDurationMs', () => {
-  it('follows the timing contract', () => {
-    expect(revealDurationMs(4, false)).toBe(1400)
-    expect(revealDurationMs(5, false)).toBe(1700)
-    expect(revealDurationMs(6, false)).toBe(2000)
-    expect(revealDurationMs(4, true)).toBe(150)
-    expect(revealDurationMs(6, true)).toBe(150)
-  })
-})
-
 describe('loading edge cases (R-POOL-4, D-12)', () => {
   it('ignores a late load for an old length (Pitfall 7)', async () => {
     let resolve4!: (p: Pools) => void
@@ -277,6 +274,7 @@ describe('playAgain and switchBoard', () => {
     type(store, 'crane')
     store.getState().submit()
     store.getState().finishReveal()
+    skipResultPause(store)
     store.getState().playAgain()
     await vi.waitFor(() => expect(store.getState().status).toBe('playing'))
     const s = store.getState()
@@ -484,6 +482,7 @@ describe('boards', () => {
     store.getState().submit()
     store.getState().finishReveal()
     expect(store.getState().status).toBe('won')
+    skipResultPause(store)
     store.getState().switchBoard({ length: 4 })
     await vi.waitFor(() => expect(store.getState().status).toBe('playing'))
     store.getState().switchBoard({ length: 5 })
@@ -744,6 +743,7 @@ describe('persistence', () => {
     expect(store.getState().finishedInSession).toBe(false)
     store.getState().finishReveal()
     expect(store.getState().finishedInSession).toBe(true)
+    skipResultPause(store)
     await store.getState().playAgain()
     expect(store.getState().finishedInSession).toBe(false)
   })
@@ -793,7 +793,7 @@ describe('forfeit', () => {
     const s = ctx.store.getState()
     expect(s.status).toBe('gave-up')
     expect(s.rows).toHaveLength(4)
-    expect(s.dialog).toBeNull()
+    expect(s.dialog).toBe('result')
     expect(s.finishedInSession).toBe(true)
     expect(onGameFinished).toHaveBeenCalledTimes(1)
     expect(onGameFinished).toHaveBeenCalledWith('normal-5', 'gave-up')
@@ -1218,6 +1218,7 @@ async function win(store: TestStore) {
   type(store, 'crane')
   store.getState().submit()
   store.getState().finishReveal()
+  skipResultPause(store)
 }
 
 describe('game ids', () => {
@@ -1434,6 +1435,7 @@ describe('stats recording (D-07, D-12, D-21)', () => {
     type(store, 'kind')
     store.getState().submit()
     store.getState().finishReveal()
+    skipResultPause(store)
     await store.getState().playAgain()
     await vi.waitFor(() => expect(store.getState().status).toBe('playing'))
     expect(store.getState().finishNote).toBeNull()
@@ -1575,8 +1577,9 @@ describe('Day Streak (STRK-02, D-11, D-21)', () => {
     s.finishReveal()
     expect(ctx.store.getState().toast?.text).toBe(PRAISE[0])
     const queued = ctx.timers.slice(before)
-    expect(queued).toHaveLength(1)
+    expect(queued).toHaveLength(2)
     expect(queued[0].ms).toBe(TOAST_LIFE_MS)
+    expect(queued[1].ms).toBe(resultDelayMs('won', 5, false))
     queued[0].fn()
     expect(ctx.store.getState().toast?.text).toBe('Day streak: 1')
   })
@@ -1630,7 +1633,7 @@ describe('Day Streak (STRK-02, D-11, D-21)', () => {
     ctx.store.getState().finishReveal()
     expect(ctx.store.getState().dayStreak.current).toBe(1)
     expect(ctx.store.getState().streakRev).toBe(rev)
-    expect(ctx.timers.length).toBe(timers + 1)
+    expect(ctx.timers.length).toBe(timers + 2)
     expect(ctx.store.getState().toast?.text).toBe(PRAISE[0])
   })
 
@@ -1903,5 +1906,167 @@ describe('finish-time CHECK and break notice (STRK-04, D-16, D-21)', () => {
     store.getState().checkStreaks()
     expect(store.getState().today).toBe('2026-06-04')
     expect(store.getState().streakRev).toBe(rev)
+  })
+})
+
+describe('Result modal scheduling (phase 6)', () => {
+  const PEND = {
+    streak: 3,
+    brokenDate: '2026-06-02',
+    // cast: only the non-null shape matters for these tests
+  } as unknown as NonNullable<
+    ReturnType<ReturnType<typeof setup>['store']['getState']>['pendingRestore']
+  >
+
+  async function finishing(reduced = false) {
+    const ctx = await started(reduced)
+    type(ctx.store, 'crane')
+    ctx.store.getState().submit()
+    return ctx
+  }
+
+  function lastTimer(ctx: { timers: { fn: () => void; ms: number }[] }) {
+    return ctx.timers[ctx.timers.length - 1]
+  }
+
+  it('D-20 win schedules the result', async () => {
+    const ctx = await finishing()
+    ctx.store.getState().finishReveal()
+    expect(ctx.store.getState().resultPending).toBe(true)
+    expect(ctx.store.getState().dialog).toBeNull()
+    expect(lastTimer(ctx).ms).toBe(resultDelayMs('won', 5, false))
+    lastTimer(ctx).fn()
+    const s = ctx.store.getState()
+    expect(s.dialog).toBe('result')
+    expect(s.resultPending).toBe(false)
+    expect(s.resultFlourish).toBe(true)
+  })
+
+  it('D-20 loss schedules the result at 600 ms without flourish', async () => {
+    const ctx = await started()
+    for (const w of ['house', 'ghost', 'house', 'ghost', 'house', 'ghost']) {
+      type(ctx.store, w)
+      ctx.store.getState().submit()
+      ctx.store.getState().finishReveal()
+    }
+    expect(ctx.store.getState().status).toBe('lost')
+    expect(lastTimer(ctx).ms).toBe(600)
+    lastTimer(ctx).fn()
+    expect(ctx.store.getState().dialog).toBe('result')
+    expect(ctx.store.getState().resultFlourish).toBe(false)
+  })
+
+  it('D-23 reduced motion uses 300 ms and no flourish', async () => {
+    const ctx = await finishing(true)
+    ctx.store.getState().finishReveal()
+    expect(lastTimer(ctx).ms).toBe(300)
+    lastTimer(ctx).fn()
+    expect(ctx.store.getState().dialog).toBe('result')
+    expect(ctx.store.getState().resultFlourish).toBe(false)
+  })
+
+  it('D-21 input is blocked during the pause', async () => {
+    const ctx = await finishing()
+    ctx.store.getState().finishReveal()
+    const { store } = ctx
+    expect(isInputBlocked(store.getState())).toBe(true)
+    expect(isBusy(store.getState())).toBe(true)
+    store.getState().openStats()
+    store.getState().openSettings()
+    store.getState().openInfo()
+    store.getState().switchBoard({ length: 4 })
+    store.getState().playAgain()
+    const s = store.getState()
+    expect(s.dialog).toBeNull()
+    expect(s.infoOpen).toBe(false)
+    expect(s.length).toBe(5)
+    expect(s.status).toBe('won')
+  })
+
+  it('D-03 skips when a Restore prompt is pending at the reveal end', async () => {
+    const ctx = await finishing()
+    const before = ctx.timers.length
+    ctx.store.setState({ pendingRestore: PEND })
+    ctx.store.getState().finishReveal()
+    expect(ctx.store.getState().resultPending).toBe(false)
+    for (const t of ctx.timers.slice(before)) {
+      expect(t.ms).not.toBe(resultDelayMs('won', 5, false))
+    }
+  })
+
+  it('D-03 skips when a prompt or break notice arrives before the timer fires', async () => {
+    const a = await finishing()
+    a.store.getState().finishReveal()
+    a.store.setState({ pendingRestore: PEND })
+    lastTimer(a).fn()
+    expect(a.store.getState().resultPending).toBe(false)
+    expect(a.store.getState().dialog).toBeNull()
+
+    const b = await finishing()
+    b.store.getState().finishReveal()
+    b.store.setState({ breakNotice: true })
+    lastTimer(b).fn()
+    expect(b.store.getState().resultPending).toBe(false)
+    expect(b.store.getState().dialog).toBeNull()
+  })
+
+  it('D-02 a stale timer does nothing after the Board changed', async () => {
+    const ctx = await finishing()
+    ctx.store.getState().finishReveal()
+    const timer = lastTimer(ctx)
+    await ctx.store.getState().startGame(5)
+    expect(ctx.store.getState().resultPending).toBe(false)
+    timer.fn()
+    expect(ctx.store.getState().dialog).toBeNull()
+  })
+
+  it('Give Up opens the result in the same update; a Restore prompt suppresses it', async () => {
+    const a = await started()
+    a.store.setState({
+      rows: Array.from({ length: 4 }, () => ({
+        letters: 'house',
+        states: score('crane', 'house'),
+      })),
+    })
+    a.store.getState().giveUp()
+    expect(a.store.getState().status).toBe('gave-up')
+    expect(a.store.getState().dialog).toBe('result')
+    expect(a.store.getState().resultFlourish).toBe(false)
+  })
+
+  it('Forfeit never opens the result', async () => {
+    const ctx = await started()
+    ctx.store.setState({
+      rows: Array.from({ length: 4 }, () => ({
+        letters: 'house',
+        states: score('crane', 'house'),
+      })),
+    })
+    ctx.store.getState().forfeitNewGame()
+    expect(ctx.store.getState().dialog).toBeNull()
+  })
+
+  it('openResult only works on a finished, unblocked Board', async () => {
+    const ctx = await started()
+    ctx.store.getState().openResult()
+    expect(ctx.store.getState().dialog).toBeNull()
+    type(ctx.store, 'crane')
+    ctx.store.getState().submit()
+    ctx.store.getState().finishReveal()
+    ctx.store.getState().openResult()
+    expect(ctx.store.getState().dialog).toBeNull()
+    lastTimer(ctx).fn()
+    ctx.store.getState().closeDialog()
+    ctx.store.getState().openResult()
+    expect(ctx.store.getState().dialog).toBe('result')
+    expect(ctx.store.getState().resultFlourish).toBe(false)
+  })
+
+  it('never persists resultPending or resultFlourish', async () => {
+    const ctx = await finishing()
+    ctx.store.getState().finishReveal()
+    const raw = ctx.mem.getItem(SAVE_KEY)!
+    expect(raw).not.toContain('resultPending')
+    expect(raw).not.toContain('resultFlourish')
   })
 })

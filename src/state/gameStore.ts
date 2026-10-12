@@ -31,6 +31,11 @@ import {
 import { score, type TileState } from '../logic/score'
 import { nextSeq, recordResult } from '../logic/stats'
 import {
+  REVEAL_BUFFER_MS,
+  resultDelayMs,
+  revealDurationMs,
+} from '../logic/timing'
+import {
   check,
   finishDay,
   decline as pureDecline,
@@ -62,8 +67,11 @@ import { readTestAnswer } from './testHook'
 
 export type GameStatus =
   'loading' | 'error' | 'playing' | 'revealing' | 'won' | 'lost' | 'gave-up'
-export type DialogName = 'giveUp' | 'newGame' | 'settings' | 'reset' | 'stats'
+export type DialogName =
+  'giveUp' | 'newGame' | 'settings' | 'reset' | 'stats' | 'result'
 export type FinishedOutcome = 'won' | 'lost' | 'gave-up' | 'forfeit'
+
+export { revealDurationMs } from '../logic/timing'
 
 export function isFinished(status: GameStatus): boolean {
   return status === 'won' || status === 'lost' || status === 'gave-up'
@@ -123,6 +131,10 @@ export type GameState = {
   finishedInSession: boolean
   storageOk: boolean
   settingsFocus: 'close' | 'reset'
+  // Transient (never persisted): the pause between reveal end and the Result modal (D-21).
+  resultPending: boolean
+  // Transient: the win flourish plays on this opening (D-22).
+  resultFlourish: boolean
   // undefined = nothing waiting; null = the other tab reset everything.
   pendingExternal: string | null | undefined
   resume(): Promise<void>
@@ -136,6 +148,7 @@ export type GameState = {
   closeDialog(): void
   openSettings(): void
   openStats(): void
+  openResult(): void
   openReset(): void
   cancelReset(): void
   resetAll(): void
@@ -154,16 +167,20 @@ export type GameState = {
   dismissToast(id: number): void
 }
 
-const REVEAL_BUFFER_MS = 50
-
-export function revealDurationMs(length: WordLength, reduced: boolean): number {
-  return reduced ? 150 : (length - 1) * 300 + 500
-}
-
 const ATTEMPTS = (length: WordLength) => BOARD_CONFIG[length].attempts
 
 export function isInputBlocked(s: GameState): boolean {
-  return s.dialog !== null || s.infoOpen || s.pendingRestore !== null
+  return (
+    s.dialog !== null ||
+    s.infoOpen ||
+    s.pendingRestore !== null ||
+    s.resultPending
+  )
+}
+
+// The reveal, plus the pause before the Result modal opens (D-21).
+export function isBusy(s: GameState): boolean {
+  return s.status === 'revealing' || s.resultPending
 }
 
 function pickSlice(s: GameState) {
@@ -332,6 +349,38 @@ export function createGameStore(deps: GameDeps) {
           })
         }
 
+        // Auto-open the Result modal after the reveal settles. Skipped, not
+        // queued, when the Restore prompt or streak-break dialog needs the
+        // screen (D-03). A timer, not an effect, per StrictMode (CLAUDE.md).
+        function scheduleResult(outcome: 'won' | 'lost') {
+          const s = get()
+          if (s.pendingRestore !== null || s.breakNotice) return
+          const token = s.loadToken
+          const reduced = deps.prefersReducedMotion()
+          set({ resultPending: true })
+          deps.setTimer(
+            () => {
+              if (get().loadToken !== token) return
+              const cur = get()
+              const open =
+                cur.pendingRestore === null &&
+                !cur.breakNotice &&
+                cur.dialog === null &&
+                isFinished(cur.status)
+              set({
+                resultPending: false,
+                ...(open
+                  ? {
+                      dialog: 'result' as const,
+                      resultFlourish: outcome === 'won' && !reduced,
+                    }
+                  : {}),
+              })
+            },
+            resultDelayMs(outcome, s.length, reduced),
+          )
+        }
+
         // Reset state: Restores refilled for the current month (R-RESTORE-11).
         function freshToday() {
           const today = localDateKey(now())
@@ -370,6 +419,8 @@ export function createGameStore(deps: GameDeps) {
             finishNote: null,
             dayToastDue: null,
             dialog: null,
+            resultPending: false,
+            resultFlourish: false,
           })
           if (!saved) {
             await get().startGame(length, mode)
@@ -427,6 +478,8 @@ export function createGameStore(deps: GameDeps) {
           storageOk: deps.storage.isOk(),
           settingsFocus: 'close',
           pendingExternal: undefined,
+          resultPending: false,
+          resultFlourish: false,
 
           async resume() {
             await loadBoard()
@@ -507,7 +560,7 @@ export function createGameStore(deps: GameDeps) {
           },
 
           openInfo() {
-            if (get().pendingRestore !== null) return
+            if (get().pendingRestore !== null || get().resultPending) return
             set({ infoOpen: true })
           },
 
@@ -516,9 +569,23 @@ export function createGameStore(deps: GameDeps) {
           },
 
           openDialog(name) {
-            const { dialog, infoOpen, status, rows, length, pendingRestore } =
-              get()
-            if (dialog !== null || infoOpen || pendingRestore !== null) return
+            const {
+              dialog,
+              infoOpen,
+              status,
+              rows,
+              length,
+              pendingRestore,
+              resultPending,
+            } = get()
+            if (
+              dialog !== null ||
+              infoOpen ||
+              pendingRestore !== null ||
+              resultPending
+            ) {
+              return
+            }
             if (!canForfeit(status, rows.length, ATTEMPTS(length))) return
             set({ dialog: name })
           },
@@ -528,22 +595,35 @@ export function createGameStore(deps: GameDeps) {
           },
 
           openSettings() {
-            const { dialog, infoOpen, pendingRestore } = get()
-            if (dialog !== null || infoOpen || pendingRestore !== null) return
+            const { dialog, infoOpen, pendingRestore, resultPending } = get()
+            if (
+              dialog !== null ||
+              infoOpen ||
+              pendingRestore !== null ||
+              resultPending
+            ) {
+              return
+            }
             set({ dialog: 'settings', settingsFocus: 'close' })
           },
 
           openStats() {
-            const { dialog, infoOpen, status, pendingRestore } = get()
+            const s = get()
             if (
-              dialog !== null ||
-              infoOpen ||
-              status === 'revealing' ||
-              pendingRestore !== null
+              s.dialog !== null ||
+              s.infoOpen ||
+              isBusy(s) ||
+              s.pendingRestore !== null
             ) {
               return
             }
             set({ dialog: 'stats' })
+          },
+
+          openResult() {
+            const s = get()
+            if (!isFinished(s.status) || isInputBlocked(s)) return
+            set({ dialog: 'result', resultFlourish: false })
           },
 
           openReset() {
@@ -572,6 +652,8 @@ export function createGameStore(deps: GameDeps) {
               dayToastDue: null,
               finishNote: null,
               breakNotice: false,
+              resultPending: false,
+              resultFlourish: false,
               dialog: null,
               infoOpen: false,
               mode: 'normal',
@@ -631,7 +713,7 @@ export function createGameStore(deps: GameDeps) {
               kind: 'info' as const,
             })
             const closeConfirms = (d: DialogName | null) =>
-              d === 'giveUp' || d === 'newGame' ? null : d
+              d === 'giveUp' || d === 'newGame' || d === 'result' ? null : d
 
             // Only a reset starts a fresh game from the outside. Games with an
             // id at or below the highest one seen so far are pre-reset.
@@ -654,6 +736,8 @@ export function createGameStore(deps: GameDeps) {
                 status: 'loading',
                 gameId: 0,
                 pendingExternal: undefined,
+                resultPending: false,
+                resultFlourish: false,
                 dialog: closeConfirms(s0.dialog),
               })
               void get().startGame(s0.length, s0.mode)
@@ -727,6 +811,8 @@ export function createGameStore(deps: GameDeps) {
                 current: '',
                 status: next.outcome,
                 finishedInSession: false,
+                resultPending: false,
+                resultFlourish: false,
                 shakeRow: -1,
                 toast: toast(),
                 dialog: closeConfirms(state.dialog),
@@ -753,6 +839,10 @@ export function createGameStore(deps: GameDeps) {
             set({ status: 'gave-up', finishedInSession: true })
             finishGame(boardKey(mode, length), 'gave-up')
             showDueDayToast()
+            const after = get()
+            if (after.pendingRestore === null && !after.breakNotice) {
+              set({ dialog: 'result', resultFlourish: false })
+            }
           },
 
           forfeitNewGame() {
@@ -817,6 +907,8 @@ export function createGameStore(deps: GameDeps) {
               finishNote: null,
               dayToastDue: null,
               dialog: null,
+              resultPending: false,
+              resultFlourish: false,
             })
             try {
               const pools = await deps.loadPools(length)
@@ -845,7 +937,7 @@ export function createGameStore(deps: GameDeps) {
               mode: next.mode ?? mode,
               length: next.length ?? length,
             }
-            if (status === 'revealing') return
+            if (isBusy(state)) return
             if (
               target.mode === mode &&
               target.length === length &&
@@ -871,6 +963,7 @@ export function createGameStore(deps: GameDeps) {
           },
 
           playAgain() {
+            if (get().resultPending) return
             void get().startGame(get().length, get().mode)
           },
 
@@ -975,6 +1068,7 @@ export function createGameStore(deps: GameDeps) {
                   })
                 }, TOAST_LIFE_MS)
               }
+              scheduleResult('won')
             } else if (rows.length >= BOARD_CONFIG[length].attempts) {
               set({
                 keyStates: merged,
@@ -982,6 +1076,7 @@ export function createGameStore(deps: GameDeps) {
                 finishedInSession: true,
               })
               showDueDayToast()
+              scheduleResult('lost')
             } else {
               set({ keyStates: merged, status: 'playing' })
             }
