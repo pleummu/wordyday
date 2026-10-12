@@ -295,7 +295,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 06-02-PLAN.md — Slim banner with See result, Win Streak moved into the modal, 320 px layout
+- [x] 06-02-PLAN.md — Slim banner with See result, Win Streak moved into the modal, 320 px layout
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
@@ -363,6 +363,6 @@ Plans:
 | 3. Wordubado Mode and Slang | 6/6 | Complete    | 2026-10-02 |
 | 4. Six Boards and Persistence | 12/12 | Complete   | 2026-10-04 |
 | 5. Stats, Streaks and Restore | 8/8 | Complete   | 2026-10-05 |
-| 6. Result Screen, Share and Definitions | 1/8 | In Progress|  |
+| 6. Result Screen, Share and Definitions | 2/8 | In Progress|  |
 | 7. Themes, Accessibility and Polish | 0/TBD | Not started | - |
 | 8. E2E, CI Hardening and Pipeline Docs | 0/TBD | Not started | - |
