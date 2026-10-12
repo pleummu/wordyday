@@ -7,6 +7,7 @@ import {
   guess,
   guessAll,
   resultDialog,
+  selectLength,
   waitForReady,
   waitForResult,
 } from './helpers.ts'
@@ -186,6 +187,139 @@ test.describe('Result timing (D-20, D-21)', () => {
     await expect(
       resultDialog(page).locator('.result-panel[data-flourish]'),
     ).toHaveCount(1)
+  })
+})
+
+test.describe('Slim banner (D-01, D-05, D-29, D-31)', () => {
+  test.use({ reducedMotion: 'reduce' })
+
+  async function winInTwo(page: Page) {
+    await start(page)
+    await guessAll(page, ['house', 'crane'])
+    await waitForResult(page)
+  }
+
+  test('win banner', async ({ page }) => {
+    await winInTwo(page)
+    await closeResult(page)
+    const banner = page.locator('.banner')
+    await expect(
+      banner.getByRole('heading', { name: 'Solved in 2' }),
+    ).toBeVisible()
+    await expect(
+      banner.getByRole('button', { name: 'See result' }),
+    ).toBeVisible()
+    await expect(
+      banner.getByRole('button', { name: 'Play again' }),
+    ).toBeVisible()
+    await expect(banner.getByRole('button', { name: 'Share' })).toHaveCount(0)
+    await expect(banner).not.toContainText(/Win streak/i)
+  })
+
+  test('loss banner', async ({ page }) => {
+    await start(page)
+    await guessAll(page, WRONG6)
+    await waitForResult(page)
+    await closeResult(page)
+    await expect(
+      page
+        .locator('.banner')
+        .getByRole('heading', { name: 'The word was CRANE' }),
+    ).toBeVisible()
+  })
+
+  test('Give Up banner', async ({ page }) => {
+    await start(page)
+    await guessAll(page, ['house', 'ghost'])
+    await page.getByRole('button', { name: 'Give up' }).click()
+    await page
+      .getByRole('dialog', { name: 'Give up?' })
+      .getByRole('button', { name: 'Give up' })
+      .click()
+    await waitForResult(page)
+    await closeResult(page)
+    const banner = page.locator('.banner')
+    await expect(
+      banner.getByRole('heading', { name: 'You gave up' }),
+    ).toBeVisible()
+    await expect(banner).toContainText('The word was CRANE')
+  })
+
+  test('See result reopens and focus returns', async ({ page }) => {
+    await winInTwo(page)
+    await closeResult(page)
+    const see = page.getByRole('button', { name: 'See result' })
+    await expect(see).toBeFocused()
+    for (let i = 0; i < 2; i++) {
+      await see.click()
+      await waitForResult(page)
+      await expect(resultDialog(page).locator('[data-flourish]')).toHaveCount(0)
+      await expect(
+        resultDialog(page).getByRole('button', { name: 'Play again' }),
+      ).toBeFocused()
+      await closeResult(page)
+      await expect(see).toBeFocused()
+    }
+  })
+
+  test('D-31 letters and Enter do nothing on a finished Board', async ({
+    page,
+  }) => {
+    await winInTwo(page)
+    await closeResult(page)
+    await page.evaluate(() => (document.activeElement as HTMLElement)?.blur())
+    await page.keyboard.type('abc')
+    await page.keyboard.press('Enter')
+    await expect(
+      page.getByRole('gridcell', { name: /Row 1, column 1, empty/ }),
+    ).toHaveCount(0)
+    await expect(
+      page.getByRole('gridcell', { name: /Row 3, column 1, empty/ }),
+    ).toHaveCount(1)
+    await expect(resultDialog(page)).toHaveCount(0)
+  })
+
+  test('Enter on a focused See result opens the modal', async ({ page }) => {
+    await winInTwo(page)
+    await closeResult(page)
+    await page.keyboard.press('Enter')
+    await expect(resultDialog(page)).toBeVisible()
+  })
+
+  test('D-02 Board switch back shows banner only', async ({ page }) => {
+    await winInTwo(page)
+    await closeResult(page)
+    await selectLength(page, 4)
+    await page.getByRole('radio', { name: '5 letters' }).click()
+    await expect(page.locator('.banner')).toBeVisible()
+    await page.waitForTimeout(1000)
+    await expect(resultDialog(page)).toHaveCount(0)
+    await page.getByRole('button', { name: 'See result' }).click()
+    await expect(resultDialog(page)).toBeVisible()
+  })
+
+  test('D-05 Win Streak lives in the modal', async ({ page }) => {
+    await winInTwo(page)
+    const dlg = resultDialog(page)
+    const streak = dlg.locator('.stat').nth(2)
+    await expect(streak.locator('.stat-value')).toHaveText('1')
+    await playAgainFromModal(page)
+    await guessAll(page, WRONG6)
+    await waitForResult(page)
+    await expect(streak.locator('.stat-value')).toHaveText('0')
+    await expect(dlg).toContainText('Current win streak 0, reset')
+    await playAgainFromModal(page)
+    await guessAll(page, WRONG6)
+    await waitForResult(page)
+    await expect(streak.locator('.visually-hidden')).toHaveText(
+      'Current win streak 0',
+    )
+  })
+
+  test('D-05 Day Streak toast still fires', async ({ page }) => {
+    await start(page)
+    await guessAll(page, ['house', 'crane'])
+    await expect(page.getByText('Day streak: 1')).toBeVisible()
   })
 })
 
