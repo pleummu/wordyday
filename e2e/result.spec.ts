@@ -77,7 +77,7 @@ test.describe('Result modal (D-01, D-04)', () => {
 
   test('a Forfeit opens no Result modal', async ({ page }) => {
     await start(page)
-    await guess(page, 'house', 1)
+    await guessAll(page, ['house', 'ghost', 'plant', 'mouse'])
     await page.getByRole('button', { name: 'New game' }).click()
     const confirm = page.getByRole('dialog', { name: 'New game?' })
     await confirm.getByRole('button', { name: 'New game' }).click()

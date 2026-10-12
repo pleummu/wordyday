@@ -1,5 +1,12 @@
 // @vitest-environment jsdom
-import { act, cleanup, fireEvent, render, screen } from '@testing-library/react'
+import {
+  act,
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  within,
+} from '@testing-library/react'
 import { afterEach, beforeAll, beforeEach, expect, it, vi } from 'vitest'
 import { stubDialog } from './test/stubDialog'
 import type { Pools } from './data/wordData'
@@ -170,7 +177,7 @@ function playFour() {
 }
 
 it('Give up confirm reveals the answer with the gave-up banner', () => {
-  render(<App />)
+  const { container } = render(<App />)
   playFour()
   fireEvent.click(screen.getByRole('button', { name: 'Give up' }))
   expect(screen.getByText('Give up?')).toBeTruthy()
@@ -183,8 +190,18 @@ it('Give up confirm reveals the answer with the gave-up banner', () => {
       (b) => b.textContent === 'Give up',
     )!,
   )
-  expect(screen.getByText('The word was CRANE')).toBeTruthy()
-  expect(screen.getByText('You gave up. Ready for another?')).toBeTruthy()
+  const banner = container.querySelector('section.banner') as HTMLElement
+  expect(within(banner).getByText('The word was CRANE')).toBeTruthy()
+  expect(
+    within(banner).getByText('You gave up. Ready for another?'),
+  ).toBeTruthy()
+  // Give Up opens the Result modal in the same update.
+  const result = container
+    .querySelector('.result-heading')!
+    .closest('dialog') as HTMLElement
+  expect(
+    within(result).getByRole('heading', { level: 2, name: 'You gave up' }),
+  ).toBeTruthy()
 })
 
 it('New game confirm starts a fresh playing game', async () => {

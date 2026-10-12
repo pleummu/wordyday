@@ -11,6 +11,7 @@ import ResetConfirm from './components/ResetConfirm'
 import RestorePrompt from './components/RestorePrompt'
 import StreakBreakModal from './components/StreakBreakModal'
 import SettingsModal from './components/SettingsModal'
+import ResultModal from './components/ResultModal'
 import StatsModal from './components/StatsModal'
 import Toast from './components/Toast'
 import WordubadoInfo from './components/WordubadoInfo'
@@ -59,6 +60,7 @@ export default function App() {
       <NewGameConfirm />
       <SettingsModal />
       <StatsModal />
+      <ResultModal />
       <ResetConfirm />
       <RestorePrompt />
       <StreakBreakModal />

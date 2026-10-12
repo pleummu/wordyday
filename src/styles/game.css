@@ -1096,3 +1096,85 @@ dialog.modal:has(#stats-panel) .modal-card {
 .dist-bar[data-highlight] {
   background: var(--color-accent);
 }
+
+/* Result modal */
+dialog.modal:has(.result-panel) {
+  max-height: calc(100dvh - 32px);
+}
+
+dialog.modal:has(.result-panel) .modal-card {
+  max-height: calc(100dvh - 32px);
+  overflow-y: auto;
+  box-sizing: border-box;
+}
+
+.result-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.result-heading[data-result='won']::after {
+  content: '';
+  display: block;
+  width: 32px;
+  height: 4px;
+  margin-top: var(--space-2);
+  border-radius: var(--radius-pill);
+  background: var(--color-accent);
+}
+
+.result-answer {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.result-actions {
+  flex-direction: row;
+}
+
+.result-actions .modal-button {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+@media (max-height: 540px) {
+  .result-panel {
+    gap: var(--space-2);
+  }
+
+  dialog.modal:has(.result-panel) .modal-card {
+    padding: var(--space-3);
+  }
+}
+
+@keyframes result-in {
+  from {
+    opacity: 0;
+    transform: scale(0.94);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+dialog.modal[open]:has(.result-panel[data-flourish]) {
+  animation: result-in 280ms var(--ease-soft);
+}
+
+@media (max-width: 399.98px) {
+  .result-actions {
+    flex-direction: row;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  dialog.modal[open]:has(.result-panel[data-flourish]) {
+    animation: modal-fade-in 120ms linear;
+  }
+}

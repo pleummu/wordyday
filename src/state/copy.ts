@@ -117,3 +117,9 @@ export const BREAK_BODY = 'Your streak ended. Start a new one today!'
 export const OK = 'OK'
 export const restoreToast = (n: number) =>
   `Streak restored. ${n} left this month.`
+
+export const resultWinHeading = (n: number, max: number) =>
+  `You got it in ${n}/${max}!`
+export const OUT_OF_GUESSES = 'Out of guesses'
+export const YOU_GAVE_UP = 'You gave up'
+export const WORD_WAS_PREFIX = 'The word was '

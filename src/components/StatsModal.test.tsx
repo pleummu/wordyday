@@ -65,7 +65,11 @@ it('All tab renders exactly two stat cells', () => {
   render(<App />)
   act(() => useGameStore.getState().openStats())
   fireEvent.click(screen.getByRole('tab', { name: 'All lengths' }))
-  expect(document.querySelectorAll('.stat')).toHaveLength(2)
+  expect(
+    screen
+      .getByRole('dialog', { name: 'Statistics' })
+      .querySelectorAll('.stat'),
+  ).toHaveLength(2)
 })
 
 it('ArrowRight on the selected tab moves aria-selected', () => {
