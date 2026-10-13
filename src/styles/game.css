@@ -1283,6 +1283,13 @@ dialog.modal[open]:has(.result-panel[data-flourish]) {
   font-weight: 400;
 }
 
+.definition-curated {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 400;
+  color: var(--color-text);
+}
+
 .definition-credit {
   margin: 0;
   font-size: 14px;

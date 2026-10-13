@@ -48,6 +48,7 @@ export default function ResultModal() {
   const colourBlind = useGameStore((s) => s.colourBlind)
   const notify = useGameStore((s) => s.notify)
   const toast = useGameStore((s) => s.toast)
+  const pools = useGameStore((s) => s.pools)
   const definitionShown = useGameStore((s) => s.definitionShown)
   const showDefinition = useGameStore((s) => s.showDefinition)
 
@@ -183,7 +184,11 @@ export default function ResultModal() {
           </button>
         )}
         {definitionShown && open && (
-          <DefinitionPanel word={answer} focusOnMount={justRevealed} />
+          <DefinitionPanel
+            word={answer}
+            focusOnMount={justRevealed}
+            curated={mode === 'wordubado' ? pools?.defs?.[answer] : undefined}
+          />
         )}
         <div className="stat-row" data-cells={4}>
           <Stat value={String(v.played)} label={PLAYED} />

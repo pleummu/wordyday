@@ -18,9 +18,11 @@ type View = 'loading' | 'unavailable' | Sense[]
 export default function DefinitionPanel({
   word,
   focusOnMount,
+  curated,
 }: {
   word: string
   focusOnMount: boolean
+  curated?: string
 }) {
   const [view, setView] = useState<View>(
     () => cachedDefinition(word) ?? 'loading',
@@ -35,6 +37,7 @@ export default function DefinitionPanel({
   }, [])
 
   useEffect(() => {
+    if (curated !== undefined) return
     if (cachedDefinition(word)) return
     const ctl = new AbortController()
     // Lookup start is an external-system sync; the view must read 'loading' during it.
@@ -49,7 +52,7 @@ export default function DefinitionPanel({
       },
     )
     return () => ctl.abort()
-  }, [word, attempt])
+  }, [word, attempt, curated])
 
   return (
     <div
@@ -58,13 +61,16 @@ export default function DefinitionPanel({
       role="region"
       aria-label={DEFINITION_REGION}
       aria-live="polite"
-      aria-busy={view === 'loading' ? 'true' : undefined}
+      aria-busy={
+        curated === undefined && view === 'loading' ? 'true' : undefined
+      }
       tabIndex={-1}
     >
-      {view === 'loading' && (
+      {curated !== undefined && <p className="definition-curated">{curated}</p>}
+      {curated === undefined && view === 'loading' && (
         <p className="definition-status">{DEFINITION_LOADING}</p>
       )}
-      {view === 'unavailable' && (
+      {curated === undefined && view === 'unavailable' && (
         <>
           <p className="definition-status">{DEFINITION_UNAVAILABLE}</p>
           <button
@@ -80,7 +86,7 @@ export default function DefinitionPanel({
           </button>
         </>
       )}
-      {Array.isArray(view) && (
+      {curated === undefined && Array.isArray(view) && (
         <>
           <dl className="definition-senses">
             {view.map((s, i) => (

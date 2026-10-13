@@ -1,17 +1,28 @@
 import type { WordLength } from '../logic/boards'
 
-export type RawPools = { answers: string; guesses: string; slang: string }
+export type RawPools = {
+  answers: string
+  guesses: string
+  slang: string
+  defs?: Record<string, string>
+}
 export type Pools = {
   answers: readonly string[]
   slang: readonly string[]
   guesses: ReadonlySet<string>
+  defs?: Readonly<Record<string, string>>
 }
 
 export function toPools(raw: RawPools): Pools {
   const answers = raw.answers.split(' ').filter(Boolean)
   const extra = raw.guesses.split(' ').filter(Boolean)
   const slang = raw.slang.split(' ').filter(Boolean)
-  return { answers, slang, guesses: new Set([...answers, ...slang, ...extra]) }
+  return {
+    answers,
+    slang,
+    guesses: new Set([...answers, ...slang, ...extra]),
+    defs: raw.defs ?? {},
+  }
 }
 
 // The only place that references words-N.json (one chunk per length, D-12).

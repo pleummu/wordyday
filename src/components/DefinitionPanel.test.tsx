@@ -30,6 +30,25 @@ function deferred<T>() {
   return { promise, resolve, reject }
 }
 
+it('curated text renders alone with no lookup (D-08)', () => {
+  render(
+    <DefinitionPanel
+      word="aight"
+      focusOnMount={true}
+      curated="A casual way of saying all right."
+    />,
+  )
+  const r = screen.getByRole('region', { name: 'Definition' })
+  const p = r.querySelectorAll('p.definition-curated')
+  expect(p).toHaveLength(1)
+  expect(p[0].textContent).toBe('A casual way of saying all right.')
+  expect(r.querySelector('dl')).toBeNull()
+  expect(r.textContent).not.toContain('Source: dictionaryapi.dev')
+  expect(r.getAttribute('aria-busy')).toBeNull()
+  expect(lookupDefinition).not.toHaveBeenCalled()
+  expect(document.activeElement).toBe(r)
+})
+
 it('shows loading with aria-busy while pending', () => {
   lookupDefinition.mockReturnValue(new Promise(() => {}))
   render(<DefinitionPanel word="crane" focusOnMount={false} />)

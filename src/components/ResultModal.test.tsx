@@ -414,3 +414,29 @@ it('an already revealed definition renders on open and Play again keeps focus (0
   )
   vi.restoreAllMocks()
 })
+
+it('Wordubado uses the curated text and Normal does not (D-08)', () => {
+  const fetchSpy = vi
+    .spyOn(globalThis, 'fetch')
+    .mockImplementation(() => new Promise(() => {}))
+  const withDefs = { ...pools, defs: { crane: 'Curated.' } }
+  render(<App />)
+  act(() =>
+    finish('won', ['house', 'crane'], {
+      mode: 'wordubado',
+      answer: 'crane',
+      pools: withDefs,
+      definitionShown: true,
+    }),
+  )
+  const dlg = within(dialog())
+  expect(dlg.getByRole('region', { name: 'Definition' }).textContent).toBe(
+    'Curated.',
+  )
+  expect(fetchSpy).not.toHaveBeenCalled()
+  act(() =>
+    useGameStore.setState({ dialog: null, mode: 'normal', pools: withDefs }),
+  )
+  act(() => useGameStore.setState({ dialog: 'result' }))
+  expect(fetchSpy).toHaveBeenCalled()
+})
