@@ -1,11 +1,14 @@
 import { expect, test, type Page } from '@playwright/test'
 import {
+  closeResult,
   fixAnswers,
   guess,
   guessAll,
+  resultDialog,
   seedSave,
   selectLength,
   waitForReady,
+  waitForResult,
 } from './helpers.ts'
 
 test.use({ reducedMotion: 'reduce' })
@@ -24,11 +27,20 @@ async function saved(page: Page) {
 
 async function winOnce(page: Page) {
   await guess(page, 'crane', 1)
-  await expect(page.getByText('You got it in 1 of 6')).toBeVisible()
+  await expect(
+    resultDialog(page).getByRole('heading', { name: 'You got it in 1/6!' }),
+  ).toBeVisible()
 }
 
+// The Result modal's Streak cell: visible number plus hidden full text.
+const streakCell = (page: Page) => resultDialog(page).locator('.stat').nth(2)
+
 async function playAgain(page: Page) {
-  await page.getByRole('button', { name: 'Play again' }).click()
+  // The modal opens after a live finish; a restored finished Board shows
+  // only the banner (D-02), so click whichever Play again is on screen.
+  const inModal = (await resultDialog(page).count()) > 0
+  const scope = inModal ? resultDialog(page) : page.locator('.banner')
+  await scope.getByRole('button', { name: 'Play again' }).click()
   await waitForReady(page)
 }
 
@@ -39,40 +51,52 @@ test.describe('Win Streak (STRK-01, D-12)', () => {
     await waitForReady(page)
   })
 
-  test('a win shows Win streak: 1 and a second win shows Win streak: 2', async ({
+  test('a win shows Streak 1 and a second win shows Streak 2', async ({
     page,
   }) => {
     await winOnce(page)
-    await expect(page.locator('.banner')).toContainText('Win streak: 1')
+    await expect(streakCell(page).locator('.stat-value')).toHaveText('1')
+    await expect(streakCell(page)).toContainText('Current win streak 1')
     await playAgain(page)
     await winOnce(page)
-    await expect(page.locator('.banner')).toContainText('Win streak: 2')
+    await expect(streakCell(page).locator('.stat-value')).toHaveText('2')
+    await expect(streakCell(page)).toContainText('Current win streak 2')
   })
 
-  test('a loss after a win shows Win streak reset', async ({ page }) => {
+  test('a loss after a win shows the streak reset', async ({ page }) => {
     await winOnce(page)
     await playAgain(page)
     await guessAll(page, WRONG6)
-    await expect(page.locator('.banner')).toContainText('Win streak reset')
+    await waitForResult(page)
+    await expect(resultDialog(page)).toContainText(
+      'Current win streak 0, reset',
+    )
   })
 
   test('a loss with no prior streak shows no streak line', async ({ page }) => {
     await guessAll(page, WRONG6)
+    await waitForResult(page)
+    await expect(resultDialog(page)).toContainText('Current win streak 0')
+    await expect(resultDialog(page)).not.toContainText(', reset')
+    await closeResult(page)
     await expect(page.locator('.banner')).toBeVisible()
     await expect(page.getByText(/Win streak/)).toHaveCount(0)
   })
 
-  test('Give Up after a win shows Win streak reset', async ({ page }) => {
+  test('Give Up after a win shows the streak reset', async ({ page }) => {
     await winOnce(page)
     await playAgain(page)
     await guessAll(page, WRONG6.slice(0, 4))
     await page.getByRole('button', { name: 'Give up' }).click()
     const dialog = page.getByRole('dialog', { name: 'Give up?' })
     await dialog.getByRole('button', { name: 'Give up' }).click()
-    await expect(page.locator('.banner')).toContainText('Win streak reset')
+    await waitForResult(page)
+    await expect(resultDialog(page)).toContainText(
+      'Current win streak 0, reset',
+    )
   })
 
-  test('the counters are saved as a v2 document and a restored game shows no line', async ({
+  test('the counters are saved as a v2 document and a restored game opens no modal', async ({
     page,
   }) => {
     await winOnce(page)
@@ -88,6 +112,7 @@ test.describe('Win Streak (STRK-01, D-12)', () => {
     expect((s.dist as number[])[0]).toBe(2)
     await page.reload()
     await expect(page.locator('.banner')).toBeVisible()
+    await expect(resultDialog(page)).toHaveCount(0)
     await expect(page.getByText(/Win streak/)).toHaveCount(0)
   })
 
@@ -107,6 +132,7 @@ test.describe('Win Streak (STRK-01, D-12)', () => {
 const DAY1 = new Date('2026-06-03T09:00:00')
 
 async function openStats(page: Page) {
+  if ((await resultDialog(page).count()) > 0) await closeResult(page)
   await page.getByRole('button', { name: 'Statistics', exact: true }).click()
   const dialog = page.getByRole('dialog', { name: 'Statistics' })
   await expect(dialog).toBeVisible()

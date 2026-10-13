@@ -1,11 +1,13 @@
 import { expect, test } from '@playwright/test'
 import {
   cell,
+  closeResult,
   fixAnswers,
   guess,
   selectLength,
   turnOnWordubado,
   waitForReady,
+  waitForResult,
 } from './helpers.ts'
 
 test.use({ reducedMotion: 'reduce' })
@@ -89,10 +91,11 @@ test('a finished Board stays finished after switching away and back', async ({
   page,
 }) => {
   await guess(page, 'crane', 1)
-  await expect(page.getByText('You got it in 1 of 6')).toBeVisible()
+  await waitForResult(page)
+  await closeResult(page)
   await selectLength(page, 4)
   await expect(cell(page, 1, 1)).toBeVisible()
   await page.getByRole('radio', { name: /^5 letters/ }).click()
-  await expect(page.getByText('You got it in 1 of 6')).toBeVisible()
+  await expect(page.locator('.banner').getByText('Solved in 1')).toBeVisible()
   await expect(page.getByRole('button', { name: 'Play again' })).toBeVisible()
 })
