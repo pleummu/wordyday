@@ -4,8 +4,10 @@ import {
   fixAnswers,
   fixAnswersWith,
   guess,
+  resultDialog,
   selectLength,
   waitForReady,
+  waitForResult,
 } from './helpers.ts'
 
 test.use({ reducedMotion: 'reduce' })
@@ -71,7 +73,8 @@ test('a reset in one tab resets the other', async ({ context }) => {
 test('a finished game is not re-finished', async ({ context }) => {
   const { a, b } = await twoTabs(context)
   await guess(a, 'crane', 1)
-  await expect(b.getByText('You got it in 1 of 6')).toBeVisible()
+  await expect(b.locator('.banner').getByText('Solved in 1')).toBeVisible()
+  await expect(resultDialog(b)).toHaveCount(0)
   await expect(b.getByRole('button', { name: 'Play again' })).not.toBeFocused()
 })
 
@@ -80,16 +83,18 @@ test('Play again in one tab moves the other tab to the same new game', async ({
 }) => {
   const { a, b } = await twoTabs(context, { b: 'none' })
   await guess(a, 'crane', 1)
-  await expect(b.getByText('You got it in 1 of 6')).toBeVisible()
-  await a.getByRole('button', { name: 'Play again' }).click()
+  await expect(b.locator('.banner').getByText('Solved in 1')).toBeVisible()
+  await expect(resultDialog(b)).toHaveCount(0)
+  await resultDialog(a).getByRole('button', { name: 'Play again' }).click()
   await waitForReady(a)
   await expect(a.getByText(OTHER)).toHaveCount(0)
   await expect(b.getByText(OTHER)).toBeVisible()
   await expect(cell(b, 1, 1)).toHaveAccessibleName(/^Row 1, column 1, empty/)
   await waitForReady(b)
   await guess(a, 'crane', 1)
-  await expect(a.getByText('You got it in 1 of 6')).toBeVisible()
-  await expect(b.getByText('You got it in 1 of 6')).toBeVisible()
+  await waitForResult(a)
+  await expect(b.locator('.banner').getByText('Solved in 1')).toBeVisible()
+  await expect(resultDialog(b)).toHaveCount(0)
 })
 
 test('New game in one tab moves the other tab to the same new game', async ({
@@ -109,8 +114,9 @@ test('New game in one tab moves the other tab to the same new game', async ({
   await waitForReady(b)
   await expect(a.getByText(OTHER)).toHaveCount(0)
   await guess(a, 'crane', 1)
-  await expect(a.getByText('You got it in 1 of 6')).toBeVisible()
-  await expect(b.getByText('You got it in 1 of 6')).toBeVisible()
+  await waitForResult(a)
+  await expect(b.locator('.banner').getByText('Solved in 1')).toBeVisible()
+  await expect(resultDialog(b)).toHaveCount(0)
 })
 
 test('a reset in one tab leaves both tabs on the same game', async ({
@@ -145,6 +151,7 @@ test('a reset in one tab leaves both tabs on the same game', async ({
   // Settings instead of submitting. Move focus off it, as a user would.
   await a.evaluate(() => (document.activeElement as HTMLElement | null)?.blur())
   await guess(a, 'crane', 1)
-  await expect(a.getByText('You got it in 1 of 6')).toBeVisible()
-  await expect(b.getByText('You got it in 1 of 6')).toBeVisible()
+  await waitForResult(a)
+  await expect(b.locator('.banner').getByText('Solved in 1')).toBeVisible()
+  await expect(resultDialog(b)).toHaveCount(0)
 })
