@@ -13,22 +13,50 @@ import {
   waitForResult,
 } from './helpers.ts'
 
-// True when the toast text is the topmost thing at its own centre point.
+// Chromium treats everything outside a modal dialog as inert, so elementFromPoint
+// cannot see a toast that is correctly painted above the dialog. Check the paint
+// instead: sample one pixel inside the toast's padding and compare it with the
+// toast's own opaque surface colour. Under the 32% dark backdrop it would differ.
 async function topmostIsToast(page: Page, text: string): Promise<boolean> {
-  return page.evaluate((t) => {
+  const probe = await page.evaluate((t) => {
     const layer = document.querySelector('.toast-layer')
-    if (!layer) return false
-    const el = Array.from(layer.querySelectorAll('*')).find(
-      (n) => n.textContent === t,
-    )
-    if (!el) return false
+    const el = layer
+      ? Array.from(layer.querySelectorAll<HTMLElement>('.toast')).find(
+          (n) => n.textContent === t,
+        )
+      : undefined
+    if (!el) return null
+    for (const a of el.getAnimations()) {
+      a.pause()
+      a.currentTime = 0.5 * Number(a.effect?.getComputedTiming().duration ?? 0)
+    }
     const r = el.getBoundingClientRect()
-    const hit = document.elementFromPoint(
-      r.left + r.width / 2,
-      r.top + r.height / 2,
-    )
-    return hit !== null && (hit === el || layer.contains(hit))
+    const m = getComputedStyle(el).backgroundColor.match(/\d+/g) ?? []
+    return {
+      x: r.left + r.width / 2,
+      y: r.top + 2,
+      rgb: m.slice(0, 3).map(Number),
+    }
   }, text)
+  if (!probe) return false
+  const png = await page.screenshot({
+    clip: {
+      x: Math.floor(probe.x),
+      y: Math.floor(probe.y),
+      width: 1,
+      height: 1,
+    },
+  })
+  const px = await page.evaluate(async (b64) => {
+    const bytes = Uint8Array.from(atob(b64), (c) => c.charCodeAt(0))
+    const bmp = await createImageBitmap(
+      new Blob([bytes], { type: 'image/png' }),
+    )
+    const ctx = new OffscreenCanvas(bmp.width, bmp.height).getContext('2d')!
+    ctx.drawImage(bmp, 0, 0)
+    return Array.from(ctx.getImageData(0, 0, 1, 1).data.slice(0, 3))
+  }, png.toString('base64'))
+  return px.every((v, i) => Math.abs(v - probe.rgb[i]) <= 2)
 }
 
 test.describe('Copied toast over the modal (D-28)', () => {
@@ -79,7 +107,9 @@ test.describe('Praise toast over the modal, reduced motion', () => {
     await page.clock.runFor(revealDurationMs(5, true) + REVEAL_BUFFER_MS)
     await page.clock.runFor(resultDelayMs('won', 5, true))
     await waitForResult(page)
-    await expect(page.getByText('Unbelievable!')).toBeVisible()
+    await expect(
+      page.locator('.toast-layer').getByText('Unbelievable!'),
+    ).toBeVisible()
     expect(await topmostIsToast(page, 'Unbelievable!')).toBe(true)
   })
 })
@@ -101,10 +131,17 @@ test.describe('Day Streak toast over the modal (D-05)', () => {
     await page.clock.runFor(revealDurationMs(5, false) + REVEAL_BUFFER_MS)
     await page.clock.runFor(resultDelayMs('won', 5, false))
     await waitForResult(page)
-    await expect(page.getByText('Day streak: 1')).toBeVisible()
+    // On a win the Day Streak toast is queued one toast life after the praise
+    // toast, so it lands while the modal is already open.
+    await page.clock.runFor(TOAST_LIFE_MS - resultDelayMs('won', 5, false) + 10)
+    await expect(
+      page.locator('.toast-layer').getByText('Day streak: 1'),
+    ).toBeVisible()
     expect(await topmostIsToast(page, 'Day streak: 1')).toBe(true)
     await page.clock.runFor(TOAST_LIFE_MS)
-    await expect(page.getByText('Day streak: 1')).toBeHidden()
+    await expect(
+      page.locator('.toast-layer').getByText('Day streak: 1'),
+    ).toBeHidden()
     await expect(resultDialog(page)).toBeVisible()
   })
 })

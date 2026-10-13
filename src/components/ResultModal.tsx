@@ -45,6 +45,7 @@ export default function ResultModal() {
   const playAgain = useGameStore((s) => s.playAgain)
   const colourBlind = useGameStore((s) => s.colourBlind)
   const notify = useGameStore((s) => s.notify)
+  const toast = useGameStore((s) => s.toast)
 
   const [copied, setCopied] = useState(false)
   const [fallback, setFallback] = useState<string | null>(null)
@@ -147,6 +148,9 @@ export default function ResultModal() {
         data-flourish={flourish ? '' : undefined}
         onKeyDownCapture={onKeyDownCapture}
       >
+        <p className="visually-hidden" role="status" aria-live="polite">
+          {toast?.kind === 'info' ? toast.text : ''}
+        </p>
         <h2
           id="result-title"
           className="modal-heading result-heading"

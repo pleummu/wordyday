@@ -38,6 +38,7 @@ export default function App() {
   const finishedInSession = useGameStore((s) => s.finishedInSession)
   const openResult = useGameStore((s) => s.openResult)
   const busy = useGameStore(isBusy)
+  const dialog = useGameStore((s) => s.dialog)
 
   const showRow = canForfeit(status, rows.length, BOARD_CONFIG[length].attempts)
 
@@ -54,7 +55,6 @@ export default function App() {
       data-mode={mode}
       data-forfeit={showRow ? 'true' : undefined}
     >
-      <Toast toast={toast} onDismiss={dismissToast} />
       <WordubadoInfo />
       <GiveUpConfirm />
       <NewGameConfirm />
@@ -98,6 +98,12 @@ export default function App() {
           />
         )}
       </div>
+      <Toast
+        toast={toast}
+        onDismiss={dismissToast}
+        raiseKey={dialog}
+        announce={dialog !== 'result'}
+      />
     </div>
   )
 }

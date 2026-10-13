@@ -653,6 +653,21 @@
   pointer-events: none;
 }
 
+.toast-layer[popover] {
+  inset: auto;
+  top: calc(env(safe-area-inset-top) + var(--space-3));
+  left: 0;
+  right: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  overflow: visible;
+  width: auto;
+  height: auto;
+  color: inherit;
+}
+
 .toast {
   max-width: min(calc(100vw - 32px), 360px);
   padding: var(--space-2) var(--space-3);

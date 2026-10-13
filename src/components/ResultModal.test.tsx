@@ -368,3 +368,18 @@ it('colour-blind flag switches the squares', async () => {
   act(() => useGameStore.setState({ colourBlind: false }))
   vi.unstubAllGlobals()
 })
+
+it('holds one live region carrying the info toast text (D-28)', async () => {
+  render(<App />)
+  act(() => finish('won', ['crane']))
+  act(() =>
+    useGameStore.setState({
+      toast: { id: 90, text: 'Copied', kind: 'info' },
+    }),
+  )
+  const regions = within(dialog()).getAllByRole('status')
+  expect(regions).toHaveLength(1)
+  expect(regions[0].textContent).toBe('Copied')
+  act(() => useGameStore.setState({ toast: null }))
+  expect(within(dialog()).getByRole('status').textContent).toBe('')
+})

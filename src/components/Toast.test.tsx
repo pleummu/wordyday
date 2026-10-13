@@ -19,7 +19,9 @@ it('renders an error toast inside role alert', () => {
       onDismiss={() => {}}
     />,
   )
-  expect(screen.getByRole('alert').textContent).toBe('Not in word list')
+  expect(screen.getByRole('alert', { hidden: true }).textContent).toBe(
+    'Not in word list',
+  )
 })
 
 it('renders an info toast inside role status', () => {
@@ -29,7 +31,7 @@ it('renders an info toast inside role status', () => {
       onDismiss={() => {}}
     />,
   )
-  expect(screen.getByRole('status').textContent).toBe('Great')
+  expect(screen.getByRole('status', { hidden: true }).textContent).toBe('Great')
 })
 
 it('renders nothing for null', () => {
@@ -69,7 +71,7 @@ it('a new toast id resets the timer and replaces the text', () => {
       onDismiss={onDismiss}
     />,
   )
-  expect(screen.getByRole('status').textContent).toBe('Two')
+  expect(screen.getByRole('status', { hidden: true }).textContent).toBe('Two')
   act(() => {
     vi.advanceTimersByTime(1000)
   })
@@ -104,8 +106,63 @@ it('sets --toast-life from the default life', () => {
     <Toast toast={{ id: 4, text: 'Hi', kind: 'info' }} onDismiss={() => {}} />,
   )
   expect(
-    (screen.getByRole('status') as HTMLElement).style.getPropertyValue(
-      '--toast-life',
-    ),
+    (
+      screen.getByRole('status', { hidden: true }) as HTMLElement
+    ).style.getPropertyValue('--toast-life'),
   ).toBe('1860')
+})
+
+it('announce false drops role and aria-live', () => {
+  const { container } = render(
+    <Toast
+      toast={{ id: 5, text: 'Quiet', kind: 'info' }}
+      onDismiss={() => {}}
+      announce={false}
+    />,
+  )
+  const el = container.querySelector('.toast')!
+  expect(el.hasAttribute('role')).toBe(false)
+  expect(el.hasAttribute('aria-live')).toBe(false)
+})
+
+it('is a manual popover raised on show and re-raised when raiseKey changes', () => {
+  const show = vi.fn()
+  const hide = vi.fn()
+  HTMLElement.prototype.showPopover = show
+  HTMLElement.prototype.hidePopover = hide
+  const matches = vi
+    .spyOn(HTMLElement.prototype, 'matches')
+    .mockImplementation((q) => q === ':popover-open')
+  try {
+    const toast = { id: 6, text: 'Hi', kind: 'info' as const }
+    const { container, rerender } = render(
+      <Toast toast={toast} onDismiss={() => {}} raiseKey={null} />,
+    )
+    expect(
+      container.querySelector('.toast-layer')!.getAttribute('popover'),
+    ).toBe('manual')
+    expect(show).toHaveBeenCalledTimes(1)
+    hide.mockClear()
+    rerender(<Toast toast={toast} onDismiss={() => {}} raiseKey="result" />)
+    expect(hide).toHaveBeenCalledTimes(1)
+    expect(show).toHaveBeenCalledTimes(2)
+    hide.mockClear()
+    rerender(<Toast toast={null} onDismiss={() => {}} raiseKey="result" />)
+    expect(hide).toHaveBeenCalled()
+  } finally {
+    matches.mockRestore()
+    delete (HTMLElement.prototype as Partial<HTMLElement>).showPopover
+    delete (HTMLElement.prototype as Partial<HTMLElement>).hidePopover
+  }
+})
+
+it('does not throw without the popover API', () => {
+  expect(() =>
+    render(
+      <Toast
+        toast={{ id: 8, text: 'Hi', kind: 'info' }}
+        onDismiss={() => {}}
+      />,
+    ),
+  ).not.toThrow()
 })

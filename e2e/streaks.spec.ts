@@ -152,7 +152,9 @@ test.describe('Day Streak (STRK-02, D-11)', () => {
     await startDay(page)
     await guess(page, 'crane', 1)
     await expect(page.getByRole('status')).toHaveText('Unbelievable!')
-    await expect(page.getByRole('status')).toHaveText('Day streak: 1')
+    await expect(page.locator('.toast-layer .toast')).toHaveText(
+      'Day streak: 1',
+    )
     const dialog = await openStats(page)
     await expect(dialog).toContainText('Day streak 1 · Best 1')
     await expect(dialog).toContainText('Restores left: 3/3')
@@ -161,7 +163,9 @@ test.describe('Day Streak (STRK-02, D-11)', () => {
   test('a second game the same day adds nothing', async ({ page }) => {
     await startDay(page)
     await winOnce(page)
-    await expect(page.getByRole('status')).toHaveText('Day streak: 1')
+    await expect(page.locator('.toast-layer .toast')).toHaveText(
+      'Day streak: 1',
+    )
     await playAgain(page)
     await winOnce(page)
     await expect(page.getByText('Day streak: 2')).toHaveCount(0)
@@ -174,7 +178,9 @@ test.describe('Day Streak (STRK-02, D-11)', () => {
   test('a loss counts (EC-33)', async ({ page }) => {
     await startDay(page)
     await guessAll(page, WRONG6)
-    await expect(page.getByRole('status')).toHaveText('Day streak: 1')
+    await expect(page.locator('.toast-layer .toast')).toHaveText(
+      'Day streak: 1',
+    )
   })
 
   test("yesterday's streak continues", async ({ page }) => {
@@ -182,7 +188,9 @@ test.describe('Day Streak (STRK-02, D-11)', () => {
       dayStreak: { current: 4, longest: 4, lastActiveDate: '2026-06-02' },
     })
     await winOnce(page)
-    await expect(page.getByText('Day streak: 5')).toBeVisible()
+    await expect(
+      page.locator('.toast-layer').getByText('Day streak: 5'),
+    ).toBeVisible()
     const dialog = await openStats(page)
     await expect(dialog).toContainText('Day streak 5 · Best 5')
   })
@@ -190,12 +198,16 @@ test.describe('Day Streak (STRK-02, D-11)', () => {
   test('the next day credits again', async ({ page }) => {
     await startDay(page)
     await winOnce(page)
-    await expect(page.getByText('Day streak: 1')).toBeVisible()
+    await expect(
+      page.locator('.toast-layer').getByText('Day streak: 1'),
+    ).toBeVisible()
     await page.clock.setFixedTime(new Date('2026-06-04T09:00:00'))
     await page.reload()
     await playAgain(page)
     await winOnce(page)
-    await expect(page.getByText('Day streak: 2')).toBeVisible()
+    await expect(
+      page.locator('.toast-layer').getByText('Day streak: 2'),
+    ).toBeVisible()
   })
 
   test.describe('without reduced motion', () => {

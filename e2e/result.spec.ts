@@ -320,7 +320,9 @@ test.describe('Slim banner (D-01, D-05, D-29, D-31)', () => {
   test('D-05 Day Streak toast still fires', async ({ page }) => {
     await start(page)
     await guessAll(page, ['house', 'crane'])
-    await expect(page.getByText('Day streak: 1')).toBeVisible()
+    await expect(
+      page.locator('.toast-layer').getByText('Day streak: 1'),
+    ).toBeVisible()
   })
 })
 
