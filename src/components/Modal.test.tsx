@@ -106,8 +106,18 @@ it('does not steal focus when focus has moved elsewhere', () => {
 it('a native close event while the prop is open calls onClose once', () => {
   const onClose = vi.fn()
   render(<Sample open onClose={onClose} />)
-  document.querySelector('dialog')!.dispatchEvent(new Event('close'))
+  const dialog = document.querySelector('dialog')!
+  dialog.removeAttribute('open')
+  dialog.dispatchEvent(new Event('close'))
   expect(onClose).toHaveBeenCalledTimes(1)
+})
+
+it('a stale close event after the dialog reopened is ignored', () => {
+  const onClose = vi.fn()
+  render(<Sample open onClose={onClose} />)
+  // The dialog is open again when the queued close event of an earlier close() lands.
+  document.querySelector('dialog')!.dispatchEvent(new Event('close'))
+  expect(onClose).not.toHaveBeenCalled()
 })
 
 it('a programmatic close does not call onClose', () => {

@@ -110,7 +110,10 @@ export default function Modal({
         e.preventDefault()
         if (dismissible) onClose()
       }}
-      onClose={() => {
+      onClose={(e) => {
+        // A close event from our own earlier close() can arrive after the dialog was
+        // reopened (the event is queued); the dialog is open again, so ignore it.
+        if (e.currentTarget.open) return
         // Native close with the prop still true = browser closed it (D-14);
         // programmatic closes happen after the prop is false, so skip those.
         if (!openRef.current) return
