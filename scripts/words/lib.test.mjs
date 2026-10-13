@@ -10,6 +10,7 @@ import {
   removeCut,
   markReviewed,
   renderSlangReview,
+  reviewedDefs,
   reviewedSlang,
 } from './lib.mjs'
 
@@ -266,5 +267,21 @@ describe('reviewedSlang', () => {
         5,
       ),
     ).toEqual(['aight', 'rizzy'])
+  })
+})
+
+describe('reviewedDefs', () => {
+  it('keeps reviewed definitions of the length in sorted word order', () => {
+    const out = reviewedDefs(
+      [
+        { word: 'yeet', definition: 'To throw.', reviewed: true },
+        { word: 'zzzz', definition: 'x', reviewed: false },
+        { word: 'bruhs', definition: 'y', reviewed: true },
+        { word: 'bruh', definition: 'Bro.', reviewed: true },
+      ],
+      4,
+    )
+    expect(out).toEqual({ bruh: 'Bro.', yeet: 'To throw.' })
+    expect(Object.keys(out)).toEqual(['bruh', 'yeet'])
   })
 })

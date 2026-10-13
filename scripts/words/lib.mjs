@@ -147,12 +147,23 @@ export function reviewedSlang(entries, length) {
     .sort()
 }
 
-export function serialisePools({ answers, guesses, slang }) {
+export function reviewedDefs(entries, length) {
+  const out = {}
+  for (const e of entries
+    .filter((x) => x.reviewed === true && x.word.length === length)
+    .sort((a, b) => (a.word < b.word ? -1 : a.word > b.word ? 1 : 0))) {
+    out[e.word] = e.definition
+  }
+  return out
+}
+
+export function serialisePools({ answers, guesses, slang, defs }) {
   return (
     JSON.stringify({
       answers: answers.join(' '),
       guesses: guesses.join(' '),
       slang: slang.join(' '),
+      defs,
     }) + '\n'
   )
 }
