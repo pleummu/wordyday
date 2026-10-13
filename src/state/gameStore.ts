@@ -135,6 +135,9 @@ export type GameState = {
   resultPending: boolean
   // Transient: the win flourish plays on this opening (D-22).
   resultFlourish: boolean
+  // Share grid uses orange/blue squares. Transient until Phase 7 adds the
+  // toggle and persistence (D-16).
+  colourBlind: boolean
   // undefined = nothing waiting; null = the other tab reset everything.
   pendingExternal: string | null | undefined
   resume(): Promise<void>
@@ -165,6 +168,7 @@ export type GameState = {
   submit(): SubmitResult
   finishReveal(): void
   dismissToast(id: number): void
+  notify(text: string): void
 }
 
 const ATTEMPTS = (length: WordLength) => BOARD_CONFIG[length].attempts
@@ -460,6 +464,7 @@ export function createGameStore(deps: GameDeps) {
           status: 'loading',
           keyStates: {},
           toast: null,
+          colourBlind: false,
           shakeId: 0,
           shakeRow: -1,
           pools: null,
@@ -1085,6 +1090,10 @@ export function createGameStore(deps: GameDeps) {
               set({ pendingExternal: undefined })
               get().applyExternal(pending)
             }
+          },
+
+          notify(text) {
+            set({ toast: { id: ++toastSeq, text, kind: 'info' } })
           },
 
           dismissToast(id) {

@@ -2070,3 +2070,22 @@ describe('Result modal scheduling (phase 6)', () => {
     expect(raw).not.toContain('resultFlourish')
   })
 })
+
+describe('colourBlind seam and notify (06-03)', () => {
+  it('defaults colourBlind to false and never persists it', async () => {
+    const ctx = await started()
+    expect(ctx.store.getState().colourBlind).toBe(false)
+    type(ctx.store, 'crane')
+    ctx.store.getState().submit()
+    expect(ctx.mem.getItem(SAVE_KEY)!).not.toContain('colourBlind')
+  })
+
+  it('notify sets an info toast with a new id each call', async () => {
+    const ctx = await started()
+    ctx.store.getState().notify('Copied')
+    const a = ctx.store.getState().toast!
+    expect(a).toMatchObject({ text: 'Copied', kind: 'info' })
+    ctx.store.getState().notify('Copied')
+    expect(ctx.store.getState().toast!.id).not.toBe(a.id)
+  })
+})

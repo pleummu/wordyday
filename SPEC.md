@@ -268,7 +268,7 @@ These are cases where the settled rules did not decide the answer. The spec uses
 
 - R-RESULT-1: When a game finishes the player sees whether they won or lost, the answer, attempts used, their stats and a Play again button. Covers: RSLT-01
 - R-RESULT-2: A "Show definition" button is hidden until clicked, in both Modes. Slang words use the curated definition bundled with the app. Common words are looked up from dictionaryapi.dev. On timeout, error or offline, the text "Definition unavailable" is shown. Covers: RSLT-02
-- R-SHARE-1: The share text starts with a header such as `Unlimited Wordle - Wordubado 5 - 4/6`, followed by the emoji grid and the site URL. A loss shows `X/6` style, using the attempts of that Board (`X/5`, `X/6` or `X/7`). Covers: RSLT-03
+- R-SHARE-1: The share text starts with a header: Wordubado `Unlimited Wordle - Wordubado 5 - 4/6`, Normal `Wordle 5 - 4/6` (owner decision 2026-10-05, Phase 6 D-12). The emoji grid and the site URL follow. A loss shows `X/6` style, using the attempts of that Board (`X/5`, `X/6` or `X/7`). Covers: RSLT-03
 - R-SHARE-2: In colour-blind mode the grid uses orange and blue squares instead of green and yellow. Covers: RSLT-03
 - R-SHARE-3: On phones that support it, Share opens the Web Share sheet. Otherwise the text is copied to the clipboard and a "Copied" toast is shown. Covers: RSLT-04
 
