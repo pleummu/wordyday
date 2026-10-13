@@ -300,7 +300,7 @@ Plans:
 **Wave 3** *(blocked on Wave 2 completion)*
 
 - [x] 06-03-PLAN.md — Share text builder, share sheet vs clipboard, "Copied ✓", copy-failure box, SPEC R-SHARE-1 (D-12)
-- [ ] 06-08-PLAN.md — Legacy E2E specs migrated to the auto-opening Result modal (parallel with 06-03)
+- [x] 06-08-PLAN.md — Legacy E2E specs migrated to the auto-opening Result modal (parallel with 06-03)
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
@@ -363,6 +363,6 @@ Plans:
 | 3. Wordubado Mode and Slang | 6/6 | Complete    | 2026-10-02 |
 | 4. Six Boards and Persistence | 12/12 | Complete   | 2026-10-04 |
 | 5. Stats, Streaks and Restore | 8/8 | Complete   | 2026-10-05 |
-| 6. Result Screen, Share and Definitions | 3/8 | In Progress|  |
+| 6. Result Screen, Share and Definitions | 4/8 | In Progress|  |
 | 7. Themes, Accessibility and Polish | 0/TBD | Not started | - |
 | 8. E2E, CI Hardening and Pipeline Docs | 0/TBD | Not started | - |
