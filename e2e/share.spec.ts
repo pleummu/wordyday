@@ -191,8 +191,11 @@ test.describe('Copy failure (D-19)', () => {
     const dlg = resultDialog(page)
     const box = dlg.getByRole('textbox', { name: 'Share text' })
     await box.focus()
+    // The textarea is the last control, so Tab wraps to the first one (Show definition).
     await page.keyboard.press('Tab')
-    await expect(shareButton(page)).toBeFocused()
+    await expect(
+      dlg.getByRole('button', { name: 'Show definition' }),
+    ).toBeFocused()
     await page.keyboard.press('Shift+Tab')
     await expect(box).toBeFocused()
   })
