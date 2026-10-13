@@ -312,7 +312,7 @@ Plans:
 
 **Wave 6** *(blocked on Wave 5 completion)*
 
-- [ ] 06-06-PLAN.md — Curated slang definitions in the lazy chunks (D-08), check:bundle sentinel
+- [x] 06-06-PLAN.md — Curated slang definitions in the lazy chunks (D-08), check:bundle sentinel
 
 **Wave 7** *(blocked on Wave 6 completion)*
 
@@ -363,6 +363,6 @@ Plans:
 | 3. Wordubado Mode and Slang | 6/6 | Complete    | 2026-10-02 |
 | 4. Six Boards and Persistence | 12/12 | Complete   | 2026-10-04 |
 | 5. Stats, Streaks and Restore | 8/8 | Complete   | 2026-10-05 |
-| 6. Result Screen, Share and Definitions | 6/8 | In Progress|  |
+| 6. Result Screen, Share and Definitions | 7/8 | In Progress|  |
 | 7. Themes, Accessibility and Polish | 0/TBD | Not started | - |
 | 8. E2E, CI Hardening and Pipeline Docs | 0/TBD | Not started | - |
