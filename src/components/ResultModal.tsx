@@ -149,7 +149,7 @@ export default function ResultModal() {
         onKeyDownCapture={onKeyDownCapture}
       >
         <p className="visually-hidden" role="status" aria-live="polite">
-          {toast?.kind === 'info' ? toast.text : ''}
+          {open && toast?.kind === 'info' ? toast.text : ''}
         </p>
         <h2
           id="result-title"
