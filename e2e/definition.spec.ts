@@ -1,11 +1,14 @@
+import { readFileSync } from 'node:fs'
 import { expect, test, type Page } from '@playwright/test'
 import { expectNoA11yViolations } from './axe.ts'
 import {
   closeResult,
   fixAnswers,
+  fixAnswersWith,
   guess,
   resultDialog,
   selectLength,
+  turnOnWordubado,
   waitForReady,
   waitForResult,
 } from './helpers.ts'
@@ -294,4 +297,86 @@ test('320x500 fits', async ({ page }) => {
   const again = resultDialog(page).getByRole('button', { name: 'Play again' })
   await again.scrollIntoViewIfNeeded()
   await expect(again).toBeInViewport()
+})
+
+type SlangEntry = {
+  word: string
+  definition: string
+  crude: boolean
+  reviewed: boolean
+}
+const slangEntries = JSON.parse(
+  readFileSync(new URL('../scripts/words/slang.json', import.meta.url), 'utf8'),
+) as SlangEntry[]
+
+async function revealWubado(page: Page, word: string) {
+  const n = word.length as 4 | 5 | 6
+  await fixAnswersWith(page, { [n]: word })
+  await page.goto('/')
+  await waitForReady(page)
+  await turnOnWordubado(page)
+  if (n !== 5) await selectLength(page, n)
+  await guess(page, word, 1)
+  await waitForResult(page)
+  await showBtn(page).click()
+}
+
+test.describe('Curated slang definitions (D-08, D-11)', () => {
+  test('Wordubado slang answer shows the curated meaning with no request', async ({
+    page,
+  }) => {
+    const stub = await stubDictionary(page, 'ok')
+    await revealWubado(page, 'aight')
+    const r = region(page)
+    await expect(r).toContainText('A casual way of saying all right.')
+    await expect(r).not.toContainText('Source: dictionaryapi.dev')
+    await expect(r).not.toContainText('noun')
+    expect(stub.count).toBe(0)
+  })
+
+  test('a crude entry displays the same way (D-11)', async ({ page }) => {
+    const stub = await stubDictionary(page, 'ok')
+    const entry = slangEntries.find((e) => e.crude && e.reviewed)!
+    await revealWubado(page, entry.word)
+    const r = region(page)
+    await expect(r).toContainText(entry.definition)
+    expect(((await r.textContent()) ?? '').trim()).toBe(entry.definition)
+    expect(stub.count).toBe(0)
+  })
+
+  test('Wordubado common answer uses the dictionary', async ({ page }) => {
+    const stub = await stubDictionary(page, 'ok')
+    await page.goto('/')
+    await waitForReady(page)
+    await turnOnWordubado(page)
+    await guess(page, 'crane', 1)
+    await waitForResult(page)
+    await showBtn(page).click()
+    await expect(region(page)).toContainText('noun')
+    await expect(region(page)).toContainText('Source: dictionaryapi.dev')
+    expect(stub.count).toBe(1)
+  })
+
+  test('Normal answers never use curated text', async ({ page }) => {
+    const stub = await stubDictionary(page, 'ok')
+    await finish(page)
+    await showBtn(page).click()
+    await expect(region(page)).toContainText('noun')
+    expect(stub.count).toBe(1)
+  })
+
+  test('curated text stays revealed on reopen', async ({ page }) => {
+    const stub = await stubDictionary(page, 'ok')
+    await revealWubado(page, 'aight')
+    await expect(region(page)).toContainText(
+      'A casual way of saying all right.',
+    )
+    await closeResult(page)
+    await page.getByRole('button', { name: 'See result' }).click()
+    await waitForResult(page)
+    await expect(region(page)).toContainText(
+      'A casual way of saying all right.',
+    )
+    expect(stub.count).toBe(0)
+  })
 })
