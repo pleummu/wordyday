@@ -1,9 +1,9 @@
 ---
 phase: 6
 slug: result-screen-share-and-definitions
-status: draft
-nyquist_compliant: false
-wave_0_complete: false
+status: complete
+nyquist_compliant: true
+wave_0_complete: true
 created: 2026-10-12
 ---
 
@@ -38,17 +38,17 @@ created: 2026-10-12
 
 | Task ID | Plan | Wave | Requirement | Threat Ref | Secure Behavior | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|------------|-----------------|-----------|-------------------|-------------|--------|
-| TBD | TBD | TBD | RSLT-01 | — | N/A | component | `npx vitest run src/components/ResultModal.test.tsx` | ❌ W0 | ⬜ pending |
-| TBD | TBD | TBD | RSLT-01 | — | Answer not exposed before game ends | unit | `npx vitest run src/state/gameStore.test.ts -t result` | ✅ extend | ⬜ pending |
-| TBD | TBD | TBD | RSLT-01 | — | N/A | component | `npx vitest run src/components/Banner.test.tsx` | ✅ rewrite | ⬜ pending |
-| TBD | TBD | TBD | RSLT-01 | — | N/A | e2e | `npx playwright test e2e/result.spec.ts e2e/layout.spec.ts` | ❌ W0 / ✅ extend | ⬜ pending |
-| TBD | TBD | TBD | RSLT-02 | — | Defs not in entry bundle | script/unit | `npx vitest run scripts/words/lib.test.mjs src/data/wordData.test.ts && npm run build && npm run check:bundle` | ✅ extend | ⬜ pending |
-| TBD | TBD | TBD | RSLT-02 | XSS via API text / outage | Shape guard, React text only, 5 s timeout | unit | `npx vitest run src/logic/definition.test.ts` | ❌ W0 | ⬜ pending |
-| TBD | TBD | TBD | RSLT-02 | — | N/A | component | `npx vitest run src/components/ResultModal.test.tsx -t definition` | ❌ W0 | ⬜ pending |
-| TBD | TBD | TBD | RSLT-02 | — | No network call for curated slang | e2e | `npx playwright test e2e/result.spec.ts -g definition` | ❌ W0 | ⬜ pending |
-| TBD | TBD | TBD | RSLT-03 | Share text injection | Built from own state; no letters in grid | unit | `npx vitest run src/logic/share.test.ts` | ❌ W0 | ⬜ pending |
-| TBD | TBD | TBD | RSLT-04 | — | N/A | unit/component | `npx vitest run src/logic/share.test.ts src/components/ResultModal.test.tsx -t share` | ❌ W0 | ⬜ pending |
-| TBD | TBD | TBD | RSLT-04 | — | N/A | e2e | `npx playwright test e2e/result.spec.ts -g share` | ❌ W0 | ⬜ pending |
+| 06-01 T1-2 | 06-01 | 1 | RSLT-01 | — | N/A | component | `npx vitest run src/components/ResultModal.test.tsx` | ✅ | ✅ green |
+| 06-01 | 06-01 | 1 | RSLT-01 | T-06-01 | Answer not exposed before game ends | unit | `npx vitest run src/state/gameStore.test.ts -t result` | ✅ | ✅ green |
+| 06-02 | 06-02 | 2 | RSLT-01 | T-06-04 | N/A | component | `npx vitest run src/components/Banner.test.tsx` | ✅ | ✅ green |
+| 06-02, 06-08 | 06-02/06-08 | 2/8 | RSLT-01 | T-06-05 | N/A | e2e | `npx playwright test e2e/result.spec.ts e2e/layout.spec.ts` | ✅ | ✅ green |
+| 06-06 | 06-06 | 6 | RSLT-02 | T-06-17 | Defs not in entry bundle | script/unit | `npx vitest run scripts/words/lib.test.mjs scripts/words/pools.test.mjs src/data/wordData.test.ts && npm run build && npm run check:bundle` | ✅ | ✅ green |
+| 06-05 | 06-05 | 5 | RSLT-02 | T-06-12 | XSS via API text / outage: shape guard, React text only, 5 s timeout | unit | `npx vitest run src/logic/definition.test.ts` | ✅ | ✅ green |
+| 06-05 | 06-05 | 5 | RSLT-02 | T-06-13 | N/A | component | `npx vitest run src/components/ResultModal.test.tsx src/components/DefinitionPanel.test.tsx` | ✅ | ✅ green |
+| 06-05, 06-06 | 06-05/06-06 | 5/6 | RSLT-02 | T-06-18 | No network call for curated slang | e2e | `npx playwright test e2e/definition.spec.ts` | ✅ | ✅ green |
+| 06-01 | 06-01 | 1 | RSLT-03 | T-06-02 | Share text built from own state; no letters in grid | unit | `npx vitest run src/logic/share.test.ts src/logic/timing.test.ts` | ✅ | ✅ green |
+| 06-03 | 06-03 | 3 | RSLT-04 | T-06-06 | N/A | unit/component | `npx vitest run src/logic/share.test.ts src/components/ResultModal.test.tsx src/components/Modal.test.tsx` | ✅ | ✅ green |
+| 06-03, 06-04 | 06-03/06-04 | 3/4 | RSLT-04 | T-06-10 | N/A | e2e | `npx playwright test e2e/share.spec.ts e2e/toast.spec.ts` | ✅ | ✅ green |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
 
@@ -56,12 +56,12 @@ created: 2026-10-12
 
 ## Wave 0 Requirements
 
-- [ ] `src/logic/share.test.ts` — stubs for RSLT-03, RSLT-04
-- [ ] `src/logic/definition.test.ts` — stubs for RSLT-02
-- [ ] `src/components/ResultModal.test.tsx` — stubs for RSLT-01, RSLT-02, RSLT-04
-- [ ] `e2e/result.spec.ts` — stubs for RSLT-01..04
-- [ ] Extend `e2e/layout.spec.ts`, `src/state/gameStore.test.ts`, `scripts/words/lib.test.mjs`, `src/data/wordData.test.ts`, `Banner.test.tsx`, `App.test.tsx`, `Modal.test.tsx` (textarea Tab trap), `Toast.test.tsx`
-- [ ] No new framework install
+- [x] `src/logic/share.test.ts` — stubs for RSLT-03, RSLT-04
+- [x] `src/logic/definition.test.ts` — stubs for RSLT-02
+- [x] `src/components/ResultModal.test.tsx` — stubs for RSLT-01, RSLT-02, RSLT-04
+- [x] `e2e/result.spec.ts` — stubs for RSLT-01..04
+- [x] Extend `e2e/layout.spec.ts`, `src/state/gameStore.test.ts`, `scripts/words/lib.test.mjs`, `src/data/wordData.test.ts`, `Banner.test.tsx`, `App.test.tsx`, `Modal.test.tsx` (textarea Tab trap), `Toast.test.tsx`
+- [x] No new framework install
 
 ---
 
@@ -76,11 +76,11 @@ created: 2026-10-12
 
 ## Validation Sign-Off
 
-- [ ] All tasks have `<automated>` verify or Wave 0 dependencies
-- [ ] Sampling continuity: no 3 consecutive tasks without automated verify
-- [ ] Wave 0 covers all MISSING references
-- [ ] No watch-mode flags
-- [ ] Feedback latency < 120s
-- [ ] `nyquist_compliant: true` set in frontmatter
+- [x] All tasks have `<automated>` verify or Wave 0 dependencies
+- [x] Sampling continuity: no 3 consecutive tasks without automated verify
+- [x] Wave 0 covers all MISSING references
+- [x] No watch-mode flags
+- [x] Feedback latency < 120s
+- [x] `nyquist_compliant: true` set in frontmatter
 
-**Approval:** pending
+**Approval:** automated gate green; manual-only checks pending owner sign-off (06-07 Task 2)
