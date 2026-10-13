@@ -107,3 +107,10 @@ export const resultWinHeading = (n: number, max: number) =>
 export const OUT_OF_GUESSES = 'Out of guesses'
 export const YOU_GAVE_UP = 'You gave up'
 export const WORD_WAS_PREFIX = 'The word was '
+
+export const SHARE = 'Share'
+export const COPIED_LABEL = 'Copied'
+export const COPIED_TOAST = 'Copied'
+export const COPY_FAILED_NOTE = "Couldn't copy. Select the text and copy it."
+export const SHARE_TEXT_LABEL = 'Share text'
+export const COPIED_MS = 2000

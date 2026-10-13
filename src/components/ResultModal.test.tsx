@@ -257,3 +257,114 @@ it('Play again starts a new game and closes the modal', async () => {
   expect(useGameStore.getState().rows).toEqual([])
   screen.getByRole('button', { name: 'Enter' })
 })
+
+function stubClipboard(writeText: (t: string) => Promise<void>) {
+  vi.stubGlobal('navigator', {
+    ...navigator,
+    share: undefined,
+    maxTouchPoints: 0,
+    clipboard: { writeText },
+  })
+}
+
+const flushAsync = async () => {
+  await act(async () => {
+    await Promise.resolve()
+    await Promise.resolve()
+  })
+}
+
+it('actions row is Share then Play again, Play again keeps initial focus', () => {
+  render(<App />)
+  act(() => finish('won', ['crane']))
+  const btns = Array.from(
+    dialog().querySelectorAll('.result-actions button'),
+  ) as HTMLElement[]
+  expect(
+    btns.map((b) => b.getAttribute('aria-label') ?? b.textContent),
+  ).toEqual(['Share', 'Play again'])
+  expect(btns[1].hasAttribute('data-initial-focus')).toBe(true)
+  expect(btns[0].hasAttribute('data-initial-focus')).toBe(false)
+})
+
+it('Share copies the grid, shows Copied then reverts', async () => {
+  vi.useFakeTimers()
+  try {
+    const writeText = vi.fn().mockResolvedValue(undefined)
+    stubClipboard(writeText)
+    render(<App />)
+    act(() => finish('won', ['house', 'crane']))
+    const btn = within(dialog()).getByRole('button', { name: 'Share' })
+    fireEvent.click(btn)
+    expect(writeText).toHaveBeenCalledTimes(1)
+    expect(writeText.mock.calls[0][0]).toBe(
+      `Wordle 5 - 2/6
+
+${score('crane', 'house')
+  .map((s) => (s === 'correct' ? '🟩' : s === 'present' ? '🟨' : '⬜'))
+  .join('')}
+🟩🟩🟩🟩🟩
+
+${window.location.origin}`,
+    )
+    await flushAsync()
+    expect(btn.textContent).toBe('Copied ✓')
+    expect(btn.getAttribute('aria-label')).toBe('Share')
+    expect(useGameStore.getState().toast?.text).toBe('Copied')
+    act(() => {
+      vi.advanceTimersByTime(2000)
+    })
+    expect(btn.textContent).toBe('Share')
+  } finally {
+    vi.useRealTimers()
+    vi.unstubAllGlobals()
+  }
+})
+
+it('copy failure shows the note and a focused readonly textarea, cleared on close', async () => {
+  stubClipboard(() => Promise.reject(new Error('blocked')))
+  render(<App />)
+  act(() => finish('won', ['crane']))
+  fireEvent.click(within(dialog()).getByRole('button', { name: 'Share' }))
+  await flushAsync()
+  const box = within(dialog()).getByRole('textbox', {
+    name: 'Share text',
+  }) as HTMLTextAreaElement
+  expect(dialog().textContent).toContain(
+    "Couldn't copy. Select the text and copy it.",
+  )
+  expect(box.readOnly).toBe(true)
+  expect(box.value.startsWith('Wordle 5 - 1/6')).toBe(true)
+  expect(document.activeElement).toBe(box)
+  expect(box.getAttribute('aria-describedby')).toBe('share-note')
+  act(() => useGameStore.setState({ dialog: null }))
+  act(() => useGameStore.setState({ dialog: 'result' }))
+  expect(screen.queryByRole('textbox', { name: 'Share text' })).toBeNull()
+  vi.unstubAllGlobals()
+})
+
+it('Play again removes the fallback box', async () => {
+  stubClipboard(() => Promise.reject(new Error('blocked')))
+  render(<App />)
+  act(() => finish('won', ['crane']))
+  fireEvent.click(within(dialog()).getByRole('button', { name: 'Share' }))
+  await flushAsync()
+  await act(async () => {
+    fireEvent.click(
+      within(dialog()).getByRole('button', { name: 'Play again' }),
+    )
+  })
+  expect(screen.queryByRole('textbox', { name: 'Share text' })).toBeNull()
+  vi.unstubAllGlobals()
+})
+
+it('colour-blind flag switches the squares', async () => {
+  const writeText = vi.fn().mockResolvedValue(undefined)
+  stubClipboard(writeText)
+  render(<App />)
+  act(() => finish('won', ['crane'], { colourBlind: true }))
+  fireEvent.click(within(dialog()).getByRole('button', { name: 'Share' }))
+  expect(writeText.mock.calls[0][0]).toContain('🟧')
+  act(() => useGameStore.setState({ colourBlind: false }))
+  vi.unstubAllGlobals()
+})

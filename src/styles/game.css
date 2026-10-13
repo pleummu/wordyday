@@ -1196,3 +1196,31 @@ dialog.modal[open]:has(.result-panel[data-flourish]) {
     animation: modal-fade-in 120ms linear;
   }
 }
+
+.result-note {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--color-text);
+}
+
+.share-fallback {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 80px;
+  padding: var(--space-2);
+  background: var(--color-surface);
+  border: 1px solid var(--tile-empty-border);
+  border-radius: var(--radius-tile-sm);
+  color: var(--color-text);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.5;
+  resize: none;
+}
+
+.share-fallback:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}

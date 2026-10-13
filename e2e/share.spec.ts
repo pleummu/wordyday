@@ -39,7 +39,9 @@ async function start(page: Page) {
 }
 
 async function readClipboard(page: Page): Promise<string> {
-  return page.evaluate(() => navigator.clipboard.readText())
+  // Windows Chromium hands the clipboard back with CRLF line endings.
+  const raw = await page.evaluate(() => navigator.clipboard.readText())
+  return raw.split('\r\n').join('\n')
 }
 
 async function giveUpAfter(page: Page, words: string[]) {

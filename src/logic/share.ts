@@ -41,9 +41,7 @@ export type TouchEnv = {
 }
 
 export function isTouchFirst(env: TouchEnv): boolean {
-  return (
-    typeof env.share === 'function' && env.coarse && env.maxTouchPoints > 0
-  )
+  return typeof env.share === 'function' && env.coarse && env.maxTouchPoints > 0
 }
 
 export type ShareEnv = {

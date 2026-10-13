@@ -165,3 +165,21 @@ it('dismissible false: a native close while open re-opens the dialog', () => {
   expect(onClose).not.toHaveBeenCalled()
   spy.mockRestore()
 })
+
+it('includes a textarea in the Tab trap', () => {
+  render(
+    <Modal open onClose={() => {}} titleId="t" bodyId="b">
+      <h2 id="t">Title</h2>
+      <p id="b">Body</p>
+      <button data-initial-focus>first</button>
+      <textarea aria-label="box" readOnly value="x" />
+    </Modal>,
+  )
+  const first = screen.getByText('first')
+  const box = screen.getByLabelText('box')
+  box.focus()
+  fireEvent.keyDown(box, { key: 'Tab' })
+  expect(document.activeElement).toBe(first)
+  fireEvent.keyDown(first, { key: 'Tab', shiftKey: true })
+  expect(document.activeElement).toBe(box)
+})

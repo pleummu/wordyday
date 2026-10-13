@@ -86,8 +86,8 @@ export default function Modal({
   function onKeyDown(e: KeyboardEvent<HTMLDialogElement>) {
     if (e.key !== 'Tab') return
     const buttons = Array.from(
-      e.currentTarget.querySelectorAll<HTMLButtonElement>('button'),
-    ).filter((b) => !b.disabled)
+      e.currentTarget.querySelectorAll<HTMLElement>('button, textarea'),
+    ).filter((b) => !(b as HTMLButtonElement | HTMLTextAreaElement).disabled)
     if (buttons.length === 0) return
     const first = buttons[0]
     const last = buttons[buttons.length - 1]

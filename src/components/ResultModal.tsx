@@ -1,15 +1,23 @@
+import { useEffect, useMemo, useRef, useState } from 'react'
 import type { KeyboardEvent } from 'react'
 import { BOARD_CONFIG } from '../logic/boards'
+import { buildShareText, isTouchFirst, runShare } from '../logic/share'
 import { deriveStats } from '../logic/stats'
 import {
   BEST,
   BEST_FULL,
+  COPIED_LABEL,
+  COPIED_MS,
+  COPIED_TOAST,
+  COPY_FAILED_NOTE,
   EM_DASH,
   GUESS_DISTRIBUTION,
   NO_WINS_YET,
   OUT_OF_GUESSES,
   PLAYED,
   PLAY_AGAIN,
+  SHARE,
+  SHARE_TEXT_LABEL,
   STREAK,
   WIN_PCT,
   WIN_PCT_FULL,
@@ -35,6 +43,34 @@ export default function ResultModal() {
   const flourish = useGameStore((s) => s.resultFlourish)
   const closeDialog = useGameStore((s) => s.closeDialog)
   const playAgain = useGameStore((s) => s.playAgain)
+  const colourBlind = useGameStore((s) => s.colourBlind)
+  const notify = useGameStore((s) => s.notify)
+
+  const [copied, setCopied] = useState(false)
+  const [fallback, setFallback] = useState<string | null>(null)
+  const [wasOpen, setWasOpen] = useState(open)
+  const boxRef = useRef<HTMLTextAreaElement>(null)
+  if (wasOpen !== open) {
+    setWasOpen(open)
+    if (!open) {
+      setCopied(false)
+      setFallback(null)
+    }
+  }
+
+  useEffect(() => {
+    if (!copied) return
+    const t = setTimeout(() => setCopied(false), COPIED_MS)
+    return () => clearTimeout(t)
+  }, [copied])
+
+  useEffect(() => {
+    const box = boxRef.current
+    if (fallback === null || !box) return
+    box.focus()
+    box.select()
+    box.scrollIntoView?.({ block: 'nearest' })
+  }, [fallback])
 
   const attempts = BOARD_CONFIG[length].attempts
   const v = deriveStats(stats, mode, length)
@@ -44,6 +80,46 @@ export default function ResultModal() {
       : status === 'lost'
         ? OUT_OF_GUESSES
         : YOU_GAVE_UP
+
+  // Built during render so nothing is awaited inside the click (iOS activation).
+  const shareText = useMemo(
+    () =>
+      buildShareText({
+        mode,
+        length,
+        rows: rows.map((r) => r.states),
+        maxAttempts: attempts,
+        outcome: status as 'won' | 'lost' | 'gave-up',
+        colourBlind,
+        origin: window.location.origin,
+      }),
+    [mode, length, rows, attempts, status, colourBlind],
+  )
+
+  function onShare() {
+    const nav = navigator
+    runShare(
+      shareText,
+      {
+        touchFirst: isTouchFirst({
+          share: nav.share,
+          coarse: globalThis.matchMedia?.('(pointer: coarse)').matches ?? false,
+          maxTouchPoints: nav.maxTouchPoints ?? 0,
+        }),
+        share: nav.share ? (d) => nav.share(d) : undefined,
+        writeText: nav.clipboard
+          ? (t) => nav.clipboard.writeText(t)
+          : undefined,
+      },
+      {
+        copied: () => {
+          notify(COPIED_TOAST)
+          setCopied(true)
+        },
+        failed: () => setFallback(shareText),
+      },
+    )
+  }
 
   const reset =
     finishedInSession &&
@@ -114,10 +190,28 @@ export default function ResultModal() {
           <button
             type="button"
             className="modal-button"
+            data-variant="secondary"
+            data-own-enter
+            aria-label={SHARE}
+            onClick={onShare}
+          >
+            {copied ? (
+              <span aria-hidden="true">
+                {COPIED_LABEL} <span aria-hidden="true">✓</span>
+              </span>
+            ) : (
+              SHARE
+            )}
+          </button>
+          <button
+            type="button"
+            className="modal-button"
             data-variant="primary"
             data-initial-focus=""
             data-own-enter
             onClick={() => {
+              setCopied(false)
+              setFallback(null)
               playAgain()
               if (document.activeElement instanceof HTMLElement) {
                 document.activeElement.blur()
@@ -127,6 +221,22 @@ export default function ResultModal() {
             {PLAY_AGAIN}
           </button>
         </div>
+        {fallback !== null && (
+          <>
+            <p id="share-note" className="result-note">
+              {COPY_FAILED_NOTE}
+            </p>
+            <textarea
+              ref={boxRef}
+              className="share-fallback"
+              readOnly
+              rows={3}
+              aria-label={SHARE_TEXT_LABEL}
+              aria-describedby="share-note"
+              value={fallback}
+            />
+          </>
+        )}
       </div>
     </Modal>
   )
