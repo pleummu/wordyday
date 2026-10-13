@@ -383,3 +383,34 @@ it('holds one live region carrying the info toast text (D-28)', async () => {
   act(() => useGameStore.setState({ toast: null }))
   expect(within(dialog()).getByRole('status').textContent).toBe('')
 })
+
+it('Show definition reveals the panel focused (06-05)', async () => {
+  const lookup = vi.fn(() => new Promise(() => {}))
+  vi.spyOn(globalThis, 'fetch').mockImplementation(
+    lookup as unknown as typeof fetch,
+  )
+  render(<App />)
+  act(() => finish('won', ['house', 'crane']))
+  const dlg = within(dialog())
+  expect(lookup).not.toHaveBeenCalled()
+  fireEvent.click(dlg.getByRole('button', { name: 'Show definition' }))
+  expect(useGameStore.getState().definitionShown).toBe(true)
+  const region = dlg.getByRole('region', { name: 'Definition' })
+  expect(document.activeElement).toBe(region)
+  expect(dlg.queryByRole('button', { name: 'Show definition' })).toBeNull()
+  vi.restoreAllMocks()
+})
+
+it('an already revealed definition renders on open and Play again keeps focus (06-05)', () => {
+  vi.spyOn(globalThis, 'fetch').mockImplementation(
+    (() => new Promise(() => {})) as unknown as typeof fetch,
+  )
+  render(<App />)
+  act(() => finish('won', ['house', 'crane'], { definitionShown: true }))
+  const dlg = within(dialog())
+  expect(dlg.getByRole('region', { name: 'Definition' })).toBeTruthy()
+  expect(document.activeElement).toBe(
+    dlg.getByRole('button', { name: 'Play again' }),
+  )
+  vi.restoreAllMocks()
+})

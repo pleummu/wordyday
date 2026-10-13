@@ -17,6 +17,7 @@ import {
   PLAYED,
   PLAY_AGAIN,
   SHARE,
+  SHOW_DEFINITION,
   SHARE_TEXT_LABEL,
   STREAK,
   WIN_PCT,
@@ -27,6 +28,7 @@ import {
   streakFull,
 } from '../state/copy'
 import { useGameStore } from '../state/gameStore'
+import DefinitionPanel from './DefinitionPanel'
 import Modal from './Modal'
 import { DistChart, Stat } from './StatsBlock'
 
@@ -46,9 +48,12 @@ export default function ResultModal() {
   const colourBlind = useGameStore((s) => s.colourBlind)
   const notify = useGameStore((s) => s.notify)
   const toast = useGameStore((s) => s.toast)
+  const definitionShown = useGameStore((s) => s.definitionShown)
+  const showDefinition = useGameStore((s) => s.showDefinition)
 
   const [copied, setCopied] = useState(false)
   const [fallback, setFallback] = useState<string | null>(null)
+  const [justRevealed, setJustRevealed] = useState(false)
   const [wasOpen, setWasOpen] = useState(open)
   const boxRef = useRef<HTMLTextAreaElement>(null)
   if (wasOpen !== open) {
@@ -56,6 +61,7 @@ export default function ResultModal() {
     if (!open) {
       setCopied(false)
       setFallback(null)
+      setJustRevealed(false)
     }
   }
 
@@ -162,6 +168,23 @@ export default function ResultModal() {
           <span className="visually-hidden">{WORD_WAS_PREFIX}</span>
           {answer}
         </p>
+        {!definitionShown && (
+          <button
+            type="button"
+            className="modal-button result-define"
+            data-variant="secondary"
+            data-own-enter
+            onClick={() => {
+              setJustRevealed(true)
+              showDefinition()
+            }}
+          >
+            {SHOW_DEFINITION}
+          </button>
+        )}
+        {definitionShown && open && (
+          <DefinitionPanel word={answer} focusOnMount={justRevealed} />
+        )}
         <div className="stat-row" data-cells={4}>
           <Stat value={String(v.played)} label={PLAYED} />
           <Stat

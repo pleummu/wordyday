@@ -1239,3 +1239,78 @@ dialog.modal[open]:has(.result-panel[data-flourish]) {
   outline: 2px solid var(--color-focus);
   outline-offset: 2px;
 }
+
+.result-define {
+  width: 100%;
+}
+
+.definition {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-2) var(--space-3);
+  border: 0;
+  border-radius: var(--radius-tile);
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+
+.definition:focus-visible {
+  outline: 2px solid var(--color-focus);
+}
+
+.definition-senses {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  margin: 0;
+}
+
+.definition-row {
+  display: grid;
+  grid-template-columns: 80px 1fr;
+  column-gap: var(--space-2);
+}
+
+.definition-row dt {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.definition-row dd {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 400;
+}
+
+.definition-credit {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 400;
+  text-align: end;
+}
+
+.definition-status {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.definition-retry {
+  align-self: flex-start;
+  min-width: 96px;
+  height: 36px;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: var(--color-bg);
+  color: var(--color-text);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.definition-retry:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}

@@ -135,6 +135,8 @@ export type GameState = {
   resultPending: boolean
   // Transient: the win flourish plays on this opening (D-22).
   resultFlourish: boolean
+  // Transient: the dictionary definition was revealed on this Board (D-24, D-25).
+  definitionShown: boolean
   // Share grid uses orange/blue squares. Transient until Phase 7 adds the
   // toggle and persistence (D-16).
   colourBlind: boolean
@@ -152,6 +154,7 @@ export type GameState = {
   openSettings(): void
   openStats(): void
   openResult(): void
+  showDefinition(): void
   openReset(): void
   cancelReset(): void
   resetAll(): void
@@ -425,6 +428,7 @@ export function createGameStore(deps: GameDeps) {
             dialog: null,
             resultPending: false,
             resultFlourish: false,
+            definitionShown: false,
           })
           if (!saved) {
             await get().startGame(length, mode)
@@ -485,6 +489,7 @@ export function createGameStore(deps: GameDeps) {
           pendingExternal: undefined,
           resultPending: false,
           resultFlourish: false,
+          definitionShown: false,
 
           async resume() {
             await loadBoard()
@@ -631,6 +636,11 @@ export function createGameStore(deps: GameDeps) {
             set({ dialog: 'result', resultFlourish: false })
           },
 
+          showDefinition() {
+            if (get().dialog !== 'result') return
+            set({ definitionShown: true })
+          },
+
           openReset() {
             if (get().dialog !== 'settings') return
             set({ dialog: 'reset' })
@@ -659,6 +669,7 @@ export function createGameStore(deps: GameDeps) {
               breakNotice: false,
               resultPending: false,
               resultFlourish: false,
+              definitionShown: false,
               dialog: null,
               infoOpen: false,
               mode: 'normal',
@@ -743,6 +754,7 @@ export function createGameStore(deps: GameDeps) {
                 pendingExternal: undefined,
                 resultPending: false,
                 resultFlourish: false,
+                definitionShown: false,
                 dialog: closeConfirms(s0.dialog),
               })
               void get().startGame(s0.length, s0.mode)
@@ -818,6 +830,7 @@ export function createGameStore(deps: GameDeps) {
                 finishedInSession: false,
                 resultPending: false,
                 resultFlourish: false,
+                definitionShown: false,
                 shakeRow: -1,
                 toast: toast(),
                 dialog: closeConfirms(state.dialog),
@@ -914,6 +927,7 @@ export function createGameStore(deps: GameDeps) {
               dialog: null,
               resultPending: false,
               resultFlourish: false,
+              definitionShown: false,
             })
             try {
               const pools = await deps.loadPools(length)

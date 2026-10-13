@@ -2089,3 +2089,50 @@ describe('colourBlind seam and notify (06-03)', () => {
     expect(ctx.store.getState().toast!.id).not.toBe(a.id)
   })
 })
+
+describe('definitionShown (06-05)', () => {
+  async function finishedResult() {
+    const ctx = await started()
+    type(ctx.store, 'crane')
+    ctx.store.getState().submit()
+    ctx.store.getState().finishReveal()
+    ctx.timers[ctx.timers.length - 1].fn()
+    return ctx
+  }
+
+  it('is false initially and showDefinition needs the result dialog', async () => {
+    const ctx = await started()
+    expect(ctx.store.getState().definitionShown).toBe(false)
+    ctx.store.getState().showDefinition()
+    expect(ctx.store.getState().definitionShown).toBe(false)
+  })
+
+  it('shows in the result dialog and clears on startGame, switchBoard and resetAll', async () => {
+    const ctx = await finishedResult()
+    expect(ctx.store.getState().dialog).toBe('result')
+    ctx.store.getState().showDefinition()
+    expect(ctx.store.getState().definitionShown).toBe(true)
+    ctx.store.getState().closeDialog()
+    expect(ctx.store.getState().definitionShown).toBe(true)
+    await ctx.store.getState().startGame(5)
+    expect(ctx.store.getState().definitionShown).toBe(false)
+
+    const b = await finishedResult()
+    b.store.getState().showDefinition()
+    b.store.getState().switchBoard({ length: 4 })
+    expect(b.store.getState().definitionShown).toBe(false)
+
+    const c = await finishedResult()
+    c.store.getState().showDefinition()
+    c.store.getState().resetAll()
+    expect(c.store.getState().definitionShown).toBe(false)
+  })
+
+  it('never persists definitionShown', async () => {
+    const ctx = await finishedResult()
+    ctx.store.getState().showDefinition()
+    type(ctx.store, 'x')
+    ctx.store.getState().switchBoard({ length: 4 })
+    expect(ctx.mem.getItem(SAVE_KEY)!).not.toContain('definitionShown')
+  })
+})

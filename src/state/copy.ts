@@ -14,6 +14,11 @@ export const LOAD_ERROR =
   "Couldn't load the word list. Check your connection and try again."
 export const TRY_AGAIN = 'Try again'
 export const PLAY_AGAIN = 'Play again'
+export const SHOW_DEFINITION = 'Show definition'
+export const DEFINITION_REGION = 'Definition'
+export const DEFINITION_LOADING = 'Looking it up...'
+export const DEFINITION_UNAVAILABLE = 'Definition unavailable'
+export const DEFINITION_CREDIT = 'Source: dictionaryapi.dev'
 export const SEE_RESULT = 'See result'
 export const solvedIn = (n: number) => `Solved in ${n}`
 export const wordWasLine = (answer: string) =>
