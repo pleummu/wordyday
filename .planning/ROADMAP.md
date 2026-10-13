@@ -308,7 +308,7 @@ Plans:
 
 **Wave 5** *(blocked on Wave 4 completion)*
 
-- [ ] 06-05-PLAN.md — Show definition via dictionaryapi.dev: timeout, failures, Try again, session cache
+- [x] 06-05-PLAN.md — Show definition via dictionaryapi.dev: timeout, failures, Try again, session cache
 
 **Wave 6** *(blocked on Wave 5 completion)*
 
@@ -363,6 +363,6 @@ Plans:
 | 3. Wordubado Mode and Slang | 6/6 | Complete    | 2026-10-02 |
 | 4. Six Boards and Persistence | 12/12 | Complete   | 2026-10-04 |
 | 5. Stats, Streaks and Restore | 8/8 | Complete   | 2026-10-05 |
-| 6. Result Screen, Share and Definitions | 5/8 | In Progress|  |
+| 6. Result Screen, Share and Definitions | 6/8 | In Progress|  |
 | 7. Themes, Accessibility and Polish | 0/TBD | Not started | - |
 | 8. E2E, CI Hardening and Pipeline Docs | 0/TBD | Not started | - |

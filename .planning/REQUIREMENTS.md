@@ -61,7 +61,7 @@
 ### Result and Share (RSLT)
 
 - [x] **RSLT-01**: User sees a result screen with won/lost, the answer, attempts used, stats, and Play again
-- [ ] **RSLT-02**: User can click "Show definition": a curated definition for slang, a dictionaryapi.dev lookup for common words, and "Definition unavailable" on timeout, error or offline
+- [x] **RSLT-02**: User can click "Show definition": a curated definition for slang, a dictionaryapi.dev lookup for common words, and "Definition unavailable" on timeout, error or offline
 - [x] **RSLT-03**: User can share an emoji grid ("Unlimited Wordle - Wordubado 5 - 4/6", "X/n" for a loss, 🟧🟦 in colour-blind mode) plus the site URL
 - [x] **RSLT-04**: Share uses the phone share sheet when available and falls back to the clipboard, with a "Copied" toast
 
@@ -181,7 +181,7 @@
 | STRK-07 | Phase 5 | Complete |
 | STRK-08 | Phase 5 | Complete |
 | RSLT-01 | Phase 6 | Complete |
-| RSLT-02 | Phase 6 | Pending |
+| RSLT-02 | Phase 6 | Complete |
 | RSLT-03 | Phase 6 | Complete |
 | RSLT-04 | Phase 6 | Complete |
 | UI-02 | Phase 7 | Pending |
