@@ -4,13 +4,13 @@ milestone: v1.0
 milestone_name: milestone
 status: executing
 stopped_at: Phase 7 UI-SPEC approved
-last_updated: "2026-10-14T16:22:39.468Z"
+last_updated: "2026-10-14T16:30:42.731Z"
 last_activity: 2026-10-14
 progress:
   total_phases: 8
   completed_phases: 5
   total_plans: 59
-  completed_plans: 53
+  completed_plans: 54
   percent: 63
 ---
 
@@ -26,11 +26,11 @@ See: .planning/PROJECT.md (updated 2026-10-01)
 ## Current Position
 
 Phase: 7 (themes-accessibility-and-polish) — EXECUTING
-Plan: 4 of 8
+Plan: 5 of 8
 Status: Ready to execute
 Last activity: 2026-10-14
 
-Progress: [█████████░] 90%
+Progress: [█████████░] 92%
 
 ## Performance Metrics
 
@@ -111,6 +111,7 @@ Progress: [█████████░] 90%
 - [Phase 06]: resultPending/resultFlourish are transient store fields; isBusy gates header controls and Board switching during the result pause
 - [Phase 06]: Toast layer is a manual popover re-raised via raiseKey=dialog; Result modal owns the single live region; Modal ignores stale close events when dialog.open
 - [Phase 06]: 06-05: definitionShown transient, cleared with resultFlourish; DefinitionPanel mounts only while modal open so reopen retries failed lookups
+- [Phase ?]: 07-04: head script reads versioned save doc, no second storage key; writes only constant strings
 
 ### Pending Todos
 
@@ -125,6 +126,6 @@ Progress: [█████████░] 90%
 
 ## Session Continuity
 
-Last session: 2026-10-14T16:22:39.455Z
+Last session: 2026-10-14T16:30:30.358Z
 Stopped at: Phase 7 UI-SPEC approved
 Resume file: None

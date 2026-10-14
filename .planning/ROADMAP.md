@@ -349,7 +349,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 07-04-PLAN.md — Dark theme following the system with no flash: dark tokens, pre-paint head script, startAppearance
+- [x] 07-04-PLAN.md — Dark theme following the system with no flash: dark tokens, pre-paint head script, startAppearance
 - [ ] 07-05-PLAN.md — aria-live guess and result announcements from finishReveal and Give Up (parallel with 07-04)
 
 **Wave 4** *(blocked on Wave 3 completion)*
@@ -391,5 +391,5 @@ Plans:
 | 4. Six Boards and Persistence | 12/12 | Complete   | 2026-10-04 |
 | 5. Stats, Streaks and Restore | 8/8 | Complete   | 2026-10-05 |
 | 6. Result Screen, Share and Definitions | 7/8 | In Progress|  |
-| 7. Themes, Accessibility and Polish | 3/8 | In Progress|  |
+| 7. Themes, Accessibility and Polish | 4/8 | In Progress|  |
 | 8. E2E, CI Hardening and Pipeline Docs | 0/TBD | Not started | - |
