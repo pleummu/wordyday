@@ -26,6 +26,7 @@ import {
   type PendingRestore,
   type Restores,
   type SaveDoc,
+  type Theme,
   type SavedGame,
 } from '../logic/save'
 import { score, type TileState } from '../logic/score'
@@ -63,12 +64,12 @@ import {
   type StorageNotice,
 } from './storage'
 import { localDateKey } from './clock'
-import { readTestAnswer } from './testHook'
+import { readSkipHelp, readTestAnswer } from './testHook'
 
 export type GameStatus =
   'loading' | 'error' | 'playing' | 'revealing' | 'won' | 'lost' | 'gave-up'
 export type DialogName =
-  'giveUp' | 'newGame' | 'settings' | 'reset' | 'stats' | 'result'
+  'giveUp' | 'newGame' | 'settings' | 'reset' | 'stats' | 'result' | 'help'
 export type FinishedOutcome = 'won' | 'lost' | 'gave-up' | 'forfeit'
 
 export { revealDurationMs } from '../logic/timing'
@@ -116,6 +117,8 @@ export type GameState = {
   dialog: DialogName | null
   boards: Partial<Record<BoardKey, SavedGame>>
   wordubadoInfoSeen: boolean
+  howToPlaySeen: boolean
+  theme: Theme
   stats: Record<BoardKey, BoardStats>
   dayStreak: DayStreak
   restores: Restores
@@ -137,8 +140,7 @@ export type GameState = {
   resultFlourish: boolean
   // Transient: the dictionary definition was revealed on this Board (D-24, D-25).
   definitionShown: boolean
-  // Share grid uses orange/blue squares. Transient until Phase 7 adds the
-  // toggle and persistence (D-16).
+  // Colour-blind palette and share-grid squares. Persisted (Phase 7 D-04).
   colourBlind: boolean
   // undefined = nothing waiting; null = the other tab reset everything.
   pendingExternal: string | null | undefined
@@ -152,6 +154,8 @@ export type GameState = {
   openDialog(name: 'giveUp' | 'newGame'): void
   closeDialog(): void
   openSettings(): void
+  openHelp(): void
+  maybeOpenHelp(): void
   openStats(): void
   openResult(): void
   showDefinition(): void
@@ -233,6 +237,9 @@ function docFromState(s: GameState): SaveDoc {
     restores: s.restores,
     pendingRestore: s.pendingRestore,
     streakRev: s.streakRev,
+    theme: s.theme,
+    colourBlind: s.colourBlind,
+    howToPlaySeen: s.howToPlaySeen,
   }
 }
 
@@ -267,6 +274,9 @@ function mergeDocIntoState(persisted: unknown, current: GameState): GameState {
     ...current,
     boards: doc.boards,
     wordubadoInfoSeen: doc.wordubadoInfoSeen,
+    howToPlaySeen: doc.howToPlaySeen,
+    theme: doc.theme,
+    colourBlind: doc.colourBlind,
     stats: doc.stats,
     dayStreak: doc.dayStreak,
     restores: doc.restores,
@@ -478,6 +488,8 @@ export function createGameStore(deps: GameDeps) {
           dialog: null,
           boards: {},
           wordubadoInfoSeen: false,
+          howToPlaySeen: false,
+          theme: 'system',
           ...streakDefaults(),
           breakNotice: false,
           today: localDateKey(now()),
@@ -617,6 +629,26 @@ export function createGameStore(deps: GameDeps) {
             set({ dialog: 'settings', settingsFocus: 'close' })
           },
 
+          openHelp() {
+            const s = get()
+            if (
+              s.dialog !== null ||
+              s.infoOpen ||
+              s.pendingRestore !== null ||
+              s.breakNotice ||
+              isBusy(s)
+            ) {
+              return
+            }
+            // Saved the moment it opens, like the Wordubado info (D-08).
+            set({ dialog: 'help', howToPlaySeen: true })
+          },
+
+          maybeOpenHelp() {
+            if (get().howToPlaySeen || readSkipHelp()) return
+            get().openHelp()
+          },
+
           openStats() {
             const s = get()
             if (
@@ -661,6 +693,9 @@ export function createGameStore(deps: GameDeps) {
               gameId: 0,
               boards: {},
               wordubadoInfoSeen: false,
+              howToPlaySeen: false,
+              theme: 'system',
+              colourBlind: false,
               ...streakDefaults(),
               ...freshToday(),
               streakRev: get().streakRev + 1,
@@ -740,6 +775,9 @@ export function createGameStore(deps: GameDeps) {
               set({
                 boards: {},
                 wordubadoInfoSeen: false,
+                howToPlaySeen: false,
+                theme: 'system',
+                colourBlind: false,
                 ...streakDefaults(),
                 ...freshToday(),
                 streakRev: s0.streakRev + 1,
@@ -773,8 +811,11 @@ export function createGameStore(deps: GameDeps) {
             const mergedStats = mergeStats(state.stats, doc.stats, resetFloor)
             const mergedStreak = pickStreak(pickFields(state), pickFields(doc))
             const seen = state.wordubadoInfoSeen || doc.wordubadoInfoSeen
-            let changedForMe = seen !== state.wordubadoInfoSeen
-            let behindThem = seen !== doc.wordubadoInfoSeen
+            const help = state.howToPlaySeen || doc.howToPlaySeen
+            let changedForMe =
+              seen !== state.wordubadoInfoSeen || help !== state.howToPlaySeen
+            let behindThem =
+              seen !== doc.wordubadoInfoSeen || help !== doc.howToPlaySeen
             for (const k of BOARD_KEYS) {
               if (!sameGame(merged[k], mine[k])) changedForMe = true
               if (!sameGame(merged[k], doc.boards[k])) behindThem = true
@@ -792,6 +833,7 @@ export function createGameStore(deps: GameDeps) {
             const base = {
               boards: merged,
               wordubadoInfoSeen: seen,
+              howToPlaySeen: help,
               stats: mergedStats,
               ...mergedStreak,
             }

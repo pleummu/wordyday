@@ -903,6 +903,9 @@ describe('reset', () => {
     await store.getState().startGame(4, 'wordubado')
     store.setState({
       wordubadoInfoSeen: true,
+      howToPlaySeen: true,
+      theme: 'dark',
+      colourBlind: true,
       boards: {
         'normal-5': { answer: 'crane', guesses: [], outcome: 'playing' },
       },
@@ -916,12 +919,18 @@ describe('reset', () => {
     expect(s.length).toBe(5)
     expect(s.boards).toEqual({})
     expect(s.wordubadoInfoSeen).toBe(false)
+    expect(s.howToPlaySeen).toBe(false)
+    expect(s.theme).toBe('system')
+    expect(s.colourBlind).toBe(false)
     expect(s.toast?.text).toBe('All data reset')
     expect(s.toast?.kind).toBe('info')
     expect(mem.getItem(SAVE_KEY + ':corrupt')).toBeNull()
     const doc = JSON.parse(mem.getItem(SAVE_KEY)!)
     expect(doc.state.last).toEqual({ mode: 'normal', length: 5 })
     expect(doc.state.wordubadoInfoSeen).toBe(false)
+    expect(doc.state.howToPlaySeen).toBe(false)
+    expect(doc.state.theme).toBe('system')
+    expect(doc.state.colourBlind).toBe(false)
     expect(Object.keys(doc.state.boards)).toEqual(['normal-5'])
   })
 
@@ -2072,12 +2081,13 @@ describe('Result modal scheduling (phase 6)', () => {
 })
 
 describe('colourBlind seam and notify (06-03)', () => {
-  it('defaults colourBlind to false and never persists it', async () => {
+  it('persists colourBlind and theme', async () => {
     const ctx = await started()
     expect(ctx.store.getState().colourBlind).toBe(false)
-    type(ctx.store, 'crane')
-    ctx.store.getState().submit()
-    expect(ctx.mem.getItem(SAVE_KEY)!).not.toContain('colourBlind')
+    ctx.store.setState({ colourBlind: true, theme: 'dark' })
+    const doc = JSON.parse(ctx.mem.getItem(SAVE_KEY)!)
+    expect(doc.state.colourBlind).toBe(true)
+    expect(doc.state.theme).toBe('dark')
   })
 
   it('notify sets an info toast with a new id each call', async () => {
@@ -2134,5 +2144,58 @@ describe('definitionShown (06-05)', () => {
     type(ctx.store, 'x')
     ctx.store.getState().switchBoard({ length: 4 })
     expect(ctx.mem.getItem(SAVE_KEY)!).not.toContain('definitionShown')
+  })
+})
+
+describe('How to play (07-01)', () => {
+  it('maybeOpenHelp opens once and saves the flag at once', async () => {
+    const ctx = await started()
+    ctx.store.getState().maybeOpenHelp()
+    expect(ctx.store.getState().dialog).toBe('help')
+    expect(ctx.store.getState().howToPlaySeen).toBe(true)
+    expect(JSON.parse(ctx.mem.getItem(SAVE_KEY)!).state.howToPlaySeen).toBe(
+      true,
+    )
+    ctx.store.getState().closeDialog()
+    ctx.store.getState().maybeOpenHelp()
+    expect(ctx.store.getState().dialog).toBeNull()
+  })
+
+  it('maybeOpenHelp does nothing when the hook skips Help', async () => {
+    globalThis.__WORDLE_TEST__ = { skipHelp: true }
+    const ctx = await started()
+    ctx.store.getState().maybeOpenHelp()
+    expect(ctx.store.getState().dialog).toBeNull()
+    expect(ctx.store.getState().howToPlaySeen).toBe(false)
+  })
+
+  it.each([
+    ['a Restore prompt', { pendingRestore: { lost: 3, month: '2026-06' } }],
+    ['a streak-break notice', { breakNotice: true }],
+    ['another dialog', { dialog: 'settings' }],
+    ['the Wordubado popup', { infoOpen: true }],
+    ['a reveal', { status: 'revealing' }],
+    ['the result pause', { resultPending: true }],
+  ])('openHelp is refused during %s', async (_n, patch) => {
+    const ctx = await started()
+    ctx.store.setState(patch as never)
+    const before = ctx.store.getState().dialog
+    ctx.store.getState().openHelp()
+    expect(ctx.store.getState().dialog).toBe(before)
+    expect(ctx.store.getState().howToPlaySeen).toBe(false)
+  })
+
+  it('an other-tab reset clears the three fields', async () => {
+    const ctx = await started()
+    ctx.store.setState({
+      howToPlaySeen: true,
+      theme: 'dark',
+      colourBlind: true,
+    })
+    ctx.store.getState().applyExternal(null)
+    const s = ctx.store.getState()
+    expect(s.howToPlaySeen).toBe(false)
+    expect(s.theme).toBe('system')
+    expect(s.colourBlind).toBe(false)
   })
 })

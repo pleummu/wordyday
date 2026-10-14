@@ -191,6 +191,14 @@ describe('two tabs', () => {
     expect(b.onGameFinished).not.toHaveBeenCalled()
   })
 
+  it('howToPlaySeen merges with OR across tabs', async () => {
+    const { a, b, settle } = await twoTabs()
+    a.store.getState().openHelp()
+    await settle()
+    expect(a.store.getState().howToPlaySeen).toBe(true)
+    expect(b.store.getState().howToPlaySeen).toBe(true)
+  })
+
   it('CR-02 Reset converges on one fresh game', async () => {
     const { shared, a, b, settle } = await twoTabs()
     await guess(a, settle, 'house')
