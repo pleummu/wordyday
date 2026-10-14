@@ -31,6 +31,11 @@ A public, endless Wordle game on the web (deployed to Vercel). Players can choos
 - ✓ Versioned saved data with a migration chain; corrupt data backed up, newer-version saves left untouched (read-only session); blocked/full storage still plays: validated in Phase 4
 - ✓ Two open tabs stay on the same game (per-Board merge by game id); Settings "Reset my data" with a confirm: validated in Phase 4
 
+- ✓ How-to-play modal, opened automatically on the first visit and from a '?' header button: validated in Phase 7: Themes, Accessibility and Polish
+- ✓ Dark mode (System/Light/Dark, no white flash) and colour-blind palette: validated in Phase 7
+- ✓ Accessibility: screen-reader announcements of tile results, focus handling in modals, keyboard-only play, axe in all four theme/palette combinations: validated in Phase 7
+- ✓ Page title and description, link-preview (Open Graph) image, favicon, noscript message: validated in Phase 7
+
 ### Active
 
 **Gameplay**
@@ -51,11 +56,7 @@ A public, endless Wordle game on the web (deployed to Vercel). Players can choos
 - [ ] Share: emoji grid ("Unlimited Wordle - Wordubado 5 - 4/6", X/n for a loss, 🟧🟦 in colour-blind mode); phone share sheet with clipboard fallback
 
 **Extras and polish**
-- [ ] How-to-play modal, opened automatically on the first visit
-- [ ] Dark mode and colour-blind (high-contrast) palette
-- [ ] Accessibility: screen-reader announcements of tile results, focus handling in modals, prefers-reduced-motion support
 - [ ] Answer pools are filtered with a blocklist (no obscure, offensive or crude answers in Normal)
-- [ ] Page title and description, link-preview (Open Graph) image, favicon
 
 **Docs and pipeline**
 - [x] SPEC.md (corrected spec) and GLOSSARY.md (Board, Mode, Normal, Wordubado, Answer Pool, Guess Pool, Win Streak, Day Streak, Missed Day, Restore, Forfeit, Give Up)
@@ -121,4 +122,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-10-04 after Phase 4 (Six Boards and Persistence) complete: six saved Boards, versioned storage, Give Up/New game, Settings reset, two-tab sync*
+*Last updated: 2026-10-15 after Phase 7 (Themes, Accessibility and Polish) complete: dark and colour-blind themes, How-to-play, screen-reader announcements, keyboard-only play, link-preview metadata*
