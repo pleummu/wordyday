@@ -4,7 +4,7 @@ milestone: v1.0
 milestone_name: milestone
 status: executing
 stopped_at: Phase 7 UI-SPEC approved
-last_updated: "2026-10-14T16:51:58.696Z"
+last_updated: "2026-10-14T16:52:09.010Z"
 last_activity: 2026-10-14
 progress:
   total_phases: 8
@@ -75,6 +75,7 @@ Progress: [██████████] 95%
 | Phase 06 P04 | 75min | 2 tasks | 12 files |
 | Phase 06 P05 | 35min | 3 tasks | 11 files |
 | Phase 07 P05 | 25min | 2 tasks | 12 files |
+| Phase 07 P06 | 30min | 3 tasks | 10 files |
 
 ## Accumulated Context
 
@@ -114,6 +115,7 @@ Progress: [██████████] 95%
 - [Phase 06]: 06-05: definitionShown transient, cleared with resultFlourish; DefinitionPanel mounts only while modal open so reopen retries failed lookups
 - [Phase ?]: 07-04: head script reads versioned save doc, no second storage key; writes only constant strings
 - [Phase 07]: 07-05 live region is a popover=manual layer re-raised via raiseKey=dialog; announcement set only in finishReveal/giveUp
+- [Phase 07]: 07-06: applyExternal adopts other tab's theme/colourBlind as changedForMe only (no ping-pong); Appearance controls are buttons only
 
 ### Pending Todos
 
