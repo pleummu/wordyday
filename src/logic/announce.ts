@@ -1,5 +1,5 @@
 import type { TileState } from './score'
-import { gaveUpLine, lostLine, triesLeftLine, wonLine } from '../state/copy'
+import { forfeitLine, lostLine, triesLeftLine, wonLine } from '../state/copy'
 
 export type AnnounceEnd =
   | { kind: 'playing'; triesLeft: number }
@@ -24,5 +24,5 @@ export function guessAnnouncement(
 }
 
 export function giveUpAnnouncement(answer: string): string {
-  return gaveUpLine(answer)
+  return forfeitLine(answer)
 }

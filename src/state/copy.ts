@@ -154,5 +154,5 @@ export const triesLeftLine = (n: number) =>
 export const wonLine = (n: number) => `You won in ${n}.`
 export const lostLine = (word: string) =>
   `Out of tries. The word was ${word.toUpperCase()}.`
-export const gaveUpLine = (word: string) =>
+export const forfeitLine = (word: string) =>
   `You gave up. The word was ${word.toUpperCase()}.`
