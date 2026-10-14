@@ -134,3 +134,11 @@ it('Got it closes the popup', () => {
   fireEvent.click(screen.getByRole('button', { name: 'Got it' }))
   expect(useGameStore.getState().infoOpen).toBe(false)
 })
+
+it('How to play is the first header button and opens its dialog', () => {
+  render(<App />)
+  const first = document.querySelector('.header-actions button')!
+  expect(first.getAttribute('aria-label')).toBe('How to play')
+  fireEvent.click(first)
+  expect(screen.getByRole('dialog', { name: 'How to play' })).toBeTruthy()
+})

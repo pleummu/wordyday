@@ -913,13 +913,13 @@ describe('reset', () => {
     store.getState().resetAll()
     await vi.waitFor(() => expect(store.getState().status).toBe('playing'))
     const s = store.getState()
-    expect(s.dialog).toBeNull()
+    expect(s.dialog).toBe('help')
     expect(s.infoOpen).toBe(false)
     expect(s.mode).toBe('normal')
     expect(s.length).toBe(5)
     expect(s.boards).toEqual({})
     expect(s.wordubadoInfoSeen).toBe(false)
-    expect(s.howToPlaySeen).toBe(false)
+    expect(s.howToPlaySeen).toBe(true) // reopened and saved again
     expect(s.theme).toBe('system')
     expect(s.colourBlind).toBe(false)
     expect(s.toast?.text).toBe('All data reset')
@@ -928,7 +928,7 @@ describe('reset', () => {
     const doc = JSON.parse(mem.getItem(SAVE_KEY)!)
     expect(doc.state.last).toEqual({ mode: 'normal', length: 5 })
     expect(doc.state.wordubadoInfoSeen).toBe(false)
-    expect(doc.state.howToPlaySeen).toBe(false)
+    expect(doc.state.howToPlaySeen).toBe(true)
     expect(doc.state.theme).toBe('system')
     expect(doc.state.colourBlind).toBe(false)
     expect(Object.keys(doc.state.boards)).toEqual(['normal-5'])
@@ -1758,6 +1758,7 @@ describe('Restore prompt (STRK-04..07)', () => {
 
   it('declineRestore() resets silently', () => {
     const { store } = seeded()
+    store.setState({ howToPlaySeen: true })
     store.getState().checkStreaks()
     const rev = store.getState().streakRev
     store.getState().declineRestore()
@@ -2184,6 +2185,41 @@ describe('How to play (07-01)', () => {
     expect(ctx.store.getState().dialog).toBe(before)
     expect(ctx.store.getState().howToPlaySeen).toBe(false)
   })
+
+  it.each([
+    [
+      'declineRestore',
+      'declineRestore',
+      { pendingRestore: { streak: 5, missed: 1, creditDeferred: false } },
+    ],
+    [
+      'restore',
+      'restore',
+      { pendingRestore: { streak: 5, missed: 1, creditDeferred: false } },
+    ],
+    ['dismissBreak', 'dismissBreak', { breakNotice: true }],
+  ])('%s opens Help once the blocker clears', async (_n, action, patch) => {
+    const ctx = await started()
+    ctx.store.setState(patch as never)
+    ctx.store.getState().maybeOpenHelp()
+    expect(ctx.store.getState().dialog).toBeNull()
+    ;(ctx.store.getState() as never as Record<string, () => void>)[action]()
+    expect(ctx.store.getState().dialog).toBe('help')
+  })
+
+  it.each(['declineRestore', 'restore', 'dismissBreak'])(
+    '%s leaves dialog null when Help was seen',
+    async (action) => {
+      const ctx = await started()
+      ctx.store.setState({
+        howToPlaySeen: true,
+        pendingRestore: { streak: 5, missed: 1, creditDeferred: false },
+        breakNotice: true,
+      } as never)
+      ;(ctx.store.getState() as never as Record<string, () => void>)[action]()
+      expect(ctx.store.getState().dialog).toBeNull()
+    },
+  )
 
   it('an other-tab reset clears the three fields', async () => {
     const ctx = await started()

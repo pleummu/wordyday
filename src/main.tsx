@@ -12,6 +12,8 @@ import { startTabSync } from './state/sync'
 void useGameStore.getState().resume()
 // Missed-day check once at boot, outside React (StrictMode would run it twice).
 useGameStore.getState().checkStreaks()
+// After resume() and checkStreaks() so a pending Restore prompt or break notice wins (D-09); outside React because StrictMode double-runs effects.
+useGameStore.getState().maybeOpenHelp()
 startStreakWatch(useGameStore)
 defaultSaveStorage.onNotice((n) =>
   useGameStore.getState().applyStorageNotice(n),

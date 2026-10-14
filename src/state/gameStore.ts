@@ -564,6 +564,7 @@ export function createGameStore(deps: GameDeps) {
                   }
                 : {}),
             })
+            get().maybeOpenHelp()
           },
 
           declineRestore() {
@@ -575,10 +576,13 @@ export function createGameStore(deps: GameDeps) {
               today,
               streakRev: state.streakRev + 1,
             })
+            get().maybeOpenHelp()
           },
 
           dismissBreak() {
-            if (get().breakNotice) set({ breakNotice: false })
+            if (!get().breakNotice) return
+            set({ breakNotice: false })
+            get().maybeOpenHelp()
           },
 
           openInfo() {
@@ -718,6 +722,7 @@ export function createGameStore(deps: GameDeps) {
             set({
               toast: { id: ++toastSeq, text: ALL_DATA_RESET, kind: 'info' },
             })
+            get().maybeOpenHelp() // reset = first visit (Phase 4 D-09)
           },
 
           applyStorageNotice(n) {

@@ -119,3 +119,32 @@ export const COPIED_TOAST = 'Copied'
 export const COPY_FAILED_NOTE = "Couldn't copy. Select the text and copy it."
 export const SHARE_TEXT_LABEL = 'Share text'
 export const COPIED_MS = 2000
+
+export const HELP = 'How to play'
+export const HELP_RULES =
+  'Guess the word in as few tries as you can. Every guess must be a real word.'
+export const HELP_MODES =
+  'Pick 4, 5 or 6 letters. Normal uses everyday words; Wordubado uses slang.'
+export const HELP_STREAKS =
+  'Win Streak counts wins in a row on each board. Day Streak counts days you play, and Restores can save a missed day.'
+export const HELP_GOT_IT = 'Got it'
+export const HELP_EXAMPLES = [
+  {
+    word: 'CRANE',
+    index: 0,
+    state: 'correct',
+    caption: 'C is in the word and in the right spot.',
+  },
+  {
+    word: 'PILOT',
+    index: 2,
+    state: 'present',
+    caption: 'L is in the word but in the wrong spot.',
+  },
+  {
+    word: 'FUNGI',
+    index: 3,
+    state: 'absent',
+    caption: 'G is not in the word at all.',
+  },
+] as const

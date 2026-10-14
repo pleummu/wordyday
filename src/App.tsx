@@ -4,6 +4,7 @@ import ForfeitRow from './components/ForfeitRow'
 import GiveUpConfirm from './components/GiveUpConfirm'
 import Header from './components/Header'
 import Keyboard from './components/Keyboard'
+import HowToPlayModal from './components/HowToPlayModal'
 import LoadError from './components/LoadError'
 import LoadingNotice from './components/LoadingNotice'
 import NewGameConfirm from './components/NewGameConfirm'
@@ -56,6 +57,7 @@ export default function App() {
       data-forfeit={showRow ? 'true' : undefined}
     >
       <WordubadoInfo />
+      <HowToPlayModal />
       <GiveUpConfirm />
       <NewGameConfirm />
       <SettingsModal />
