@@ -1,11 +1,11 @@
 :root {
   --color-bg: #fbfaf7;
   --color-text: #2b2d33;
-  --color-muted: #7a7f8a;
+  --color-muted: #676c76;
   --color-accent: #a9c4b0;
   --color-surface: #f0eee8;
   --color-error: #c97b7b;
-  --color-focus: #6f9a7c;
+  --color-focus: #648f70;
   --color-danger: #a14f4f;
   --color-wordubado: #7a5fb0;
   --color-mode: var(--color-text);
