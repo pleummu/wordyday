@@ -340,7 +340,7 @@ Plans:
 Plans:
 **Wave 1**
 
-- [ ] 07-01-PLAN.md — skipHelp test hook, failing How-to-play E2E, save v3 (theme, colourBlind, howToPlaySeen), store Help dialog logic
+- [x] 07-01-PLAN.md — skipHelp test hook, failing How-to-play E2E, save v3 (theme, colourBlind, howToPlaySeen), store Help dialog logic
 - [ ] 07-02-PLAN.md — Link preview: meta/OG/twitter tags, noscript, favicon, OG image and apple-touch-icon (UI-10)
 
 **Wave 2** *(blocked on Wave 1 completion)*
@@ -391,5 +391,5 @@ Plans:
 | 4. Six Boards and Persistence | 12/12 | Complete   | 2026-10-04 |
 | 5. Stats, Streaks and Restore | 8/8 | Complete   | 2026-10-05 |
 | 6. Result Screen, Share and Definitions | 7/8 | In Progress|  |
-| 7. Themes, Accessibility and Polish | 0/TBD | Not started | - |
+| 7. Themes, Accessibility and Polish | 1/8 | In Progress|  |
 | 8. E2E, CI Hardening and Pipeline Docs | 0/TBD | Not started | - |
