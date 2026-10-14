@@ -17,9 +17,11 @@ test.describe('without JavaScript', () => {
   test('shows the friendly message', async ({ page }) => {
     await page.goto('/')
     await expect(
-      page.getByText(
-        'Unlimited Wordle needs JavaScript to play. Please turn it on and reload.',
-      ),
-    ).toBeVisible()
+      // getByText skips <noscript> content, so use a CSS locator.
+      page.locator('noscript p'),
+    ).toHaveText(
+      'Unlimited Wordle needs JavaScript to play. Please turn it on and reload.',
+    )
+    await expect(page.locator('noscript p')).toBeVisible()
   })
 })
