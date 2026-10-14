@@ -12,7 +12,7 @@ export default function WordubadoInfo() {
       onClose={closeInfo}
       titleId="wordubado-info-title"
       bodyId="wordubado-info-body"
-      fallbackFocus={() => document.querySelector<HTMLElement>('.mode-switch')}
+      fallbackFocus={() => document.querySelector<HTMLElement>('.mode-switch:not(.settings-switch)')}
     >
       <h2 id="wordubado-info-title" className="modal-heading">
         {INFO_HEADING}
