@@ -2,9 +2,9 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: verifying
-stopped_at: Phase 7 UI-SPEC approved
-last_updated: "2026-10-14T17:17:20.157Z"
+status: ready_to_plan
+stopped_at: Phase 07 complete (8/8) — ready to discuss Phase 8
+last_updated: 2026-10-14T17:26:06.102Z
 last_activity: 2026-10-14
 progress:
   total_phases: 8
@@ -21,13 +21,13 @@ progress:
 See: .planning/PROJECT.md (updated 2026-10-01)
 
 **Core value:** Endless, correct Wordle play. Scoring (including repeated letters), word validation and a smooth, responsive feel must be right for all three lengths.
-**Current focus:** Phase 7 — themes-accessibility-and-polish
+**Current focus:** Phase 8 — e2e, ci hardening and pipeline docs
 
 ## Current Position
 
-Phase: 7 (themes-accessibility-and-polish) — EXECUTING
-Plan: 8 of 8
-Status: Phase complete — ready for verification
+Phase: 8
+Plan: Not started
+Status: Ready to plan
 Last activity: 2026-10-14
 
 Progress: [██████████] 98%
@@ -36,7 +36,7 @@ Progress: [██████████] 98%
 
 **Velocity:**
 
-- Total plans completed: 35
+- Total plans completed: 43
 - Average duration: -
 - Total execution time: -
 
@@ -78,6 +78,7 @@ Progress: [██████████] 98%
 | Phase 07 P06 | 30min | 3 tasks | 10 files |
 | Phase 07 P07 | 35min | 2 tasks | 7 files |
 | Phase 07 P08 | 15min | 2 tasks | 1 files |
+| 07 | 8 | - | - |
 
 ## Accumulated Context
 
