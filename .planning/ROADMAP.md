@@ -345,7 +345,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 07-03-PLAN.md — How-to-play modal, "?" header button first in .header-actions, auto-open on first visit / after blockers / after reset
+- [x] 07-03-PLAN.md — How-to-play modal, "?" header button first in .header-actions, auto-open on first visit / after blockers / after reset
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
@@ -391,5 +391,5 @@ Plans:
 | 4. Six Boards and Persistence | 12/12 | Complete   | 2026-10-04 |
 | 5. Stats, Streaks and Restore | 8/8 | Complete   | 2026-10-05 |
 | 6. Result Screen, Share and Definitions | 7/8 | In Progress|  |
-| 7. Themes, Accessibility and Polish | 2/8 | In Progress|  |
+| 7. Themes, Accessibility and Polish | 3/8 | In Progress|  |
 | 8. E2E, CI Hardening and Pipeline Docs | 0/TBD | Not started | - |
