@@ -335,7 +335,34 @@ Plans:
   4. Keyboard-only user can play the whole game; modals trap focus, close on Esc and return focus
   5. Sharing the link shows a title, description, Open Graph image (absolute URL) and favicon; with JavaScript disabled a noscript message appears
 
-**Plans**: TBD
+**Plans**: 8 plans
+
+Plans:
+**Wave 1**
+
+- [ ] 07-01-PLAN.md — skipHelp test hook, failing How-to-play E2E, save v3 (theme, colourBlind, howToPlaySeen), store Help dialog logic
+- [ ] 07-02-PLAN.md — Link preview: meta/OG/twitter tags, noscript, favicon, OG image and apple-touch-icon (UI-10)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [ ] 07-03-PLAN.md — How-to-play modal, "?" header button first in .header-actions, auto-open on first visit / after blockers / after reset
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
+- [ ] 07-04-PLAN.md — Dark theme following the system with no flash: dark tokens, pre-paint head script, startAppearance
+- [ ] 07-05-PLAN.md — aria-live guess and result announcements from finishReveal and Give Up (parallel with 07-04)
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
+- [ ] 07-06-PLAN.md — Appearance section in Settings: System/Light/Dark and colour-blind palette, saved, synced, reset
+
+**Wave 5** *(blocked on Wave 4 completion)*
+
+- [ ] 07-07-PLAN.md — Keyboard-only E2E audit, Modal trap and Enter fixes, axe in all four theme/palette combinations
+
+**Wave 6** *(blocked on Wave 5 completion)*
+
+- [ ] 07-08-PLAN.md — Full gate, validation map, owner manual checks (screen reader, iPhone, link preview) (checkpoint)
 **UI hint**: yes
 **Notes**: Needs an iOS dvh/device or WebKit check. The production domain is set when deploying (needed for OG tags and share URL).
 
