@@ -4,7 +4,7 @@ milestone: v1.0
 milestone_name: milestone
 status: executing
 stopped_at: Phase 7 UI-SPEC approved
-last_updated: "2026-10-14T16:38:43.377Z"
+last_updated: "2026-10-14T16:38:51.459Z"
 last_activity: 2026-10-14
 progress:
   total_phases: 8
@@ -74,6 +74,7 @@ Progress: [█████████░] 93%
 | Phase 06 P01 | 40min | 3 tasks | 19 files |
 | Phase 06 P04 | 75min | 2 tasks | 12 files |
 | Phase 06 P05 | 35min | 3 tasks | 11 files |
+| Phase 07 P05 | 25min | 2 tasks | 12 files |
 
 ## Accumulated Context
 
@@ -112,6 +113,7 @@ Progress: [█████████░] 93%
 - [Phase 06]: Toast layer is a manual popover re-raised via raiseKey=dialog; Result modal owns the single live region; Modal ignores stale close events when dialog.open
 - [Phase 06]: 06-05: definitionShown transient, cleared with resultFlourish; DefinitionPanel mounts only while modal open so reopen retries failed lookups
 - [Phase ?]: 07-04: head script reads versioned save doc, no second storage key; writes only constant strings
+- [Phase 07]: 07-05 live region is a popover=manual layer re-raised via raiseKey=dialog; announcement set only in finishReveal/giveUp
 
 ### Pending Todos
 
