@@ -1,6 +1,7 @@
 declare global {
   var __WORDLE_TEST__:
-    { answers?: Partial<Record<4 | 5 | 6, string>> } | undefined
+    | { answers?: Partial<Record<4 | 5 | 6, string>>; skipHelp?: boolean }
+    | undefined
 }
 
 export {}

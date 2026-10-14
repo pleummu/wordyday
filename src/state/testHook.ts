@@ -11,3 +11,10 @@ export function readTestAnswer(
   const word = globalThis.__WORDLE_TEST__?.answers?.[length]?.toLowerCase()
   return word !== undefined && guesses.has(word) ? word : undefined
 }
+
+export function readSkipHelp(): boolean {
+  // Production builds fold this to false.
+  if (import.meta.env.MODE !== 'e2e' && import.meta.env.MODE !== 'test')
+    return false
+  return globalThis.__WORDLE_TEST__?.skipHelp === true
+}

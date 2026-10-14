@@ -3,25 +3,34 @@ import { expect, type Page } from '@playwright/test'
 
 export const TEST_ANSWERS = { 4: 'gold', 5: 'crane', 6: 'planet' }
 
-export async function fixAnswers(page: Page): Promise<void> {
-  await page.addInitScript((a) => {
-    ;(globalThis as { __WORDLE_TEST__?: unknown }).__WORDLE_TEST__ = {
-      answers: a,
-    }
-  }, TEST_ANSWERS)
+export async function fixAnswers(
+  page: Page,
+  { help = false }: { help?: boolean } = {},
+): Promise<void> {
+  await page.addInitScript(
+    ({ a, skipHelp }) => {
+      ;(globalThis as { __WORDLE_TEST__?: unknown }).__WORDLE_TEST__ = {
+        answers: a,
+        skipHelp,
+      }
+    },
+    { a: TEST_ANSWERS, skipHelp: !help },
+  )
 }
 
 export async function fixAnswersWith(
   page: Page,
   answers: Partial<Record<4 | 5 | 6, string>>,
+  { help = false }: { help?: boolean } = {},
 ): Promise<void> {
   await page.addInitScript(
-    (a) => {
+    ({ a, skipHelp }) => {
       ;(globalThis as { __WORDLE_TEST__?: unknown }).__WORDLE_TEST__ = {
         answers: a,
+        skipHelp,
       }
     },
-    { ...TEST_ANSWERS, ...answers },
+    { a: { ...TEST_ANSWERS, ...answers }, skipHelp: !help },
   )
 }
 
@@ -136,6 +145,7 @@ export function defaultV2State(): Record<string, unknown> {
 export async function seedSave(
   page: Page,
   overrides: Record<string, unknown> = {},
+  { version = 2 }: { version?: number } = {},
 ): Promise<void> {
   const base = defaultV2State()
   const { stats: statOverrides, ...rest } = overrides as {
@@ -152,7 +162,7 @@ export async function seedSave(
         localStorage.setItem('unlimited-wordle', JSON.stringify(doc))
       }
     },
-    { version: 2, state },
+    { version, state },
   )
 }
 
