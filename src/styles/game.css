@@ -819,7 +819,7 @@ dialog.modal {
 }
 
 dialog.modal::backdrop {
-  background: rgba(43, 45, 51, 0.32);
+  background: var(--color-overlay);
 }
 
 dialog.modal[data-closing] {
