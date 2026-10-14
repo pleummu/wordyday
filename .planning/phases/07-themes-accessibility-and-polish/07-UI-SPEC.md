@@ -1,7 +1,8 @@
 ---
 phase: 7
 slug: themes-accessibility-and-polish
-status: draft
+status: approved
+reviewed_at: 2026-10-14
 shadcn_initialized: false
 preset: none
 created: 2026-10-14
@@ -160,7 +161,7 @@ Built on the shared `Modal` (`dialog` name `help`; dismissable via Esc, backdrop
 
 ```
 How to play                         <- Heading h2
-Guess the word in 6 tries. Each guess must be a real word.
+Guess the word in as few tries as you can. Every guess must be a real word.
 (example 1)  [C][R][A][N][E]  C is in the word and in the right spot.   <- example rows
 ...
 Pick 4, 5 or 6 letters. Normal uses everyday words; Wordubado uses slang.
