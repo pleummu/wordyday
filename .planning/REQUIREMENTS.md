@@ -76,7 +76,7 @@
 - [ ] **UI-07**: Screen-reader users hear each guess result through an aria-live region; tiles and keys have accessible labels
 - [ ] **UI-08**: Modals trap focus, close on Esc and return focus; the whole game is playable by keyboard alone
 - [x] **UI-09**: Animations respect prefers-reduced-motion
-- [ ] **UI-10**: Page has a title, meta description, Open Graph tags with an absolute image URL, a favicon and a `<noscript>` message
+- [x] **UI-10**: Page has a title, meta description, Open Graph tags with an absolute image URL, a favicon and a `<noscript>` message
 - [x] **UI-11**: Settings has a note that progress is stored in this browser only
 
 ### Docs (DOC)
@@ -189,7 +189,7 @@
 | UI-04 | Phase 7 | Complete |
 | UI-07 | Phase 7 | Pending |
 | UI-08 | Phase 7 | Pending |
-| UI-10 | Phase 7 | Pending |
+| UI-10 | Phase 7 | Complete |
 | DOC-03 | Phase 8 | Pending |
 | QA-03 | Phase 8 | Pending |
 | QA-04 | Phase 8 | Pending |
