@@ -1352,3 +1352,38 @@ dialog.modal[open]:has(.result-panel[data-flourish]) {
   line-height: 1.5;
   margin: 0;
 }
+
+.settings-appearance {
+  display: grid;
+  gap: var(--space-2);
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--tile-empty-border);
+}
+
+.settings-label {
+  margin: 0;
+  font-size: var(--font-size-label);
+  font-weight: 600;
+}
+
+.settings-hint {
+  margin: 0;
+  font-size: var(--font-size-label);
+  line-height: 1.5;
+  color: var(--color-muted);
+}
+
+.settings-appearance .theme-picker {
+  width: 100%;
+}
+
+.settings-appearance .theme-picker .length-option {
+  flex: 1;
+  height: 44px;
+}
+
+.settings-appearance .settings-switch {
+  width: 100%;
+  height: 44px;
+  justify-content: space-between;
+}

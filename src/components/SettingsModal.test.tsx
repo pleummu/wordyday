@@ -53,9 +53,16 @@ it('Settings shows heading, note and buttons in order with Close focused', () =>
   const dlg = screen.getByRole('dialog', { name: 'Settings' })
   expect(dlg.textContent).toContain('saved in this browser only')
   const buttons = Array.from(dlg.querySelectorAll('button'))
-  expect(buttons.map((b) => b.textContent)).toEqual(['Reset my data', 'Close'])
-  expect(buttons[1].hasAttribute('data-initial-focus')).toBe(true)
-  expect(buttons[0].hasAttribute('data-initial-focus')).toBe(false)
+  expect(buttons.map((b) => b.textContent)).toEqual([
+    'System',
+    'Light',
+    'Dark',
+    'Colour-blind friendly colours',
+    'Reset my data',
+    'Close',
+  ])
+  expect(buttons[5].hasAttribute('data-initial-focus')).toBe(true)
+  expect(buttons[4].hasAttribute('data-initial-focus')).toBe(false)
 })
 
 it('shows the storage-off note only when storage is failing', () => {
@@ -72,7 +79,7 @@ it('Reset my data opens the confirm with Cancel focused and a danger Reset', () 
   fireEvent.click(screen.getByRole('button', { name: 'Reset my data' }))
   expect(useGameStore.getState().dialog).toBe('reset')
   const dlg = screen.getByRole('dialog', { name: 'Reset all data?' })
-  expect(dlg.textContent).toContain("It can't be undone.")
+  expect(dlg.textContent).toContain("This can't be undone.")
   const cancel = screen.getByRole('button', { name: 'Cancel' })
   expect(cancel.hasAttribute('data-initial-focus')).toBe(true)
   expect(
@@ -101,4 +108,48 @@ it('Reset calls resetAll', () => {
   fireEvent.click(screen.getByRole('button', { name: 'Reset my data' }))
   fireEvent.click(screen.getByRole('button', { name: 'Reset' }))
   expect(resetAll).toHaveBeenCalledTimes(1)
+})
+
+it('Appearance comes before the browser-only note and uses only buttons', () => {
+  render(<App />)
+  act(() => useGameStore.getState().openSettings())
+  const dlg = screen.getByRole('dialog', { name: 'Settings' })
+  const heading = screen.getByRole('heading', { name: 'Appearance' })
+  const note = screen.getByText(/saved in this browser only/)
+  expect(
+    heading.compareDocumentPosition(note) & Node.DOCUMENT_POSITION_FOLLOWING,
+  ).toBeTruthy()
+  expect(dlg.querySelector('input')).toBeNull()
+  for (const el of dlg.querySelectorAll('[role=radio],[role=switch]')) {
+    expect(el.tagName).toBe('BUTTON')
+  }
+})
+
+it('theme radios use a roving tabindex and arrow/End keys', () => {
+  useGameStore.setState({ theme: 'system', colourBlind: false })
+  render(<App />)
+  act(() => useGameStore.getState().openSettings())
+  const [system, light, dark] = ['System', 'Light', 'Dark'].map((n) =>
+    screen.getByRole('radio', { name: n }),
+  )
+  expect([system, light, dark].map((r) => r.tabIndex)).toEqual([0, -1, -1])
+  system.focus()
+  fireEvent.keyDown(system, { key: 'ArrowRight' })
+  expect(useGameStore.getState().theme).toBe('light')
+  expect(document.activeElement).toBe(light)
+  fireEvent.keyDown(light, { key: 'End' })
+  expect(useGameStore.getState().theme).toBe('dark')
+  expect(document.activeElement).toBe(dark)
+})
+
+it('the colour-blind switch toggles the store', () => {
+  useGameStore.setState({ colourBlind: false })
+  render(<App />)
+  act(() => useGameStore.getState().openSettings())
+  const sw = screen.getByRole('switch', {
+    name: 'Colour-blind friendly colours',
+  })
+  fireEvent.click(sw)
+  expect(useGameStore.getState().colourBlind).toBe(true)
+  expect(sw.getAttribute('aria-checked')).toBe('true')
 })

@@ -76,6 +76,9 @@ test.describe('Appearance settings', () => {
     await page.getByRole('button', { name: 'Settings' }).click()
     return page.getByRole('dialog', { name: 'Settings' })
   }
+  // Escape returns focus to the Settings button, where Enter would reopen it.
+  const blurFocus = (page: Page) =>
+    page.evaluate(() => (document.activeElement as HTMLElement).blur())
   const bg = (loc: Locator) =>
     loc.evaluate((el) => getComputedStyle(el).backgroundColor)
 
@@ -130,6 +133,7 @@ test.describe('Appearance settings', () => {
       'colour-blind',
     )
     await page.keyboard.press('Escape')
+    await blurFocus(page)
     await guess(page, 'react', 1)
     for (const scheme of ['light', 'dark'] as const) {
       await page.emulateMedia({ colorScheme: scheme })
@@ -154,9 +158,10 @@ test.describe('Appearance settings', () => {
       const correct = await bg(a)
       expect(correct).toBe(probe)
       expect(correct).not.toBe('rgb(169, 196, 176)')
-      expect(await bg(page.getByRole('button', { name: 'A, correct' }))).toBe(
-        correct,
-      )
+      // Keys fade their colour, so wait for the transition to settle.
+      await expect
+        .poll(() => bg(page.getByRole('button', { name: 'A, correct' })))
+        .toBe(correct)
       const present = await bg(
         page.getByRole('gridcell', { name: /^Row 1, column 1, .*present$/ }),
       )
@@ -208,6 +213,7 @@ test.describe('Appearance settings', () => {
       .getByRole('switch', { name: 'Colour-blind friendly colours' })
       .click()
     await page.keyboard.press('Escape')
+    await blurFocus(page)
     await guess(page, 'crane', 1)
     await waitForResult(page)
     await resultDialog(page).getByRole('button', { name: 'Share' }).click()

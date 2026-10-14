@@ -49,7 +49,16 @@ export const RESET_MY_DATA = 'Reset my data'
 export const CLOSE = 'Close'
 export const RESET_HEADING = 'Reset all data?'
 export const RESET_BODY =
-  "This clears every game, your stats, streaks and Restores. It can't be undone."
+  "This clears your stats and streaks and puts your settings back to the defaults. This can't be undone."
+export const APPEARANCE = 'Appearance'
+export const THEME = 'Theme'
+export const THEME_OPTIONS = [
+  { value: 'system', label: 'System' },
+  { value: 'light', label: 'Light' },
+  { value: 'dark', label: 'Dark' },
+] as const
+export const COLOUR_BLIND = 'Colour-blind friendly colours'
+export const COLOUR_BLIND_HINT = 'Orange and blue instead of green and yellow.'
 export const CANCEL = 'Cancel'
 export const RESET = 'Reset'
 export const ALL_DATA_RESET = 'All data reset'
