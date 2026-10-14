@@ -191,7 +191,7 @@ for (const h of [500, 568, 640]) {
         title.y < actions.y + actions.height &&
         actions.y < title.y + title.height
       expect(overlap).toBe(false)
-      for (const name of ['Statistics', 'Settings']) {
+      for (const name of ['How to play', 'Statistics', 'Settings']) {
         const b = (await page.getByRole('button', { name }).boundingBox())!
         expect(b.width).toBeCloseTo(36, 0)
         expect(b.height).toBeCloseTo(36, 0)
@@ -257,7 +257,7 @@ test('header action buttons are 40 px at 1280x720', async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 720 })
   await page.goto('/')
   await waitForReady(page)
-  for (const name of ['Statistics', 'Settings']) {
+  for (const name of ['How to play', 'Statistics', 'Settings']) {
     const b = (await page.getByRole('button', { name }).boundingBox())!
     expect(b.width).toBeCloseTo(40, 0)
     expect(b.height).toBeCloseTo(40, 0)

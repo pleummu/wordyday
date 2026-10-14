@@ -35,6 +35,7 @@ test('shows only once', async ({ page }) => {
 test('reopens from the header and returns focus', async ({ page }) => {
   await fixAnswers(page, { help: true })
   await page.goto('/')
+  await expect(help(page)).toBeVisible()
   await page.keyboard.press('Escape')
   await helpButton(page).click()
   await expect(help(page)).toBeVisible()
@@ -78,6 +79,7 @@ test('the Restore prompt wins, then How to play follows', async ({ page }) => {
 test('Reset is a first visit again', async ({ page }) => {
   await fixAnswers(page, { help: true })
   await page.goto('/')
+  await expect(help(page)).toBeVisible()
   await page.keyboard.press('Escape')
   await page.getByRole('button', { name: 'Settings' }).click()
   await page.getByRole('button', { name: 'Reset my data' }).click()
