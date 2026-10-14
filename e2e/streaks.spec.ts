@@ -96,14 +96,14 @@ test.describe('Win Streak (STRK-01, D-12)', () => {
     )
   })
 
-  test('the counters are saved as a v2 document and a restored game opens no modal', async ({
+  test('the counters are saved as a v3 document and a restored game opens no modal', async ({
     page,
   }) => {
     await winOnce(page)
     await playAgain(page)
     await winOnce(page)
     const doc = await saved(page)
-    expect(doc.version).toBe(2)
+    expect(doc.version).toBe(3)
     const s = doc.state.stats['normal-5']
     expect(s.played).toBe(2)
     expect(s.wins).toBe(2)

@@ -44,7 +44,7 @@ export function createThrowingStorage(flags: {
   }
 }
 
-// A full v2 document: the empty save with overrides on top.
+// A full current-version document: the empty save with overrides on top.
 export function v2Save(overrides: Partial<SaveDoc> = {}): SaveDoc {
   return { ...emptySave(), ...overrides }
 }

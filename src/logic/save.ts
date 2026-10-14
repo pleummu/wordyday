@@ -1,6 +1,7 @@
 import { BOARD_CONFIG, type Mode, type WordLength } from './boards'
 
-export const SAVE_VERSION = 2
+export const SAVE_VERSION = 3
+export type Theme = 'system' | 'light' | 'dark'
 export const SAVE_KEY = 'unlimited-wordle'
 // Backup key for an unreadable document is SAVE_KEY + CORRUPT_SUFFIX.
 export const CORRUPT_SUFFIX = ':corrupt'
@@ -69,6 +70,9 @@ export type SaveDoc = {
   restores: Restores
   pendingRestore: PendingRestore | null
   streakRev: number
+  theme: Theme
+  colourBlind: boolean
+  howToPlaySeen: boolean
 }
 
 function lengthOfKey(key: BoardKey): WordLength {
@@ -108,6 +112,9 @@ export function emptySave(): SaveDoc {
     restores: { month: '', used: 0 },
     pendingRestore: null,
     streakRev: 0,
+    theme: 'system',
+    colourBlind: false,
+    howToPlaySeen: false,
   }
 }
 
@@ -132,7 +139,8 @@ export function canForfeit(
 }
 
 // v1 -> v2: add the Phase 5 slices, all at zero. Boards, last and the info flag
-// are untouched. A non-object is returned as is so validation rejects it.
+// are untouched. v2 -> v3: add the Phase 7 appearance and How-to-play flag, so
+// existing players see How-to-play once. A non-object is returned as is so validation rejects it.
 export const MIGRATIONS: Readonly<Record<number, (s: unknown) => unknown>> = {
   1: (s) => {
     if (typeof s !== 'object' || s === null || Array.isArray(s)) return s
@@ -144,6 +152,15 @@ export const MIGRATIONS: Readonly<Record<number, (s: unknown) => unknown>> = {
       restores: e.restores,
       pendingRestore: e.pendingRestore,
       streakRev: e.streakRev,
+    }
+  },
+  2: (s) => {
+    if (typeof s !== 'object' || s === null || Array.isArray(s)) return s
+    return {
+      ...(s as Record<string, unknown>),
+      theme: 'system',
+      colourBlind: false,
+      howToPlaySeen: false,
     }
   },
 }
@@ -475,6 +492,9 @@ export function validateSave(x: unknown): SaveDoc | null {
     restores: validateRestores(x.restores),
     pendingRestore: validatePending(x.pendingRestore),
     streakRev: isCount(x.streakRev) ? x.streakRev : 0,
+    theme: x.theme === 'light' || x.theme === 'dark' ? x.theme : 'system',
+    colourBlind: x.colourBlind === true,
+    howToPlaySeen: x.howToPlaySeen === true,
   }
 }
 
