@@ -165,6 +165,8 @@ export type GameState = {
   openReset(): void
   cancelReset(): void
   resetAll(): void
+  setTheme(theme: Theme): void
+  setColourBlind(on: boolean): void
   applyStorageNotice(n: StorageNotice): void
   applyExternal(raw: string | null): void
   giveUp(): void
@@ -625,6 +627,17 @@ export function createGameStore(deps: GameDeps) {
             set({ dialog: null })
           },
 
+          setTheme(theme) {
+            if (theme !== 'system' && theme !== 'light' && theme !== 'dark') {
+              return
+            }
+            set({ theme })
+          },
+
+          setColourBlind(on) {
+            set({ colourBlind: on })
+          },
+
           openSettings() {
             const { dialog, infoOpen, pendingRestore, resultPending } = get()
             if (
@@ -824,8 +837,12 @@ export function createGameStore(deps: GameDeps) {
             const mergedStreak = pickStreak(pickFields(state), pickFields(doc))
             const seen = state.wordubadoInfoSeen || doc.wordubadoInfoSeen
             const help = state.howToPlaySeen || doc.howToPlaySeen
+            // Appearance: adopt the other tab's choice; never "behind", so no ping-pong.
             let changedForMe =
-              seen !== state.wordubadoInfoSeen || help !== state.howToPlaySeen
+              seen !== state.wordubadoInfoSeen ||
+              help !== state.howToPlaySeen ||
+              doc.theme !== state.theme ||
+              doc.colourBlind !== state.colourBlind
             let behindThem =
               seen !== doc.wordubadoInfoSeen || help !== doc.howToPlaySeen
             for (const k of BOARD_KEYS) {
@@ -846,6 +863,8 @@ export function createGameStore(deps: GameDeps) {
               boards: merged,
               wordubadoInfoSeen: seen,
               howToPlaySeen: help,
+              theme: doc.theme,
+              colourBlind: doc.colourBlind,
               stats: mergedStats,
               ...mergedStreak,
             }

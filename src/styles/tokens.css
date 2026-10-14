@@ -65,3 +65,13 @@
   --shadow-toast: 0 4px 16px rgba(0, 0, 0, 0.3);
   --shadow-button: 0 2px 8px rgba(0, 0, 0, 0.25);
 }
+
+:root[data-palette='colour-blind'] {
+  --tile-correct: #e8913a;
+  --tile-present: #6aa5e3;
+}
+
+:root[data-theme='dark'][data-palette='colour-blind'] {
+  --tile-correct: #9a5212;
+  --tile-present: #1c4f8c;
+}

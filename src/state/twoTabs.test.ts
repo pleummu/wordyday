@@ -199,6 +199,23 @@ describe('two tabs', () => {
     expect(b.store.getState().howToPlaySeen).toBe(true)
   })
 
+  it('theme and colour-blind are adopted by the other tab without ping-pong', async () => {
+    const { shared, a, b, settle } = await twoTabs()
+    a.store.getState().setTheme('dark')
+    a.store.getState().setColourBlind(true)
+    await settle()
+    expect(b.store.getState().theme).toBe('dark')
+    expect(b.store.getState().colourBlind).toBe(true)
+    expect(a.store.getState().theme).toBe('dark')
+    // A second sync of the same document changes nothing in either tab.
+    const raw = shared.get(SAVE_KEY) as string
+    const spy = vi.fn()
+    const unsub = a.store.subscribe(spy)
+    a.store.getState().applyExternal(raw)
+    unsub()
+    expect(spy).not.toHaveBeenCalled()
+  })
+
   it('CR-02 Reset converges on one fresh game', async () => {
     const { shared, a, b, settle } = await twoTabs()
     await guess(a, settle, 'house')

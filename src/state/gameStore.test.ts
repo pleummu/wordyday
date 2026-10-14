@@ -2295,3 +2295,22 @@ describe('announcement (07-05)', () => {
     expect(store.getState().announcement).toBeNull()
   })
 })
+
+describe('appearance (07-06)', () => {
+  it('setTheme and setColourBlind update state and the saved doc', async () => {
+    const { store, mem } = await started()
+    store.getState().setTheme('dark')
+    store.getState().setColourBlind(true)
+    expect(store.getState().theme).toBe('dark')
+    expect(store.getState().colourBlind).toBe(true)
+    const doc = JSON.parse(mem.getItem(SAVE_KEY) as string)
+    expect(doc.state.theme).toBe('dark')
+    expect(doc.state.colourBlind).toBe(true)
+  })
+
+  it('ignores a theme outside the three', async () => {
+    const { store } = await started()
+    store.getState().setTheme('purple' as never)
+    expect(store.getState().theme).toBe('system')
+  })
+})
