@@ -148,3 +148,11 @@ export const HELP_EXAMPLES = [
     caption: 'G is not in the word at all.',
   },
 ] as const
+
+export const triesLeftLine = (n: number) =>
+  n === 1 ? '1 try left.' : `${n} tries left.`
+export const wonLine = (n: number) => `You won in ${n}.`
+export const lostLine = (word: string) =>
+  `Out of tries. The word was ${word.toUpperCase()}.`
+export const gaveUpLine = (word: string) =>
+  `You gave up. The word was ${word.toUpperCase()}.`
