@@ -151,7 +151,9 @@ test.describe('Day Streak (STRK-02, D-11)', () => {
   test('first win of the day: praise then Day streak: 1', async ({ page }) => {
     await startDay(page)
     await guess(page, 'crane', 1)
-    await expect(page.getByRole('status')).toHaveText('Unbelievable!')
+    await expect(page.locator('.toast[role=status]')).toHaveText(
+      'Unbelievable!',
+    )
     await expect(page.locator('.toast-layer .toast')).toHaveText(
       'Day streak: 1',
     )

@@ -2235,3 +2235,63 @@ describe('How to play (07-01)', () => {
     expect(s.colourBlind).toBe(false)
   })
 })
+
+describe('announcement (07-05)', () => {
+  it('is set by finishReveal, not submit, and ignores typing', async () => {
+    const { store } = await started()
+    type(store, 'hou')
+    store.getState().backspace()
+    expect(store.getState().announcement).toBeNull()
+    store.getState().typeLetter('u')
+    store.getState().typeLetter('s')
+    store.getState().typeLetter('e')
+    store.getState().submit()
+    expect(store.getState().announcement).toBeNull()
+    store.getState().finishReveal()
+    const a = store.getState().announcement
+    expect(a?.text).toBe(
+      'HOUSE: H absent, O absent, U absent, S absent, E correct. 5 tries left.',
+    )
+    store.getState().typeLetter('a')
+    store.getState().backspace()
+    expect(store.getState().announcement).toBe(a)
+  })
+
+  it('announces win, loss and give up', async () => {
+    const win = await started()
+    type(win.store, 'crane')
+    win.store.getState().submit()
+    win.store.getState().finishReveal()
+    expect(win.store.getState().announcement?.text).toMatch(/You won in 1\.$/)
+
+    const lose = await started()
+    for (const w of ['house', 'slate', 'ghost', 'house', 'slate', 'ghost']) {
+      type(lose.store, w)
+      lose.store.getState().submit()
+      lose.store.getState().finishReveal()
+    }
+    expect(lose.store.getState().announcement?.text).toMatch(
+      /Out of tries\. The word was CRANE\.$/,
+    )
+
+    const gu = await started()
+    for (const w of ['house', 'slate', 'ghost', 'house']) {
+      type(gu.store, w)
+      gu.store.getState().submit()
+      gu.store.getState().finishReveal()
+    }
+    gu.store.getState().giveUp()
+    expect(gu.store.getState().announcement?.text).toBe(
+      'You gave up. The word was CRANE.',
+    )
+  })
+
+  it('startGame clears it', async () => {
+    const { store } = await started()
+    type(store, 'house')
+    store.getState().submit()
+    store.getState().finishReveal()
+    await store.getState().startGame(5)
+    expect(store.getState().announcement).toBeNull()
+  })
+})

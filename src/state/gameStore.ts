@@ -29,6 +29,7 @@ import {
   type Theme,
   type SavedGame,
 } from '../logic/save'
+import { giveUpAnnouncement, guessAnnouncement } from '../logic/announce'
 import { score, type TileState } from '../logic/score'
 import { nextSeq, recordResult } from '../logic/stats'
 import {
@@ -108,6 +109,8 @@ export type GameState = {
   status: GameStatus
   keyStates: KeyStates
   toast: Toast | null
+  // Transient screen-reader line, set only when a reveal finishes or a game is given up.
+  announcement: { id: number; text: string } | null
   shakeId: number
   shakeRow: number
   pools: Pools | null
@@ -431,6 +434,7 @@ export function createGameStore(deps: GameDeps) {
             rows: [],
             current: '',
             keyStates: {},
+            announcement: null,
             shakeRow: -1,
             finishedInSession: false,
             finishNote: null,
@@ -478,6 +482,7 @@ export function createGameStore(deps: GameDeps) {
           status: 'loading',
           keyStates: {},
           toast: null,
+          announcement: null,
           colourBlind: false,
           shakeId: 0,
           shakeRow: -1,
@@ -717,6 +722,7 @@ export function createGameStore(deps: GameDeps) {
               answer: '',
               rows: [],
               current: '',
+              announcement: null,
             })
             void get().startGame(5, 'normal')
             set({
@@ -799,6 +805,7 @@ export function createGameStore(deps: GameDeps) {
                 resultFlourish: false,
                 definitionShown: false,
                 dialog: closeConfirms(s0.dialog),
+                announcement: null,
               })
               void get().startGame(s0.length, s0.mode)
               set({ toast: toast() })
@@ -901,7 +908,14 @@ export function createGameStore(deps: GameDeps) {
             set({ dialog: null })
             const { status, rows, length, mode } = get()
             if (!canForfeit(status, rows.length, ATTEMPTS(length))) return
-            set({ status: 'gave-up', finishedInSession: true })
+            set({
+              status: 'gave-up',
+              finishedInSession: true,
+              announcement: {
+                id: ++toastSeq,
+                text: giveUpAnnouncement(get().answer),
+              },
+            })
             finishGame(boardKey(mode, length), 'gave-up')
             showDueDayToast()
             const after = get()
@@ -967,6 +981,7 @@ export function createGameStore(deps: GameDeps) {
               current: '',
               keyStates: {},
               toast: null,
+              announcement: null,
               shakeRow: -1,
               finishedInSession: false,
               finishNote: null,
@@ -1099,7 +1114,7 @@ export function createGameStore(deps: GameDeps) {
           },
 
           finishReveal() {
-            const { status, rows, keyStates, length } = get()
+            const { status, rows, keyStates, length, answer } = get()
             if (status !== 'revealing') return
             const last = rows[rows.length - 1]
             const merged = applyGuessToKeys(
@@ -1108,11 +1123,16 @@ export function createGameStore(deps: GameDeps) {
               last.states,
             )
             const due = get().dayToastDue
+            const say = (end: Parameters<typeof guessAnnouncement>[2]) => ({
+              id: ++toastSeq,
+              text: guessAnnouncement(last.letters, last.states, end),
+            })
             if (last.states.every((s) => s === 'correct')) {
               set({
                 keyStates: merged,
                 status: 'won',
                 finishedInSession: true,
+                announcement: say({ kind: 'won', attempts: rows.length }),
                 toast: {
                   id: ++toastSeq,
                   text: PRAISE[rows.length - 1] ?? PRAISE[PRAISE.length - 1],
@@ -1140,11 +1160,19 @@ export function createGameStore(deps: GameDeps) {
                 keyStates: merged,
                 status: 'lost',
                 finishedInSession: true,
+                announcement: say({ kind: 'lost', answer }),
               })
               showDueDayToast()
               scheduleResult('lost')
             } else {
-              set({ keyStates: merged, status: 'playing' })
+              set({
+                keyStates: merged,
+                status: 'playing',
+                announcement: say({
+                  kind: 'playing',
+                  triesLeft: BOARD_CONFIG[length].attempts - rows.length,
+                }),
+              })
             }
             const pending = get().pendingExternal
             if (pending !== undefined) {

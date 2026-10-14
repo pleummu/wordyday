@@ -58,7 +58,7 @@ test('Give Up announces the forfeit line', async ({ page }) => {
   const line = 'You gave up. The word was CRANE.'
   await expect(region).toHaveText(line)
   expect(await region.evaluate((el) => el.matches(':popover-open'))).toBe(true)
-  await expect(
-    page.getByRole('status').filter({ hasText: line }),
-  ).toHaveCount(1)
+  await expect(page.getByRole('status').filter({ hasText: line })).toHaveCount(
+    1,
+  )
 })

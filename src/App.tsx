@@ -14,6 +14,7 @@ import StreakBreakModal from './components/StreakBreakModal'
 import SettingsModal from './components/SettingsModal'
 import ResultModal from './components/ResultModal'
 import StatsModal from './components/StatsModal'
+import LiveRegion from './components/LiveRegion'
 import Toast from './components/Toast'
 import WordubadoInfo from './components/WordubadoInfo'
 import { usePhysicalKeyboard } from './components/usePhysicalKeyboard'
@@ -106,6 +107,7 @@ export default function App() {
         raiseKey={dialog}
         announce={dialog !== 'result'}
       />
+      <LiveRegion raiseKey={dialog} />
     </div>
   )
 }

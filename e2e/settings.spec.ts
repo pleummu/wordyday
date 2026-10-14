@@ -61,7 +61,9 @@ test('Reset makes the app a first visit', async ({ page }) => {
     .getByRole('dialog', { name: 'Reset all data?' })
     .getByRole('button', { name: 'Reset', exact: true })
     .click()
-  await expect(page.getByRole('status')).toContainText('All data reset')
+  await expect(page.locator('.toast[role=status]')).toContainText(
+    'All data reset',
+  )
   await expect(page.getByRole('switch', { name: 'Wordubado' })).toHaveAttribute(
     'aria-checked',
     'false',
