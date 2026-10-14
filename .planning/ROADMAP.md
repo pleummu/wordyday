@@ -358,7 +358,7 @@ Plans:
 
 **Wave 5** *(blocked on Wave 4 completion)*
 
-- [ ] 07-07-PLAN.md — Keyboard-only E2E audit, Modal trap and Enter fixes, axe in all four theme/palette combinations
+- [x] 07-07-PLAN.md — Keyboard-only E2E audit, Modal trap and Enter fixes, axe in all four theme/palette combinations
 
 **Wave 6** *(blocked on Wave 5 completion)*
 
@@ -391,5 +391,5 @@ Plans:
 | 4. Six Boards and Persistence | 12/12 | Complete   | 2026-10-04 |
 | 5. Stats, Streaks and Restore | 8/8 | Complete   | 2026-10-05 |
 | 6. Result Screen, Share and Definitions | 7/8 | In Progress|  |
-| 7. Themes, Accessibility and Polish | 6/8 | In Progress|  |
+| 7. Themes, Accessibility and Polish | 7/8 | In Progress|  |
 | 8. E2E, CI Hardening and Pipeline Docs | 0/TBD | Not started | - |

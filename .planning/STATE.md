@@ -4,13 +4,13 @@ milestone: v1.0
 milestone_name: milestone
 status: executing
 stopped_at: Phase 7 UI-SPEC approved
-last_updated: "2026-10-14T16:52:09.010Z"
+last_updated: "2026-10-14T17:05:09.567Z"
 last_activity: 2026-10-14
 progress:
   total_phases: 8
   completed_phases: 5
   total_plans: 59
-  completed_plans: 56
+  completed_plans: 57
   percent: 63
 ---
 
@@ -26,11 +26,11 @@ See: .planning/PROJECT.md (updated 2026-10-01)
 ## Current Position
 
 Phase: 7 (themes-accessibility-and-polish) — EXECUTING
-Plan: 7 of 8
+Plan: 8 of 8
 Status: Ready to execute
 Last activity: 2026-10-14
 
-Progress: [██████████] 95%
+Progress: [██████████] 97%
 
 ## Performance Metrics
 
@@ -76,6 +76,7 @@ Progress: [██████████] 95%
 | Phase 06 P05 | 35min | 3 tasks | 11 files |
 | Phase 07 P05 | 25min | 2 tasks | 12 files |
 | Phase 07 P06 | 30min | 3 tasks | 10 files |
+| Phase 07 P07 | 35min | 2 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -116,6 +117,7 @@ Progress: [██████████] 95%
 - [Phase ?]: 07-04: head script reads versioned save doc, no second storage key; writes only constant strings
 - [Phase 07]: 07-05 live region is a popover=manual layer re-raised via raiseKey=dialog; announcement set only in finishReveal/giveUp
 - [Phase 07]: 07-06: applyExternal adopts other tab's theme/colourBlind as changedForMe only (no ping-pong); Appearance controls are buttons only
+- [Phase 07]: 07-07: Modal Tab trap counts only tabIndex >= 0 buttons; typed letters/Backspace blur a focused non-dialog element so Enter submits; light focus #648f70 and muted #676c76 tuned for contrast
 
 ### Pending Todos
 
@@ -130,6 +132,6 @@ Progress: [██████████] 95%
 
 ## Session Continuity
 
-Last session: 2026-10-14T16:51:58.688Z
+Last session: 2026-10-14T17:05:00.757Z
 Stopped at: Phase 7 UI-SPEC approved
 Resume file: None
