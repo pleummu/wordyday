@@ -354,7 +354,7 @@ Plans:
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
-- [ ] 07-06-PLAN.md — Appearance section in Settings: System/Light/Dark and colour-blind palette, saved, synced, reset
+- [x] 07-06-PLAN.md — Appearance section in Settings: System/Light/Dark and colour-blind palette, saved, synced, reset
 
 **Wave 5** *(blocked on Wave 4 completion)*
 
@@ -391,5 +391,5 @@ Plans:
 | 4. Six Boards and Persistence | 12/12 | Complete   | 2026-10-04 |
 | 5. Stats, Streaks and Restore | 8/8 | Complete   | 2026-10-05 |
 | 6. Result Screen, Share and Definitions | 7/8 | In Progress|  |
-| 7. Themes, Accessibility and Polish | 5/8 | In Progress|  |
+| 7. Themes, Accessibility and Polish | 6/8 | In Progress|  |
 | 8. E2E, CI Hardening and Pipeline Docs | 0/TBD | Not started | - |
