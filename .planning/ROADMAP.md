@@ -14,7 +14,7 @@ Vertical MVP: a playable game appears as early as possible (Phase 2), then each 
 - [x] **Phase 5: Stats, Streaks and Restore** - Win Streaks, Day Streak, monthly Restores and the statistics screen
  (completed 2026-10-05)
 - [ ] **Phase 6: Result Screen, Share and Definitions** - Result modal with Play again, Show definition and Share
-- [ ] **Phase 7: Themes, Accessibility and Polish** - Dark/colour-blind themes, how-to-play, screen-reader and keyboard support, metadata
+- [x] **Phase 7: Themes, Accessibility and Polish** - Dark/colour-blind themes, how-to-play, screen-reader and keyboard support, metadata (completed 2026-10-14)
 - [ ] **Phase 8: E2E, CI Hardening and Pipeline Docs** - Playwright full-game suite, complete CI, and the PIPELINE.md learning guide
 
 ## Phase Details
@@ -362,7 +362,7 @@ Plans:
 
 **Wave 6** *(blocked on Wave 5 completion)*
 
-- [ ] 07-08-PLAN.md — Full gate, validation map, owner manual checks (screen reader, iPhone, link preview) (checkpoint)
+- [x] 07-08-PLAN.md — Full gate, validation map, owner manual checks (screen reader, iPhone, link preview) (checkpoint)
 **UI hint**: yes
 **Notes**: Needs an iOS dvh/device or WebKit check. The production domain is set when deploying (needed for OG tags and share URL).
 
@@ -391,5 +391,5 @@ Plans:
 | 4. Six Boards and Persistence | 12/12 | Complete   | 2026-10-04 |
 | 5. Stats, Streaks and Restore | 8/8 | Complete   | 2026-10-05 |
 | 6. Result Screen, Share and Definitions | 7/8 | In Progress|  |
-| 7. Themes, Accessibility and Polish | 7/8 | In Progress|  |
+| 7. Themes, Accessibility and Polish | 8/8 | Complete   | 2026-10-14 |
 | 8. E2E, CI Hardening and Pipeline Docs | 0/TBD | Not started | - |

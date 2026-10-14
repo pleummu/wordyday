@@ -74,11 +74,11 @@ created: 2026-10-13
 
 ## Manual-Only Verifications
 
-| Behavior | Requirement | Why Manual | Test Instructions |
-|----------|-------------|------------|-------------------|
-| Real screen reader hears guess results, win/loss/give-up line | UI-07 | Live-region speech can't be asserted in jsdom/Playwright | NVDA (Windows) or VoiceOver: play a win, a loss and a Give Up; confirm one announcement per guess, none during typing |
-| iPhone Safari layout and theme-color | UI-02, UI-06 | WebKit not installed here | Open the preview on an iPhone in light and dark; check no flash, header fits, dvh layout |
-| Link preview card | UI-10 | Needs the deployed absolute URL | After production deploy, paste https://wordyday.vercel.app into Slack/Discord or opengraph.xyz |
+| Behavior | Requirement | Why Manual | Test Instructions | Outcome |
+|----------|-------------|------------|-------------------|---------|
+| Real screen reader hears guess results, win/loss/give-up line | UI-07 | Live-region speech can't be asserted in jsdom/Playwright | NVDA (Windows) or VoiceOver: play a win, a loss and a Give Up; confirm one announcement per guess, none during typing | approved by owner (2026-10-15) |
+| iPhone Safari layout and theme-color | UI-02, UI-06 | WebKit not installed here | Open the preview on an iPhone in light and dark; check no flash, header fits, dvh layout | approved by owner (2026-10-15) |
+| Link preview card | UI-10 | Needs the deployed absolute URL | After production deploy, paste https://wordyday.vercel.app into Slack/Discord or opengraph.xyz | approved by owner (2026-10-15) |
 
 ---
 
@@ -91,4 +91,4 @@ created: 2026-10-13
 - [x] Feedback latency < 120s
 - [x] `nyquist_compliant: true` set in frontmatter
 
-**Approval:** automated gate green; manual-only checks pending owner sign-off
+**Approval:** approved 2026-10-15. Automated gate green; owner approved all six manual checks (link preview recorded as approved by the owner, depends on the production deploy).
