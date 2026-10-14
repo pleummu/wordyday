@@ -296,10 +296,12 @@ Add a lint-ish guard: the test must not call `.click()`. Test dark with `page.em
 | A6 | Cached Chromium 1243 launches from a Node script without `executablePath` | Pattern 8 | Pass `executablePath` explicitly |
 | A7 | iOS dvh behaviour fine as-is | Pitfall 8 | Needs a manual device check |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. Praise toast plus "You won in 4" both announced on a win — keep both, or silence the toast's role on wins? Recommendation: keep both (different facts); revisit after a manual SR pass.
+   RESOLVED: keep both. On a win the praise toast (role=status) and the live-region line ending "You won in N." are both announced; the live line carries only the result facts, never the praise (07-05; NVDA pass in 07-08).
 2. Should manual opening of Help while a game is mid-reveal be allowed? Recommendation: no (same guard as Settings: `resultPending`/`dialog`; reveal is covered by `isBusy`-style guard like Stats).
+   RESOLVED: no. `openHelp` refuses while `isBusy(s)` (reveal or result pause), as well as while a dialog, the Wordubado popup, a pending Restore prompt or a break notice is active; the header "?" button is disabled under the same conditions (07-01 Task 3, 07-03).
 
 ## Environment Availability
 
