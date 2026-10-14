@@ -87,7 +87,12 @@ export default function Modal({
     if (e.key !== 'Tab') return
     const buttons = Array.from(
       e.currentTarget.querySelectorAll<HTMLElement>('button, textarea'),
-    ).filter((b) => !(b as HTMLButtonElement | HTMLTextAreaElement).disabled)
+    ).filter(
+      // roving groups keep only their selected item tabbable
+      (b) =>
+        !(b as HTMLButtonElement | HTMLTextAreaElement).disabled &&
+        b.tabIndex >= 0,
+    )
     if (buttons.length === 0) return
     const first = buttons[0]
     const last = buttons[buttons.length - 1]

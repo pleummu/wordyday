@@ -193,3 +193,22 @@ it('includes a textarea in the Tab trap', () => {
   fireEvent.keyDown(first, { key: 'Tab', shiftKey: true })
   expect(document.activeElement).toBe(box)
 })
+
+it('the Tab trap skips tabindex -1 buttons (roving groups)', () => {
+  render(
+    <Modal open onClose={() => {}} titleId="t" bodyId="b">
+      <h2 id="t">Title</h2>
+      <p id="b">Body</p>
+      <button tabIndex={-1}>A</button>
+      <button data-initial-focus>B</button>
+      <button tabIndex={-1}>C</button>
+      <button>D</button>
+    </Modal>,
+  )
+  const b = screen.getByText('B')
+  const d = screen.getByText('D')
+  fireEvent.keyDown(b, { key: 'Tab', shiftKey: true })
+  expect(document.activeElement).toBe(d)
+  fireEvent.keyDown(d, { key: 'Tab' })
+  expect(document.activeElement).toBe(b)
+})
