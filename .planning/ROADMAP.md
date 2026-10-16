@@ -14,7 +14,8 @@ Vertical MVP: a playable game appears as early as possible (Phase 2), then each 
 - [x] **Phase 5: Stats, Streaks and Restore** - Win Streaks, Day Streak, monthly Restores and the statistics screen
  (completed 2026-10-05)
 - [ ] **Phase 6: Result Screen, Share and Definitions** - Result modal with Play again, Show definition and Share
-- [x] **Phase 7: Themes, Accessibility and Polish** - Dark/colour-blind themes, how-to-play, screen-reader and keyboard support, metadata (completed 2026-10-14)
+- [x] **Phase 7: Themes, Accessibility and Polish** - Dark/colour-blind themes, how-to-play, screen-reader and keyboard support, metadata
+ (completed 2026-10-14)
 - [ ] **Phase 8: E2E, CI Hardening and Pipeline Docs** - Playwright full-game suite, complete CI, and the PIPELINE.md learning guide
 
 ## Phase Details
@@ -378,7 +379,28 @@ Plans:
   2. Every PR and push to main runs lint, format check, typecheck, unit tests, build, E2E and the word-drift check, and a failing check is visible on the PR
   3. Owner can read docs/PIPELINE.md and follow the phases, the GSD workflow (discuss, plan, execute, verify) and the words-build, Vite, Vitest, Playwright, CI, Vercel flow with "what you'll learn" notes
 
-**Plans**: TBD
+**Plans**: 5 plans
+
+Plans:
+**Wave 1**
+
+- [ ] 08-01-PLAN.md — Secret scan, owner makes repo public, branch protection with required check/words/e2e (checkpoint)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [ ] 08-02-PLAN.md — Owner decisions, stacked per-phase PRs for Phases 2-7, all green in CI, e2e measured (checkpoint)
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
+- [ ] 08-03-PLAN.md — Merge the chain in order with merge commits; main CI and production green
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
+- [ ] 08-04-PLAN.md — Phase 8 branch: gzip bundle budget and size table, Playwright browser cache, sharding only if measured need
+
+**Wave 5** *(blocked on Wave 4 completion)*
+
+- [ ] 08-05-PLAN.md — QA-03 traceability in 08-VERIFICATION.md, PIPELINE.md refresh with retrospective and Try-it boxes, owner read-through (checkpoint)
 **Notes**: Research flag: Playwright page.clock/reducedMotion and current actions/* versions. Includes the bundle budget and branch protection.
 
 ## Progress
