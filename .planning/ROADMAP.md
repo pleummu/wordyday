@@ -396,7 +396,7 @@ Plans:
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
-- [ ] 08-04-PLAN.md — Phase 8 branch: gzip bundle budget and size table, Playwright browser cache, sharding only if measured need
+- [x] 08-04-PLAN.md — Phase 8 branch: gzip bundle budget and size table, Playwright browser cache, sharding only if measured need
 
 **Wave 5** *(blocked on Wave 4 completion)*
 
@@ -414,4 +414,4 @@ Plans:
 | 5. Stats, Streaks and Restore | 8/8 | Complete   | 2026-10-05 |
 | 6. Result Screen, Share and Definitions | 7/8 | In Progress|  |
 | 7. Themes, Accessibility and Polish | 8/8 | Complete   | 2026-10-14 |
-| 8. E2E, CI Hardening and Pipeline Docs | 3/5 | In Progress|  |
+| 8. E2E, CI Hardening and Pipeline Docs | 4/5 | In Progress|  |
