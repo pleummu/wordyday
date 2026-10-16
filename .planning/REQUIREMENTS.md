@@ -18,14 +18,14 @@
 
 ### Modes and Word Pools (WORD)
 
-- [ ] **WORD-01**: User can switch between Normal and Wordubado modes
+- [x] **WORD-01**: User can switch between Normal and Wordubado modes
 - [x] **WORD-02**: In Normal mode, answers are common English words only: blocklisted words removed, plurals and inflections (-s, -ed, -ing) removed
-- [ ] **WORD-03**: User can guess slang/meme/Gen Z words in Normal mode, but they are never the answer
-- [ ] **WORD-04**: In Wordubado mode, each game's answer is slang 75% of the time and a common word 25% of the time
+- [x] **WORD-03**: User can guess slang/meme/Gen Z words in Normal mode, but they are never the answer
+- [x] **WORD-04**: In Wordubado mode, each game's answer is slang 75% of the time and a common word 25% of the time
 - [x] **WORD-05**: Answers are fully random (repeats allowed)
-- [ ] **WORD-06**: User can open a Wordubado (i) popup that explains the mode and warns about mildly crude content
+- [x] **WORD-06**: User can open a Wordubado (i) popup that explains the mode and warns about mildly crude content
 - [x] **WORD-07**: A build script generates the answer and guess pools for 4-6 letters from `wordlist-english` with a blocklist; every answer and every slang word is also in the guess pool; generated JSON is committed and CI checks it hasn't drifted
-- [ ] **WORD-08**: `slang.json` holds ~80-150 curated words per length, each with a definition; mild words are allowed, slurs and hate terms never; owner-reviewed; validated by a unit test (length, non-empty definition, no duplicates, not blocklisted)
+- [x] **WORD-08**: `slang.json` holds ~80-150 curated words per length, each with a definition; mild words are allowed, slurs and hate terms never; owner-reviewed; validated by a unit test (length, non-empty definition, no duplicates, not blocklisted)
 - [x] **WORD-09**: Word pools are lazy-loaded per length (not in the initial bundle)
 
 ### Boards and Persistence (SAVE)
@@ -149,12 +149,12 @@
 | WORD-05 | Phase 2 | Complete |
 | WORD-07 | Phase 2 | Complete |
 | WORD-09 | Phase 2 | Complete |
-| UI-05 | Phase 3 | Pending |
-| WORD-01 | Phase 3 | Pending |
-| WORD-03 | Phase 3 | Pending |
-| WORD-04 | Phase 3 | Pending |
-| WORD-06 | Phase 3 | Pending |
-| WORD-08 | Phase 3 | Pending |
+| UI-05 | Phase 3 (mode switch + length picker), Phase 4 (settings button), Phase 5 (stats button), Phase 7 (help button); split per D-14 | Partial (Phase 3 part done; tick at Phase 7) |
+| WORD-01 | Phase 3 | Complete |
+| WORD-03 | Phase 3 | Complete |
+| WORD-04 | Phase 3 | Complete |
+| WORD-06 | Phase 3 | Complete |
+| WORD-08 | Phase 3 | Complete |
 | PLAY-07 | Phase 4 | Pending |
 | PLAY-08 | Phase 4 | Pending |
 | SAVE-01 | Phase 4 | Pending |

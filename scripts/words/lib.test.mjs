@@ -5,6 +5,12 @@ import {
   buildPools,
   assertInvariants,
   serialisePools,
+  parseCutList,
+  findBlocklistHits,
+  removeCut,
+  markReviewed,
+  renderSlangReview,
+  reviewedSlang,
 } from './lib.mjs'
 
 const ALL = new Set([
@@ -125,6 +131,8 @@ describe('assertInvariants', () => {
     answers: ['fine', 'good'],
     guesses: ['rare', 'slng'],
     slang: ['slng'],
+    slangAnswers: ['slng'],
+    isProfane: () => false,
     blocklist: new Set(['blok']),
     exclude: new Set(['excl']),
     minAnswers: 2,
@@ -163,12 +171,100 @@ describe('assertInvariants', () => {
     ).toThrow()
     expect(() => assertInvariants({ ...ok(), minAnswers: 3 })).toThrow()
   })
+  it('throws on bad slang answers', () => {
+    const bad = (slangAnswers, extra = {}) =>
+      expect(() =>
+        assertInvariants({ ...ok(), slangAnswers, ...extra }),
+      ).toThrow()
+    bad(['gone'])
+    bad(['fine'])
+    bad(['slng5'])
+    bad(['slng'], { blocklist: new Set(['slng']) })
+    bad(['slng'], { isProfane: (w) => w === 'slng' })
+  })
 })
 
 describe('serialisePools', () => {
   it('ends with one newline and round-trips', () => {
-    const t = serialisePools({ answers: ['a', 'b'], guesses: ['c'] })
+    const t = serialisePools({
+      answers: ['a', 'b'],
+      guesses: ['c'],
+      slang: ['d', 'e'],
+    })
     expect(t.endsWith('}\n')).toBe(true)
-    expect(JSON.parse(t)).toEqual({ answers: 'a b', guesses: 'c' })
+    expect(JSON.parse(t)).toEqual({
+      answers: 'a b',
+      guesses: 'c',
+      slang: 'd e',
+    })
+    expect(Object.keys(JSON.parse(t))).toEqual(['answers', 'guesses', 'slang'])
+  })
+})
+
+describe('parseCutList', () => {
+  it('parses word and reason, defaulting to owner cut', () => {
+    expect(
+      parseCutList(
+        'arse  # blocklist hit\nfoo # owner cut\n\n# heading only\nbar\n',
+      ),
+    ).toEqual([
+      { word: 'arse', reason: 'blocklist hit' },
+      { word: 'foo', reason: 'owner cut' },
+      { word: 'bar', reason: 'owner cut' },
+    ])
+  })
+})
+
+describe('slang review helpers', () => {
+  const entries = [
+    { word: 'arse', definition: 'x', crude: true, reviewed: false },
+    { word: 'yeet', definition: 'y', crude: false, reviewed: false },
+    { word: 'blok', definition: 'z', crude: false, reviewed: false },
+  ]
+  it('findBlocklistHits returns sorted hits', () => {
+    expect(
+      findBlocklistHits(entries, {
+        isProfane: (w) => w === 'arse',
+        blocklist: new Set(['blok']),
+      }),
+    ).toEqual(['arse', 'blok'])
+  })
+  it('removeCut drops cut words and is idempotent', () => {
+    const once = removeCut(entries, new Set(['arse']))
+    expect(once.map((e) => e.word)).toEqual(['yeet', 'blok'])
+    expect(removeCut(once, new Set(['arse']))).toEqual(once)
+  })
+  it('markReviewed sets reviewed true only', () => {
+    const out = markReviewed(entries)
+    expect(out.every((e) => e.reviewed === true)).toBe(true)
+    expect(out[0]).toEqual({ ...entries[0], reviewed: true })
+  })
+  it('renderSlangReview renders cut-list form with Already cut', () => {
+    const md = renderSlangReview(entries.slice(1), {
+      isProfane: () => false,
+      blocklist: new Set(),
+      commonByLength: { 4: new Set(), 5: new Set(), 6: new Set() },
+      cuts: [{ word: 'arse', reason: 'blocklist hit' }],
+    })
+    expect(md).toContain('## Already cut (1)')
+    expect(md).toContain('| arse | 4 | blocklist hit |')
+    expect(md).not.toContain('keep/cut')
+    expect(md).toContain('Reply with the words to cut')
+  })
+})
+
+describe('reviewedSlang', () => {
+  it('keeps reviewed words of the length, sorted', () => {
+    expect(
+      reviewedSlang(
+        [
+          { word: 'bruh', reviewed: true },
+          { word: 'yeet', reviewed: false },
+          { word: 'rizzy', reviewed: true },
+          { word: 'aight', reviewed: true },
+        ],
+        5,
+      ),
+    ).toEqual(['aight', 'rizzy'])
   })
 })

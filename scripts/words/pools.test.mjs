@@ -1,11 +1,12 @@
 import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
-import { parseList } from './lib.mjs'
+import { parseList, reviewedSlang } from './lib.mjs'
 
 const read = (rel) => readFileSync(new URL(rel, import.meta.url), 'utf8')
 const blocklist = new Set(parseList(read('./blocklist.txt')))
 const exclude = new Set(parseList(read('./exclude.txt')))
-const slang = JSON.parse(read('./slang.json')).map((e) => e.word)
+const slangEntries = JSON.parse(read('./slang.json'))
+const slang = slangEntries.map((e) => e.word)
 
 describe('D-13 committed pool invariants', () => {
   for (const n of [4, 5, 6]) {
@@ -40,6 +41,18 @@ describe('D-13 committed pool invariants', () => {
           expect(blocklist.has(w)).toBe(false)
           expect(exclude.has(w)).toBe(false)
           expect(slang.includes(w)).toBe(false)
+        }
+      })
+
+      it('slang field equals the reviewed slang of this length', () => {
+        expect(data.slang).toBe(reviewedSlang(slangEntries, n).join(' '))
+      })
+
+      it('every slang answer is a guess and never a Normal answer (WORD-03)', () => {
+        const pool = new Set(all)
+        for (const w of data.slang.split(' ')) {
+          expect(pool.has(w)).toBe(true)
+          expect(answerSet.has(w)).toBe(false)
         }
       })
 

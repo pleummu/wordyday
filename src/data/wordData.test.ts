@@ -4,10 +4,12 @@ import { readTestAnswer } from '../state/testHook'
 
 describe('toPools (D-13)', () => {
   it('splits answers and merges them into the guess set', () => {
-    const p = toPools({ answers: 'aa bb', guesses: 'cc' })
+    const p = toPools({ answers: 'aa bb', guesses: 'cc', slang: 'dd' })
     expect(p.answers).toEqual(['aa', 'bb'])
-    expect(p.guesses.size).toBe(3)
-    for (const w of ['aa', 'bb', 'cc']) expect(p.guesses.has(w)).toBe(true)
+    expect(p.slang).toEqual(['dd'])
+    expect(p.guesses.size).toBe(4)
+    for (const w of ['aa', 'bb', 'cc', 'dd'])
+      expect(p.guesses.has(w)).toBe(true)
   })
 })
 

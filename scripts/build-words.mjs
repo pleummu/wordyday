@@ -5,28 +5,27 @@
 //   - scripts/words/slang.json      slang entries { word, definition, crude, reviewed }
 //                                   (JSON cannot hold comments, so it is documented here;
 //                                   slang is merged into guesses and never a Normal answer)
+//   - scripts/words/slang-cuts.txt  cut slang words with reasons (parsed by parseCutList)
 //   - scripts/words/blocklist.txt   words never allowed as answers (still valid guesses)
 //   - scripts/words/exclude.txt     owner cut list, answers only (D-07)
 //   - scripts/words/extra-guesses.txt  real words missing from the source, guesses only (D-10)
 // Outputs (deterministic: sorted, no timestamps)
-//   - src/data/words-{4,5,6}.json   { answers, guesses } as space-joined strings
+//   - src/data/words-{4,5,6}.json   { answers, guesses, slang } as space-joined strings
 //   - scripts/words/slang-review.md owner review sheet for slang
 import { readFileSync, writeFileSync } from 'node:fs'
 import { gzipSync } from 'node:zlib'
 import wordlist from 'wordlist-english'
 import {
-  RegExpMatcher,
-  englishDataset,
-  englishRecommendedTransformers,
-} from 'obscenity'
-import {
   assertInvariants,
   buildPools,
   isPlainWord,
+  parseCutList,
   parseList,
   renderSlangReview,
+  reviewedSlang,
   serialisePools,
 } from './words/lib.mjs'
+import { isProfane } from './words/profanity.mjs'
 
 const LENGTHS = [4, 5, 6]
 const MIN_ANSWERS = 500 // D-06 (measured minimum 799)
@@ -43,12 +42,6 @@ const COMMON_KEYS = [
 
 const read = (rel) => readFileSync(new URL(rel, import.meta.url), 'utf8')
 
-const matcher = new RegExpMatcher({
-  ...englishDataset.build(),
-  ...englishRecommendedTransformers,
-})
-const isProfane = (w) => matcher.hasMatch(w)
-
 // D-08: every key and tier in the package, a-z only (non a-z dropped, D-09).
 const all = new Set(Object.values(wordlist).flat().filter(isPlainWord))
 const common = new Set(
@@ -58,6 +51,7 @@ const common = new Set(
 const blocklist = new Set(parseList(read('./words/blocklist.txt')))
 const exclude = new Set(parseList(read('./words/exclude.txt')))
 const extra = parseList(read('./words/extra-guesses.txt'))
+const cuts = parseCutList(read('./words/slang-cuts.txt'))
 const slangEntries = JSON.parse(read('./words/slang.json'))
 const slang = slangEntries.map((e) => e.word)
 
@@ -81,19 +75,22 @@ for (const length of LENGTHS) {
     exclude,
     isProfane,
   })
+  const slangAnswers = reviewedSlang(slangEntries, length)
   assertInvariants({
     length,
     answers,
     guesses,
     slang,
+    slangAnswers,
+    isProfane,
     blocklist,
     exclude,
     minAnswers: MIN_ANSWERS,
   })
-  const text = serialisePools({ answers, guesses })
+  const text = serialisePools({ answers, guesses, slang: slangAnswers })
   const gzip = gzipSync(Buffer.from(text)).length
   console.log(
-    `length ${length}: answers ${answers.length}, guesses ${guesses.length} (gzip ${(gzip / 1024).toFixed(1)} KB)`,
+    `length ${length}: answers ${answers.length}, guesses ${guesses.length}, slang ${slangAnswers.length} (gzip ${(gzip / 1024).toFixed(1)} KB)`,
   )
   for (const w of dropped.profanity) console.log(`obscenity drop: ${w}`)
   console.log(
@@ -119,6 +116,11 @@ const commonByLength = Object.fromEntries(
 )
 writeFileSync(
   new URL('./words/slang-review.md', import.meta.url),
-  renderSlangReview(slangEntries, { isProfane, blocklist, commonByLength }),
+  renderSlangReview(slangEntries, {
+    isProfane,
+    blocklist,
+    commonByLength,
+    cuts,
+  }),
   'utf8',
 )

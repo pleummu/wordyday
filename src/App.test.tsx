@@ -1,16 +1,19 @@
 // @vitest-environment jsdom
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react'
-import { afterEach, beforeEach, expect, it, vi } from 'vitest'
+import { afterEach, beforeAll, beforeEach, expect, it, vi } from 'vitest'
+import { stubDialog } from './test/stubDialog'
 import type { Pools } from './data/wordData'
 import type { WordLength } from './logic/boards'
 
 const pools5: Pools = {
   answers: ['crane'],
-  guesses: new Set(['crane', 'house']),
+  slang: ['bruhs'],
+  guesses: new Set(['crane', 'house', 'bruhs']),
 }
 const pools4: Pools = {
   answers: ['kind'],
-  guesses: new Set(['kind', 'gold']),
+  slang: ['yeet'],
+  guesses: new Set(['kind', 'gold', 'yeet']),
 }
 
 const loadPools = vi.hoisted(() => vi.fn())
@@ -19,12 +22,15 @@ vi.mock('./data/wordData', () => ({ loadPools }))
 import App from './App'
 import { useGameStore } from './state/gameStore'
 
+beforeAll(stubDialog)
+
 beforeEach(async () => {
   loadPools.mockReset()
   loadPools.mockImplementation((length: WordLength) =>
     Promise.resolve(length === 4 ? pools4 : pools5),
   )
-  await useGameStore.getState().startGame(5)
+  useGameStore.setState({ pendingSwitch: null, infoOpen: false })
+  await useGameStore.getState().startGame(5, 'normal')
   loadPools.mockClear()
 })
 
@@ -116,4 +122,37 @@ it('shows a load error with Try again that recovers', async () => {
     (screen.getByRole('button', { name: 'Enter' }) as HTMLButtonElement)
       .disabled,
   ).toBe(false)
+})
+
+it('ignores physical keys while a switch is pending', async () => {
+  render(<App />)
+  for (const k of 'house') fireEvent.keyDown(window, { key: k })
+  fireEvent.keyDown(window, { key: 'Enter' })
+  act(() => {
+    useGameStore.getState().finishReveal()
+  })
+  for (const k of 'ho') fireEvent.keyDown(window, { key: k })
+  act(() => {
+    useGameStore.getState().requestSwitch({ mode: 'wordubado' })
+  })
+  expect(useGameStore.getState().pendingSwitch).not.toBeNull()
+  fireEvent.keyDown(window, { key: 'a' })
+  fireEvent.keyDown(window, { key: 'Backspace' })
+  fireEvent.keyDown(window, { key: 'Enter' })
+  const s = useGameStore.getState()
+  expect(s.current).toBe('ho')
+  expect(s.rows).toHaveLength(1)
+})
+
+it('ignores physical keys while the info popup is open', async () => {
+  render(<App />)
+  for (const k of 'ho') fireEvent.keyDown(window, { key: k })
+  act(() => {
+    useGameStore.getState().openInfo()
+  })
+  fireEvent.keyDown(window, { key: 'a' })
+  fireEvent.keyDown(window, { key: 'Enter' })
+  const s = useGameStore.getState()
+  expect(s.current).toBe('ho')
+  expect(s.rows).toHaveLength(0)
 })

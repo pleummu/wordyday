@@ -130,6 +130,8 @@ CI runs the same commands in `.github/workflows/ci.yml` on every PR and push to 
 - **`words`** re-runs `npm run build:words` and fails if any generated file differs from what is committed (or a new file appears). It catches hand-edited word files.
 - **`e2e`** installs Chromium, runs Playwright against the production build and uploads the `playwright-report` artifact. It catches things that only break when the whole game is joined together.
 
+> **Test hook and builds.** The production build excludes the `__WORDLE_TEST__` hook (a build-time `import.meta.env.MODE` gate), so players cannot fix the answer from the console, and `check:bundle` fails if the string appears in `dist/`. Playwright builds with `npm run build:e2e` (`vite build --mode e2e`), which keeps the hook. After an E2E run, run `npm run build` again before `npm run check:bundle`, and stop any already-running preview server before E2E (a reused server would serve a build without the hook).
+
 > 🎓 **Key idea: the "shift-left" ladder.** Each stage is cheaper and faster than the next: the type checker catches in 1 s what a unit test catches in 1 ms of runtime, what E2E catches in 30 s, and what a user catches after it's live. Push every check as far *left* (early) as you can.
 
 ---

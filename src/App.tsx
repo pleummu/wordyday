@@ -4,13 +4,16 @@ import Header from './components/Header'
 import Keyboard from './components/Keyboard'
 import LoadError from './components/LoadError'
 import LoadingNotice from './components/LoadingNotice'
+import SwitchConfirm from './components/SwitchConfirm'
 import Toast from './components/Toast'
+import WordubadoInfo from './components/WordubadoInfo'
 import { usePhysicalKeyboard } from './components/usePhysicalKeyboard'
 import { BOARD_CONFIG } from './logic/boards'
 import { useGameStore } from './state/gameStore'
 
 export default function App() {
   usePhysicalKeyboard()
+  const mode = useGameStore((s) => s.mode)
   const length = useGameStore((s) => s.length)
   const rows = useGameStore((s) => s.rows)
   const current = useGameStore((s) => s.current)
@@ -32,8 +35,10 @@ export default function App() {
   }
 
   return (
-    <div className="app">
+    <div className="app" data-mode={mode}>
       <Toast toast={toast} onDismiss={dismissToast} />
+      <SwitchConfirm />
+      <WordubadoInfo />
       <LoadingNotice active={status === 'loading'} />
       <Header />
       <main className="board-area">

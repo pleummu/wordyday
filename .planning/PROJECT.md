@@ -22,13 +22,14 @@ A public, endless Wordle game on the web (deployed to Vercel). Players can choos
 - ✓ Tile flip, pop and shake animations: validated in Phase 2: Playable Normal Game
 - ✓ Works at phone width: validated in Phase 2: Playable Normal Game
 - ✓ Word-list build script (scripts/build-words.mjs) producing answer/guess pools for 4-6 letters: validated in Phase 2: Playable Normal Game
+- ✓ Two modes (Normal and Wordubado) across 4/5/6 letters with 5/6/7 attempts, switched from the header: validated in Phase 3: Wordubado Mode and Slang
+- ✓ Normal answers are common words only; slang is a valid guess in Normal but never the answer: validated in Phase 3: Wordubado Mode and Slang
+- ✓ Wordubado answers are 75% slang and 25% common words per game (seeded 10,000-draw test), with an (i) info popup and a mildly-crude warning: validated in Phase 3: Wordubado Mode and Slang
+- ✓ Curated slang.json (95/110/95 words, with definitions, no blocklist hits), reviewed by the owner on 2026-10-02 with no cuts: validated in Phase 3: Wordubado Mode and Slang
 
 ### Active
 
 **Gameplay**
-- [ ] Two modes: Normal and Wordubado; three lengths: 4/5/6 letters with 5/6/7 attempts
-- [ ] Normal answers are common English words only; slang is a valid guess in Normal but never the answer
-- [ ] Wordubado answers are 75% slang and 25% common words, chosen per game; Wordubado has an (i) info popup
 
 **Boards and persistence**
 - [ ] 6 Boards (2 modes × 3 lengths), each with its own saved in-progress game in localStorage
@@ -61,7 +62,6 @@ A public, endless Wordle game on the web (deployed to Vercel). Players can choos
 
 **Docs and pipeline**
 - [x] SPEC.md (corrected spec) and GLOSSARY.md (Board, Mode, Normal, Wordubado, Answer Pool, Guess Pool, Win Streak, Day Streak, Missed Day, Restore, Forfeit, Give Up)
-- [ ] Curated slang.json (~80-150 words per length, with definitions; mild words allowed, never slurs or hate terms), reviewed by the owner
 - [ ] Vitest unit tests for scoring, answer picking, streaks/Restore and storage
 - [ ] Playwright end-to-end tests of full games
 - [ ] GitHub Actions CI: lint, typecheck, unit tests, E2E, build
@@ -124,4 +124,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-10-02 after Phase 2 (Playable Normal Game) complete: playable, correctly scored Normal game at 4/5/6 letters (PR #3)*
+*Last updated: 2026-10-02 after Phase 3 (Wordubado Mode and Slang) complete: header mode switch, 75/25 slang answers, (i) popup, "End this game?" confirm*

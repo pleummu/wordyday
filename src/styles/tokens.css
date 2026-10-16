@@ -6,6 +6,8 @@
   --color-surface: #f0eee8;
   --color-error: #c97b7b;
   --color-focus: #6f9a7c;
+  --color-wordubado: #7a5fb0;
+  --color-mode: var(--color-text);
   --color-key-pressed: #e6e3da;
   --tile-empty-border: #dcd9d0;
   --tile-filled-border: #a8a59c;
@@ -33,4 +35,8 @@
   --ease-soft: cubic-bezier(0.3, 0.7, 0.4, 1);
   --shadow-toast: 0 4px 16px rgba(43, 45, 51, 0.08);
   --shadow-button: 0 2px 8px rgba(43, 45, 51, 0.06);
+}
+
+[data-mode='wordubado'] {
+  --color-mode: var(--color-wordubado);
 }
