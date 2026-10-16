@@ -10,6 +10,7 @@ type GridProps = {
   status: GameStatus
   shakeId: number
   shakeRow: number
+  celebrate: boolean
 }
 
 export default function Grid({
@@ -19,8 +20,10 @@ export default function Grid({
   status,
   shakeId,
   shakeRow,
+  celebrate,
 }: GridProps) {
   const attempts = BOARD_CONFIG[length].attempts
+  const last = rows.length - 1
   const typing = status === 'playing' || status === 'loading'
   return (
     <div
@@ -38,6 +41,8 @@ export default function Grid({
             : ''
         const revealed = !(status === 'revealing' && r === rows.length - 1)
         const active = r === rows.length
+        const revealingRow = status === 'revealing' && r === last
+        const bounce = status === 'won' && celebrate && r === last
         const tiles = Array.from({ length }, (_, c) => (
           <Tile
             key={c}
@@ -47,10 +52,9 @@ export default function Grid({
             col={c + 1}
             revealed={revealed}
             active={active}
-            flip={!!submitted}
+            flip={!!submitted && (revealingRow || bounce)}
           />
         ))
-        const won = status === 'won' && r === rows.length - 1
         return (
           <div
             role="row"
@@ -61,7 +65,7 @@ export default function Grid({
                 ? 'true'
                 : undefined
             }
-            data-bounce={won ? 'true' : undefined}
+            data-bounce={bounce ? 'true' : undefined}
           >
             {active ? <Fragment key={shakeId}>{tiles}</Fragment> : tiles}
           </div>

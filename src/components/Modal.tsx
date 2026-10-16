@@ -29,8 +29,10 @@ export default function Modal({
   const opener = useRef<Element | null>(null)
   const wasOpen = useRef(false)
   const fallback = useRef(fallbackFocus)
+  const openRef = useRef(open)
   useEffect(() => {
     fallback.current = fallbackFocus
+    openRef.current = open
   })
 
   useEffect(() => {
@@ -104,6 +106,11 @@ export default function Modal({
       onCancel={(e) => {
         e.preventDefault()
         onClose()
+      }}
+      onClose={() => {
+        // Native close with the prop still true = browser closed it (D-14);
+        // programmatic closes happen after the prop is false, so skip those.
+        if (openRef.current) onClose()
       }}
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose()

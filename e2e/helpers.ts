@@ -84,3 +84,19 @@ export async function dismissInfo(page: Page): Promise<void> {
   await dlg.getByRole('button', { name: 'Got it' }).click()
   await expect(dlg).toBeHidden()
 }
+
+export async function guessAll(
+  page: Page,
+  words: string[],
+  startRow = 1,
+): Promise<void> {
+  for (const [i, word] of words.entries()) {
+    await guess(page, word, startRow + i)
+  }
+}
+
+export function cell(page: Page, row: number, col: number) {
+  return page.getByRole('gridcell', {
+    name: new RegExp(`^Row ${row}, column ${col}, `),
+  })
+}

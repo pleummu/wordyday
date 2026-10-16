@@ -13,8 +13,8 @@
 - [x] **PLAY-04**: User can type with both the on-screen and the physical keyboard; keys keep their best state (green > yellow > gray)
 - [x] **PLAY-05**: User sees tile pop (typing), flip (reveal) and shake (invalid) animations; input is blocked while a row is revealing; keyboard colours update after the flip finishes
 - [x] **PLAY-06**: User sees the answer revealed when they lose
-- [ ] **PLAY-07**: User can only Give Up when exactly 2 tries are left; Give Up asks to confirm, reveals the answer and counts as a loss
-- [ ] **PLAY-08**: User can only press New game mid-game under the same rule (exactly 2 tries left), with the same confirm; it counts as a loss (forfeit). New game is always available once a game is finished
+- [x] **PLAY-07**: User can only Give Up when exactly 2 tries are left; Give Up asks to confirm, reveals the answer and counts as a loss
+- [x] **PLAY-08**: User can only press New game mid-game under the same rule (exactly 2 tries left), with the same confirm; it counts as a loss (forfeit). New game is always available once a game is finished
 
 ### Modes and Word Pools (WORD)
 
@@ -30,15 +30,15 @@
 
 ### Boards and Persistence (SAVE)
 
-- [ ] **SAVE-01**: User has 6 independent Boards (2 modes × 3 lengths), each with its own saved game
-- [ ] **SAVE-02**: User can switch mode or length without forfeiting, and returns to the same game later
-- [ ] **SAVE-03**: User can refresh the page and resume the in-progress game (submitted guesses only; a half-typed row is discarded)
-- [ ] **SAVE-04**: User returning to a finished Board sees the finished grid with a result banner and Play again; a new game starts only on Play again
-- [ ] **SAVE-05**: Saved data has a version number and a migration chain from the first release
-- [ ] **SAVE-06**: Corrupt or hand-edited saved data never white-screens the site: it is validated on load, backed up under a separate key, and the app starts fresh
-- [ ] **SAVE-07**: The app still works (in memory) when localStorage is unavailable or full
-- [ ] **SAVE-08**: Two open tabs stay in sync via the `storage` event
-- [ ] **SAVE-09**: User can reset all data (games, stats, streaks, Restores) from Settings after a confirm
+- [x] **SAVE-01**: User has 6 independent Boards (2 modes × 3 lengths), each with its own saved game
+- [x] **SAVE-02**: User can switch mode or length without forfeiting, and returns to the same game later
+- [x] **SAVE-03**: User can refresh the page and resume the in-progress game (submitted guesses only; a half-typed row is discarded)
+- [x] **SAVE-04**: User returning to a finished Board sees the finished grid with a result banner and Play again; a new game starts only on Play again
+- [x] **SAVE-05**: Saved data has a version number and a migration chain from the first release
+- [x] **SAVE-06**: Corrupt or hand-edited saved data never white-screens the site: it is validated on load, backed up under a separate key, and the app starts fresh
+- [x] **SAVE-07**: The app still works (in memory) when localStorage is unavailable or full
+- [x] **SAVE-08**: Two open tabs stay in sync via the `storage` event
+- [x] **SAVE-09**: User can reset all data (games, stats, streaks, Restores) from Settings after a confirm
 
 ### Streaks and Restore (STRK)
 
@@ -77,7 +77,7 @@
 - [ ] **UI-08**: Modals trap focus, close on Esc and return focus; the whole game is playable by keyboard alone
 - [x] **UI-09**: Animations respect prefers-reduced-motion
 - [ ] **UI-10**: Page has a title, meta description, Open Graph tags with an absolute image URL, a favicon and a `<noscript>` message
-- [ ] **UI-11**: Settings has a note that progress is stored in this browser only
+- [x] **UI-11**: Settings has a note that progress is stored in this browser only
 
 ### Docs (DOC)
 
@@ -155,18 +155,18 @@
 | WORD-04 | Phase 3 | Complete |
 | WORD-06 | Phase 3 | Complete |
 | WORD-08 | Phase 3 | Complete |
-| PLAY-07 | Phase 4 | Pending |
-| PLAY-08 | Phase 4 | Pending |
-| SAVE-01 | Phase 4 | Pending |
-| SAVE-02 | Phase 4 | Pending |
-| SAVE-03 | Phase 4 | Pending |
-| SAVE-04 | Phase 4 | Pending |
-| SAVE-05 | Phase 4 | Pending |
-| SAVE-06 | Phase 4 | Pending |
-| SAVE-07 | Phase 4 | Pending |
-| SAVE-08 | Phase 4 | Pending |
-| SAVE-09 | Phase 4 | Pending |
-| UI-11 | Phase 4 | Pending |
+| PLAY-07 | Phase 4 | Complete |
+| PLAY-08 | Phase 4 | Complete |
+| SAVE-01 | Phase 4 | Complete |
+| SAVE-02 | Phase 4 | Complete |
+| SAVE-03 | Phase 4 | Complete |
+| SAVE-04 | Phase 4 | Complete |
+| SAVE-05 | Phase 4 | Complete |
+| SAVE-06 | Phase 4 | Complete |
+| SAVE-07 | Phase 4 | Complete |
+| SAVE-08 | Phase 4 | Complete |
+| SAVE-09 | Phase 4 | Complete |
+| UI-11 | Phase 4 | Complete |
 | QA-02 | Phase 5 | Pending |
 | STAT-01 | Phase 5 | Pending |
 | STAT-02 | Phase 5 | Pending |

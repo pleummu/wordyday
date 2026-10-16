@@ -9,7 +9,7 @@ Vertical MVP: a playable game appears as early as possible (Phase 2), then each 
 - [x] **Phase 1: Foundation, Spec and CI Skeleton** - Scaffold, lint/test tooling, SPEC.md/GLOSSARY.md, baseline CI and Vercel previews (completed 2026-10-01)
 - [x] **Phase 2: Playable Normal Game** - Play a correct, animated Normal game at 4/5/6 letters from a generated word pool (completed 2026-10-01)
 - [x] **Phase 3: Wordubado Mode and Slang** - Switch to Wordubado with owner-reviewed slang answers, plus slang as a valid Normal guess (completed 2026-10-02)
-- [ ] **Phase 4: Six Boards and Persistence** - Six independent saved Boards that survive refresh, with safe, versioned storage
+- [x] **Phase 4: Six Boards and Persistence** - Six independent saved Boards that survive refresh, with safe, versioned storage (completed 2026-10-03)
 - [ ] **Phase 5: Stats, Streaks and Restore** - Win Streaks, Day Streak, monthly Restores and the statistics screen
 - [ ] **Phase 6: Result Screen, Share and Definitions** - Result modal with Play again, Show definition and Share
 - [ ] **Phase 7: Themes, Accessibility and Polish** - Dark/colour-blind themes, how-to-play, screen-reader and keyboard support, metadata
@@ -174,7 +174,48 @@ Plans:
   4. User with corrupt or hand-edited saved data, or with blocked/full localStorage, still gets a working site; two open tabs stay in sync
   5. User can reset all data from Settings after a confirm, and sees a note that progress is stored in this browser only
 
-**Plans**: TBD
+**Plans**: 12 plans (5 gap closure)
+
+Plans:
+
+**Wave 1**
+- [x] 04-01-PLAN.md — Failing refresh/switch E2E; pure save schema, migration chain, guard, canForfeit (TDD)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+- [x] 04-02-PLAN.md — Storage adapter, persisted store, resume on boot, submit-time outcome, reveal token (D-16), static restore in Grid/Banner
+
+**Wave 3** *(blocked on Wave 2 completion)*
+- [x] 04-03-PLAN.md — Non-forfeiting switchBoard, remove switch confirm (D-05), saved popup flag (D-11), in-progress dot (D-12)
+
+**Wave 4** *(blocked on Wave 3 completion)*
+- [x] 04-04-PLAN.md — Failing forfeit E2E; store giveUp/forfeitNewGame/dialog field; Modal native close fix (D-14)
+
+**Wave 5** *(blocked on Wave 4 completion)*
+- [x] 04-05-PLAN.md — Give Up / New game row, confirms, gave-up banner, 320x500 layout cases
+
+**Wave 6** *(blocked on Wave 5 completion)*
+- [x] 04-06-PLAN.md — Settings button and modal, browser-only note, Reset confirm and resetAll
+
+**Wave 7** *(blocked on Wave 6 completion)*
+- [x] 04-07-PLAN.md — Corrupt/blocked storage toasts, cross-tab sync, safe chunk retry (D-15)
+
+**Gap closure** *(from 04-VERIFICATION.md: CR-01, CR-02 + WR-01, WR-03, WR-04, WR-07)*
+
+**Wave 8**
+- [x] 04-08-PLAN.md — Newer-version saves are kept: distinct 'newer' result, read-only storage session (CR-01)
+
+**Wave 9** *(blocked on Wave 8 completion)*
+- [x] 04-09-PLAN.md — Game ids and symmetric per-Board merge rules in save.ts (TDD)
+
+**Wave 10** *(blocked on Wave 9 completion)*
+- [x] 04-10-PLAN.md — Store assigns ids, never writes board-less or stale docs, drops deferred docs on reset (WR-01, WR-03)
+
+**Wave 11** *(blocked on Wave 10 completion)*
+- [x] 04-11-PLAN.md — applyExternal on mergeBoards, two-tab harness tests (CR-02, WR-04)
+
+**Wave 12** *(blocked on Wave 11 completion)*
+- [x] 04-12-PLAN.md — Two-tab E2E with the answer fixed only in tab A, newer-save E2E, no sleeps, owner two-tab check (WR-07)
+
 **UI hint**: yes
 **Notes**: Schema versioning and the migration chain are settled here, before any streak data exists. A Modal primitive (focus trap, Esc, focus return) is built here for the confirm dialogs.
 
@@ -253,7 +294,7 @@ Plans:
 | 1. Foundation, Spec and CI Skeleton | 6/6 | Complete    | 2026-10-01 |
 | 2. Playable Normal Game | 11/11 | Complete   | 2026-10-01 |
 | 3. Wordubado Mode and Slang | 6/6 | Complete    | 2026-10-02 |
-| 4. Six Boards and Persistence | 0/TBD | Not started | - |
+| 4. Six Boards and Persistence | 12/12 | Complete   | 2026-10-04 |
 | 5. Stats, Streaks and Restore | 0/TBD | Not started | - |
 | 6. Result Screen, Share and Definitions | 0/TBD | Not started | - |
 | 7. Themes, Accessibility and Polish | 0/TBD | Not started | - |

@@ -29,7 +29,12 @@ beforeEach(async () => {
   loadPools.mockImplementation((length: WordLength) =>
     Promise.resolve(length === 4 ? pools4 : pools5),
   )
-  useGameStore.setState({ pendingSwitch: null, infoOpen: false })
+  localStorage.clear()
+  useGameStore.setState({
+    infoOpen: false,
+    boards: {},
+    finishedInSession: false,
+  })
   await useGameStore.getState().startGame(5, 'normal')
   loadPools.mockClear()
 })
@@ -124,24 +129,21 @@ it('shows a load error with Try again that recovers', async () => {
   ).toBe(false)
 })
 
-it('ignores physical keys while a switch is pending', async () => {
+it('switching mid-game keeps the Normal game and shows only the popup', async () => {
   render(<App />)
   for (const k of 'house') fireEvent.keyDown(window, { key: k })
   fireEvent.keyDown(window, { key: 'Enter' })
   act(() => {
     useGameStore.getState().finishReveal()
   })
-  for (const k of 'ho') fireEvent.keyDown(window, { key: k })
   act(() => {
-    useGameStore.getState().requestSwitch({ mode: 'wordubado' })
+    useGameStore.getState().switchBoard({ mode: 'wordubado' })
   })
-  expect(useGameStore.getState().pendingSwitch).not.toBeNull()
-  fireEvent.keyDown(window, { key: 'a' })
-  fireEvent.keyDown(window, { key: 'Backspace' })
-  fireEvent.keyDown(window, { key: 'Enter' })
-  const s = useGameStore.getState()
-  expect(s.current).toBe('ho')
-  expect(s.rows).toHaveLength(1)
+  expect(useGameStore.getState().boards['normal-5']?.guesses).toEqual(['house'])
+  const dialogs = screen.getAllByRole('dialog')
+  expect(dialogs).toHaveLength(1)
+  expect(dialogs[0].getAttribute('aria-labelledby')).toBeTruthy()
+  expect(screen.getByText("What's Wordubado?")).toBeTruthy()
 })
 
 it('ignores physical keys while the info popup is open', async () => {
@@ -155,4 +157,52 @@ it('ignores physical keys while the info popup is open', async () => {
   const s = useGameStore.getState()
   expect(s.current).toBe('ho')
   expect(s.rows).toHaveLength(0)
+})
+
+function playFour() {
+  for (const w of ['house', 'bruhs', 'house', 'bruhs']) {
+    for (const k of w) fireEvent.keyDown(window, { key: k })
+    fireEvent.keyDown(window, { key: 'Enter' })
+    act(() => {
+      useGameStore.getState().finishReveal()
+    })
+  }
+}
+
+it('Give up confirm reveals the answer with the gave-up banner', () => {
+  render(<App />)
+  playFour()
+  fireEvent.click(screen.getByRole('button', { name: 'Give up' }))
+  expect(screen.getByText('Give up?')).toBeTruthy()
+  expect(
+    screen.getByText('This counts as a loss. Reveal the answer?'),
+  ).toBeTruthy()
+  const dialog = screen.getByText('Give up?').closest('dialog')!
+  fireEvent.click(
+    Array.from(dialog.querySelectorAll('button')).find(
+      (b) => b.textContent === 'Give up',
+    )!,
+  )
+  expect(screen.getByText('The word was CRANE')).toBeTruthy()
+  expect(screen.getByText('You gave up. Ready for another?')).toBeTruthy()
+})
+
+it('New game confirm starts a fresh playing game', async () => {
+  render(<App />)
+  playFour()
+  fireEvent.click(screen.getByRole('button', { name: 'New game' }))
+  expect(
+    screen.getByText('This counts as a loss. Start a new game?'),
+  ).toBeTruthy()
+  const dialog = screen.getByText('New game?').closest('dialog')!
+  await act(async () => {
+    fireEvent.click(
+      Array.from(dialog.querySelectorAll('button')).find(
+        (b) => b.textContent === 'New game',
+      )!,
+    )
+  })
+  const s = useGameStore.getState()
+  expect(s.rows).toHaveLength(0)
+  expect(s.status).toBe('playing')
 })

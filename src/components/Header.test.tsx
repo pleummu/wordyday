@@ -19,7 +19,12 @@ import { useGameStore } from '../state/gameStore'
 beforeAll(stubDialog)
 
 beforeEach(async () => {
-  useGameStore.setState({ pendingSwitch: null, infoOpen: false })
+  localStorage.clear()
+  useGameStore.setState({
+    infoOpen: false,
+    boards: {},
+    finishedInSession: false,
+  })
   loadPools.mockReset()
   loadPools.mockImplementation(() => Promise.resolve(pools))
   await useGameStore.getState().startGame(5, 'normal')
@@ -66,14 +71,15 @@ it('ignores clicks while revealing', () => {
   expect(useGameStore.getState().mode).toBe('normal')
 })
 
-it('shows no help, stats or settings buttons and keeps an empty actions slot', () => {
+it('shows a Settings button but no help or stats buttons', () => {
   render(<App />)
-  expect(
-    screen.queryByRole('button', { name: /help|stats|settings/i }),
-  ).toBeNull()
-  const slot = document.querySelector('.header-actions')
-  expect(slot).toBeTruthy()
-  expect(slot?.childElementCount).toBe(0)
+  expect(screen.queryByRole('button', { name: /help|stats/i })).toBeNull()
+  const settings = screen.getByRole('button', { name: 'Settings' })
+  expect(settings.getAttribute('aria-haspopup')).toBe('dialog')
+  expect(settings.hasAttribute('data-own-enter')).toBe(true)
+  expect(document.querySelector('.header-actions')?.contains(settings)).toBe(
+    true,
+  )
 })
 
 it('Enter on the focused switch submits the guess and does not toggle', () => {

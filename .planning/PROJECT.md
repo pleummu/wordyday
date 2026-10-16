@@ -26,17 +26,14 @@ A public, endless Wordle game on the web (deployed to Vercel). Players can choos
 - ✓ Normal answers are common words only; slang is a valid guess in Normal but never the answer: validated in Phase 3: Wordubado Mode and Slang
 - ✓ Wordubado answers are 75% slang and 25% common words per game (seeded 10,000-draw test), with an (i) info popup and a mildly-crude warning: validated in Phase 3: Wordubado Mode and Slang
 - ✓ Curated slang.json (95/110/95 words, with definitions, no blocklist hits), reviewed by the owner on 2026-10-02 with no cuts: validated in Phase 3: Wordubado Mode and Slang
+- ✓ 6 Boards (2 modes × 3 lengths), each with its own saved game; switching never forfeits; refresh resumes: validated in Phase 4: Six Boards and Persistence
+- ✓ "New game" and "Give up" at exactly 2 tries left, with a confirm, count as a loss; Give up reveals the answer: validated in Phase 4
+- ✓ Versioned saved data with a migration chain; corrupt data backed up, newer-version saves left untouched (read-only session); blocked/full storage still plays: validated in Phase 4
+- ✓ Two open tabs stay on the same game (per-Board merge by game id); Settings "Reset my data" with a confirm: validated in Phase 4
 
 ### Active
 
 **Gameplay**
-
-**Boards and persistence**
-- [ ] 6 Boards (2 modes × 3 lengths), each with its own saved in-progress game in localStorage
-- [ ] Switching mode or length never forfeits; refreshing resumes the game
-- [ ] "New game" mid-game and "Give up" both show a confirm dialog and count as a loss; Give up reveals the answer
-- [ ] Saved data has a version number and is migrated on load
-- [ ] Settings has a "Reset my data" option
 
 **Streaks and Restore**
 - [ ] Win Streak per Board: +1 on a win; resets on a loss, Give Up or Forfeit
@@ -124,4 +121,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-10-02 after Phase 3 (Wordubado Mode and Slang) complete: header mode switch, 75/25 slang answers, (i) popup, "End this game?" confirm*
+*Last updated: 2026-10-04 after Phase 4 (Six Boards and Persistence) complete: six saved Boards, versioned storage, Give Up/New game, Settings reset, two-tab sync*

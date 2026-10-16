@@ -1,5 +1,11 @@
 import { expect, test, type Page } from '@playwright/test'
-import { fixAnswers, selectLength } from './helpers.ts'
+import {
+  fixAnswers,
+  guessAll,
+  selectLength,
+  turnOnWordubado,
+  waitForReady,
+} from './helpers.ts'
 
 test.use({ reducedMotion: 'reduce' })
 
@@ -112,4 +118,51 @@ test('no vertical scroll at 320x500 in Wordubado with 6 letters', async ({
   await page.getByRole('button', { name: 'Got it' }).click()
   await selectLength(page, 6)
   await expectNoScroll(page, 500)
+})
+
+async function expectForfeitFits(
+  page: Page,
+  h: number,
+  lastTileName: string,
+): Promise<void> {
+  await expect(page.getByRole('button', { name: 'Give up' })).toBeVisible()
+  await expectNoScroll(page, h)
+  expect(
+    await bottom(page.getByRole('button', { name: 'Give up' })),
+  ).toBeLessThanOrEqual(h)
+  expect(
+    await bottom(page.getByRole('button', { name: 'Enter' })),
+  ).toBeLessThanOrEqual(h)
+  const lastTile = page.getByRole('gridcell', { name: lastTileName })
+  expect(await bottom(lastTile)).toBeLessThanOrEqual(h)
+  const box = (await lastTile.boundingBox())!
+  expect(box.width).toBeGreaterThanOrEqual(h <= 540 ? 31.5 : 35.5)
+}
+
+for (const h of [500, 568, 640]) {
+  for (const mode of ['normal', 'wordubado'] as const) {
+    test(`forfeit row fits at 320x${h} with 6 letters in ${mode}`, async ({
+      page,
+    }) => {
+      await fixAnswers(page)
+      await page.setViewportSize({ width: 320, height: h })
+      await page.goto('/')
+      await waitForReady(page)
+      if (mode === 'wordubado') await turnOnWordubado(page)
+      await selectLength(page, 6)
+      await guessAll(page, ['garden', 'silver', 'winter', 'button', 'pocket'])
+      await expectForfeitFits(page, h, 'Row 7, column 6, empty')
+    })
+  }
+}
+
+test('forfeit row fits at 320x500 with 5 letters in normal', async ({
+  page,
+}) => {
+  await fixAnswers(page)
+  await page.setViewportSize({ width: 320, height: 500 })
+  await page.goto('/')
+  await waitForReady(page)
+  await guessAll(page, ['house', 'ghost', 'plant', 'mouse'])
+  await expectForfeitFits(page, 500, 'Row 6, column 5, empty')
 })

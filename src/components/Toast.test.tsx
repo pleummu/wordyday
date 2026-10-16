@@ -80,3 +80,32 @@ it('a new toast id resets the timer and replaces the text', () => {
   expect(onDismiss).toHaveBeenCalledTimes(1)
   expect(onDismiss).toHaveBeenCalledWith(2)
 })
+
+it('uses lifeMs for the dismiss timer and the --toast-life variable', () => {
+  const onDismiss = vi.fn()
+  render(
+    <Toast
+      toast={{ id: 3, text: 'Long', kind: 'info', lifeMs: 4000 }}
+      onDismiss={onDismiss}
+    />,
+  )
+  act(() => {
+    vi.advanceTimersByTime(1860)
+  })
+  expect(onDismiss).not.toHaveBeenCalled()
+  act(() => {
+    vi.advanceTimersByTime(2140)
+  })
+  expect(onDismiss).toHaveBeenCalledWith(3)
+})
+
+it('sets --toast-life from the default life', () => {
+  render(
+    <Toast toast={{ id: 4, text: 'Hi', kind: 'info' }} onDismiss={() => {}} />,
+  )
+  expect(
+    (screen.getByRole('status') as HTMLElement).style.getPropertyValue(
+      '--toast-life',
+    ),
+  ).toBe('1860')
+})

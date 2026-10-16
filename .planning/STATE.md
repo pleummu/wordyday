@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: ready_to_plan
-stopped_at: Phase 3 complete (6/6) — ready to discuss Phase 4
-last_updated: 2026-10-02T11:09:14.686Z
-last_activity: 2026-10-02
+stopped_at: Phase 04 complete (12/12) — ready to discuss Phase 5
+last_updated: 2026-10-04T06:54:05.744Z
+last_activity: 2026-10-04
 progress:
   total_phases: 8
-  completed_phases: 3
-  total_plans: 23
-  completed_plans: 23
-  percent: 38
+  completed_phases: 4
+  total_plans: 35
+  completed_plans: 35
+  percent: 50
 ---
 
 # Project State
@@ -21,22 +21,22 @@ progress:
 See: .planning/PROJECT.md (updated 2026-10-01)
 
 **Core value:** Endless, correct Wordle play. Scoring (including repeated letters), word validation and a smooth, responsive feel must be right for all three lengths.
-**Current focus:** Phase 4 — six boards and persistence
+**Current focus:** Phase 5 — stats, streaks and restore
 
 ## Current Position
 
-Phase: 4
+Phase: 5
 Plan: Not started
 Status: Ready to plan
-Last activity: 2026-10-02
+Last activity: 2026-10-04
 
-Progress: [██████████] 100%
+Progress: [█████████░] 89%
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 23
+- Total plans completed: 35
 - Average duration: -
 - Total execution time: -
 
@@ -57,6 +57,13 @@ Progress: [██████████] 100%
 | Phase 02 P11 | n/a | 2 tasks | 0 files |
 | 02 | 11 | - | - |
 | 3 | 6 | - | - |
+| Phase 04 P02 | 25min | 3 tasks | 13 files |
+| Phase 04 P03 | 20min | 3 tasks | 14 files |
+| Phase 04 P04 | 15min | 2 tasks | 6 files |
+| Phase 04 P05 | 15min | 2 tasks | 10 files |
+| Phase 04 P06 | 15min | 2 tasks | 14 files |
+| Phase 04 P07 | 25min | 3 tasks | 17 files |
+| 04 | 12 | - | - |
 
 ## Accumulated Context
 
@@ -75,6 +82,16 @@ Progress: [██████████] 100%
 - [Phase 01-02]: SPEC.md open-question defaults adopted (EC-40 deferred credit, K left before use, refill on answer date, zero-guess board cannot be abandoned)
 - [Phase ?]: 02-06: reveal duration (length-1)*300+500 +50ms buffer; selectLength no-op for active length
 - [Phase ?]: 02-09: Try again after failed chunk import reloads the page (browser caches failed dynamic import); reload lives in wordData.loadPools
+- [Phase 04]: Validation lives in storage adapter and merge, not persist migrate — persist only calls migrate on version mismatch
+- [Phase 04]: switchBoard folds live view into boards before switching — boards only refreshed on hydrate/load; persist overlays live board
+- [Phase 04]: isInputBlocked = dialog !== null || infoOpen — single dialog field blocks keys
+- [Phase 04]: Forfeit tile floor override inside max-height 540px rule — Specificity of .app[data-forfeit] otherwise beats the 32px floor
+- [Phase 04]: resetAll sets toast after startGame — startGame clears toast synchronously
+- [Phase 04]: applyExternal sets once and skips when boards match — Avoids cross-tab write ping-pong from each tab's own last pointer
+- [Phase 04]: Unavailable storage counts as a storage failure — SAVE-07 needs the blocked-storage toast
+- [Phase 04]: Merge two tabs per Board by game id; pickGame is a symmetric total order (higher id wins, ties by lower answer) (04-09)
+- [Phase 04]: Game ids assigned after loadPools await; forfeit stored as gave-up snapshot before next game (04-10)
+- [Phase 04]: Only a reset may start a game from another tab; resetFloor ignores pre-reset games; write back only when ahead (04-11)
 
 ### Pending Todos
 
@@ -89,6 +106,6 @@ Progress: [██████████] 100%
 
 ## Session Continuity
 
-Last session: 2026-10-02T11:02:24.109Z
-Stopped at: Phase 3 UI-SPEC approved
+Last session: 2026-10-03T19:32:41.813Z
+Stopped at: Completed 04-12-PLAN.md
 Resume file: None

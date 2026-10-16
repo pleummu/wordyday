@@ -5,3 +5,5 @@ export const BOARD_CONFIG = {
 } as const
 
 export type WordLength = keyof typeof BOARD_CONFIG
+
+export type Mode = 'normal' | 'wordubado'

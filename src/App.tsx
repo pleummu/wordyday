@@ -1,15 +1,20 @@
 import Banner from './components/Banner'
 import Grid from './components/Grid'
+import ForfeitRow from './components/ForfeitRow'
+import GiveUpConfirm from './components/GiveUpConfirm'
 import Header from './components/Header'
 import Keyboard from './components/Keyboard'
 import LoadError from './components/LoadError'
 import LoadingNotice from './components/LoadingNotice'
-import SwitchConfirm from './components/SwitchConfirm'
+import NewGameConfirm from './components/NewGameConfirm'
+import ResetConfirm from './components/ResetConfirm'
+import SettingsModal from './components/SettingsModal'
 import Toast from './components/Toast'
 import WordubadoInfo from './components/WordubadoInfo'
 import { usePhysicalKeyboard } from './components/usePhysicalKeyboard'
 import { BOARD_CONFIG } from './logic/boards'
-import { useGameStore } from './state/gameStore'
+import { canForfeit } from './logic/save'
+import { isFinished, useGameStore } from './state/gameStore'
 
 export default function App() {
   usePhysicalKeyboard()
@@ -26,6 +31,9 @@ export default function App() {
   const dismissToast = useGameStore((s) => s.dismissToast)
   const playAgain = useGameStore((s) => s.playAgain)
   const retryLoad = useGameStore((s) => s.retryLoad)
+  const finishedInSession = useGameStore((s) => s.finishedInSession)
+
+  const showRow = canForfeit(status, rows.length, BOARD_CONFIG[length].attempts)
 
   function onKey(key: string) {
     const store = useGameStore.getState()
@@ -35,10 +43,17 @@ export default function App() {
   }
 
   return (
-    <div className="app" data-mode={mode}>
+    <div
+      className="app"
+      data-mode={mode}
+      data-forfeit={showRow ? 'true' : undefined}
+    >
       <Toast toast={toast} onDismiss={dismissToast} />
-      <SwitchConfirm />
       <WordubadoInfo />
+      <GiveUpConfirm />
+      <NewGameConfirm />
+      <SettingsModal />
+      <ResetConfirm />
       <LoadingNotice active={status === 'loading'} />
       <Header />
       <main className="board-area">
@@ -49,12 +64,15 @@ export default function App() {
           status={status}
           shakeId={shakeId}
           shakeRow={shakeRow}
+          celebrate={finishedInSession}
         />
       </main>
+      <ForfeitRow />
       <div className="controls">
-        {status === 'won' || status === 'lost' ? (
+        {isFinished(status) ? (
           <Banner
-            status={status}
+            status={status as 'won' | 'lost' | 'gave-up'}
+            autoFocus={finishedInSession}
             answer={answer}
             attemptsUsed={rows.length}
             maxAttempts={BOARD_CONFIG[length].attempts}
