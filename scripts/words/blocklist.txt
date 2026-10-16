@@ -1,0 +1,51 @@
+# Words that must never be a Normal answer (R-POOL-6, D-03).
+# Applies to ANSWERS only: these words stay valid guesses.
+# One lowercase word per line; '#' starts a comment. Words must be a-z only.
+# This catches words the obscenity English preset misses.
+
+# violence and death
+kill
+nazi
+rape
+raped
+rapes
+rapist
+murder
+slaughter
+suicide
+lynch
+molest
+
+# sexual
+porn
+whore
+slut
+sluts
+dildo
+penis
+vagina
+anal
+cum
+cums
+semen
+orgasm
+erotic
+incest
+hentai
+
+# slurs and hate terms
+nigger
+nigga
+faggot
+fagot
+dyke
+tranny
+retard
+spic
+chink
+kike
+gook
+coon
+paki
+wetback
+negro

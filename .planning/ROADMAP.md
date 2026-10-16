@@ -6,8 +6,8 @@ Vertical MVP: a playable game appears as early as possible (Phase 2), then each 
 
 ## Phases
 
-- [ ] **Phase 1: Foundation, Spec and CI Skeleton** - Scaffold, lint/test tooling, SPEC.md/GLOSSARY.md, baseline CI and Vercel previews
-- [ ] **Phase 2: Playable Normal Game** - Play a correct, animated Normal game at 4/5/6 letters from a generated word pool
+- [x] **Phase 1: Foundation, Spec and CI Skeleton** - Scaffold, lint/test tooling, SPEC.md/GLOSSARY.md, baseline CI and Vercel previews (completed 2026-10-01)
+- [x] **Phase 2: Playable Normal Game** - Play a correct, animated Normal game at 4/5/6 letters from a generated word pool (completed 2026-10-01)
 - [ ] **Phase 3: Wordubado Mode and Slang** - Switch to Wordubado with owner-reviewed slang answers, plus slang as a valid Normal guess
 - [ ] **Phase 4: Six Boards and Persistence** - Six independent saved Boards that survive refresh, with safe, versioned storage
 - [ ] **Phase 5: Stats, Streaks and Restore** - Win Streaks, Day Streak, monthly Restores and the statistics screen
@@ -55,7 +55,7 @@ Plans:
 
 **Wave 6** *(blocked on Wave 5 completion)*
 
-- [ ] 01-06-PLAN.md — Owner verifies preview, merge PR 2, prove production deploy from main
+- [x] 01-06-PLAN.md — Owner verifies preview, merge PR 2, prove production deploy from main
 
 **Notes**: Baseline CI (lint, format, typecheck, unit, build) starts here; QA-04 is completed in Phase 8 after later phases add word-drift and E2E jobs. Research flag: confirm whether the scaffold installs TS 6 or 7 and typescript-eslint's peer range.
 
@@ -73,7 +73,47 @@ Plans:
   4. User who runs out of attempts sees the answer revealed; every new game draws a random common word (repeats allowed) that is never a plural or inflection or a blocklisted word
   5. The largest grid (6 letters x 7 rows) fits a 320 px phone with a dvh-safe layout, animations are disabled under prefers-reduced-motion, and the production build keeps word pools out of the entry chunk
 
-**Plans**: TBD
+**Plans**: 11 plans
+
+Plans:
+**Wave 1**
+
+- [x] 02-01-PLAN.md — Pure scoring, pickAnswer and key merge, test-first (wave 1)
+- [x] 02-02-PLAN.md — Draft slang.json with D-18 validation test (wave 1)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [x] 02-03-PLAN.md — Word build script, lists and committed per-length pools (wave 2)
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
+- [x] 02-04-PLAN.md — Owner review of Normal answers, exclude.txt (checkpoint, wave 3)
+- [x] 02-05-PLAN.md — Playwright on the production build and failing win/lose E2E (wave 3)
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
+- [x] 02-06-PLAN.md — Lazy pool loader and game store, test-first (wave 4)
+
+**Wave 5** *(blocked on Wave 4 completion)*
+
+- [x] 02-07-PLAN.md — Playable UI: grid, keyboards, length picker, banner (wave 5)
+
+**Wave 6** *(blocked on Wave 5 completion)*
+
+- [x] 02-08-PLAN.md — Toast, row-scoped shake, pop/flip/bounce and reduced motion (wave 6)
+
+**Wave 7** *(blocked on Wave 6 completion)*
+
+- [x] 02-09-PLAN.md — 320 px fit with compact rule at <=540 px, loading and error states (wave 7)
+
+**Wave 8** *(blocked on Wave 7 completion)*
+
+- [x] 02-10-PLAN.md — check:bundle, CI words and e2e jobs, PIPELINE.md (wave 8)
+
+**Wave 9** *(blocked on Wave 8 completion)*
+
+- [x] 02-11-PLAN.md — PR with green CI and owner preview sign-off (checkpoint, wave 9)
+
 **UI hint**: yes
 **Notes**: Scoring and answer picking are pure modules written test-first. The word build script, blocklist and committed JSON land here (Normal pools plus guess pools); slang is added in Phase 3. Slang drafting for slang.json starts in parallel during this phase so the owner's review does not block Phase 3.
 
@@ -184,8 +224,8 @@ Plans:
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation, Spec and CI Skeleton | 5/6 | In Progress|  |
-| 2. Playable Normal Game | 0/TBD | Not started | - |
+| 1. Foundation, Spec and CI Skeleton | 6/6 | Complete    | 2026-10-01 |
+| 2. Playable Normal Game | 11/11 | Complete   | 2026-10-01 |
 | 3. Wordubado Mode and Slang | 0/TBD | Not started | - |
 | 4. Six Boards and Persistence | 0/TBD | Not started | - |
 | 5. Stats, Streaks and Restore | 0/TBD | Not started | - |

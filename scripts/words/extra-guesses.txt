@@ -1,0 +1,3 @@
+# Extra valid guesses (D-10): real words missing from the word source.
+# One lowercase a-z word of 4-6 letters per line; '#' starts a comment.
+# These are added to the Guess Pool only, never to answers.

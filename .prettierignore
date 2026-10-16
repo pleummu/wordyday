@@ -5,3 +5,6 @@ package-lock.json
 docs
 *.md
 plan.txt
+src/data/*.json
+playwright-report
+test-results
