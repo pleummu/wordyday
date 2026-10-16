@@ -2,14 +2,14 @@
 phase: 08-e2e-ci-hardening-and-pipeline-docs
 verified: 2026-10-16T00:00:00Z
 status: passed
-score: 3/3 roadmap success criteria evidenced (owner read-through of PIPELINE.md pending)
+score: 3/3 must-haves verified
 overrides_applied: 0
 ---
 
 # Phase 8: E2E, CI Hardening and Pipeline Docs Verification Report
 
 **Phase Goal:** Every important user journey is covered end-to-end in CI, merging is gated on green checks, and the pipeline is documented as a learning guide.
-**Status:** passed, pending the owner read-through in plan 08-05 Task 3.
+**Status:** passed. Owner approved PIPELINE.md in 08-05 Task 3 (recorded in 08-05-SUMMARY).
 
 ## Observable Truths
 
@@ -17,7 +17,7 @@ overrides_applied: 0
 | --- | ------------------------------------------------------------------------------------------------------ | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | 1   | E2E covers win, loss, invalid guess, resume, Board switching, Give Up, Restore with a fake clock, axe | VERIFIED | QA-03 map below. Every title is listed by `npx playwright test --list` under `[chromium]` and `[mobile]`. No new spec was written (D-06).                                      |
 | 2   | CI runs lint, format, types, unit, build, bundle budget, words drift and E2E; main is protected        | VERIFIED | 08-01: required checks `check`, `words`, `e2e` read back from the API (strict false). 08-03: close and reopen of PR #5 showed BLOCKED while a required check was pending.     |
-| 3   | docs/PIPELINE.md describes the finished pipeline as a learning guide                                   | VERIFIED | Refreshed in 08-05 Task 2 (stale markers removed, build:e2e, budget, cache, protection, landing flow, retrospective, Try-it boxes). Owner read-through is the Task 3 checkpoint. |
+| 3   | docs/PIPELINE.md describes the finished pipeline as a learning guide                                   | VERIFIED | Refreshed in 08-05 Task 2 (stale markers removed, build:e2e, budget, cache, protection, landing flow, retrospective, Try-it boxes). Owner replied "approved" at the Task 3 checkpoint. |
 
 ## QA-03 Traceability (checked against `npx playwright test --list`, 2026-10-16)
 
@@ -55,6 +55,22 @@ Grep count over the list for the eight titles: 22 lines (8 items x 2 projects, w
 | PR  | Head SHA | Run id  | Flaky | Cache-hit line | required checks |
 | --- | -------- | ------- | ----- | -------------- | --------------- |
 | #9  | c946a04 | 38930577200 | 0 (437 passed, 15 skipped, 5.2m; e2e job 5m40s) | `Cache hit for: pw-Linux-1.63.0` then `Cache restored from key: pw-Linux-1.63.0` | check, words, e2e pass |
+
+## Goal-backward re-check (2026-10-16)
+
+- Branch protection read back live: required contexts `["check","words","e2e"]`.
+- `.github/workflows/ci.yml` has jobs check (lint, format:check, typecheck, test, build, check:bundle), words (build:words drift) and e2e (cached Playwright install, `npx playwright test`, report artifact).
+- Run 38930577200 on c946a04 concluded success. PR #9 head is now 6343a38 (docs only): check, words, Vercel pass; e2e was still running at check time.
+- 26 spec files exist under `e2e/`; QA-03 titles map as in the table above.
+- REQUIREMENTS.md: QA-03, QA-04, DOC-03 all marked Complete and mapped to Phase 8; all three IDs appear in plan frontmatter. No orphaned requirements.
+- PR #9 is open and unmerged by design; not a gap.
+
+## Code review note (08-REVIEW.md, advisory)
+
+0 critical, 2 warnings, 2 info. Not blockers; CI still fails non-zero in both cases.
+- WR-01: `scripts/check-bundle.mjs` has no guard for a missing entry stylesheet, so the CSS budget could pass vacuously if the link tag shape changes.
+- WR-02: `gz()` can throw ENOENT before the table prints if an entry href does not resolve to a file.
+- IN-01: Playwright cache is saved only when the job succeeds. IN-02: `poolTag` may get an "undefined" key.
 
 ## Gaps Summary
 
