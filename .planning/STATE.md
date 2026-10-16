@@ -4,8 +4,8 @@ milestone: v1.0
 milestone_name: milestone
 status: executing
 stopped_at: Phase 8 context gathered
-last_updated: "2026-10-16T14:44:28.386Z"
-last_activity: 2026-10-16 -- Phase 8 planning complete
+last_updated: "2026-10-16T15:22:01.531Z"
+last_activity: 2026-10-16 -- Phase 08 execution started
 progress:
   total_phases: 8
   completed_phases: 6
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-10-01)
 
 **Core value:** Endless, correct Wordle play. Scoring (including repeated letters), word validation and a smooth, responsive feel must be right for all three lengths.
-**Current focus:** Phase 8 — e2e, ci hardening and pipeline docs
+**Current focus:** Phase 08 — e2e-ci-hardening-and-pipeline-docs
 
 ## Current Position
 
-Phase: 8
-Plan: Not started
-Status: Ready to execute
-Last activity: 2026-10-16 -- Phase 8 planning complete
+Phase: 08 (e2e-ci-hardening-and-pipeline-docs) — EXECUTING
+Plan: 1 of 5
+Status: Executing Phase 08
+Last activity: 2026-10-16 -- Phase 08 execution started
 
 Progress: [██████████] 98%
 

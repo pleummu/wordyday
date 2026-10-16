@@ -384,7 +384,7 @@ Plans:
 Plans:
 **Wave 1**
 
-- [ ] 08-01-PLAN.md — Secret scan, owner makes repo public, branch protection with required check/words/e2e (checkpoint)
+- [x] 08-01-PLAN.md — Secret scan, owner makes repo public, branch protection with required check/words/e2e (checkpoint)
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
@@ -414,4 +414,4 @@ Plans:
 | 5. Stats, Streaks and Restore | 8/8 | Complete   | 2026-10-05 |
 | 6. Result Screen, Share and Definitions | 7/8 | In Progress|  |
 | 7. Themes, Accessibility and Polish | 8/8 | Complete   | 2026-10-14 |
-| 8. E2E, CI Hardening and Pipeline Docs | 0/TBD | Not started | - |
+| 8. E2E, CI Hardening and Pipeline Docs | 1/5 | In Progress|  |
