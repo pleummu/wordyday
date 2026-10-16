@@ -388,7 +388,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 08-02-PLAN.md — Owner decisions, stacked per-phase PRs for Phases 2-7, all green in CI, e2e measured (checkpoint)
+- [x] 08-02-PLAN.md — Owner decisions, stacked per-phase PRs for Phases 2-7, all green in CI, e2e measured (checkpoint)
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
@@ -414,4 +414,4 @@ Plans:
 | 5. Stats, Streaks and Restore | 8/8 | Complete   | 2026-10-05 |
 | 6. Result Screen, Share and Definitions | 7/8 | In Progress|  |
 | 7. Themes, Accessibility and Polish | 8/8 | Complete   | 2026-10-14 |
-| 8. E2E, CI Hardening and Pipeline Docs | 1/5 | In Progress|  |
+| 8. E2E, CI Hardening and Pipeline Docs | 2/5 | In Progress|  |
