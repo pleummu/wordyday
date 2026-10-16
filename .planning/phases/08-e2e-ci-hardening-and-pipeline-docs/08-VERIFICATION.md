@@ -54,7 +54,7 @@ Grep count over the list for the eight titles: 22 lines (8 items x 2 projects, w
 
 | PR  | Head SHA | Run id  | Flaky | Cache-hit line | required checks |
 | --- | -------- | ------- | ----- | -------------- | --------------- |
-| #9  | pending  | pending | pending | pending      | pending         |
+| #9  | c946a04 | 38930577200 | 0 (437 passed, 15 skipped, 5.2m; e2e job 5m40s) | `Cache hit for: pw-Linux-1.63.0` then `Cache restored from key: pw-Linux-1.63.0` | check, words, e2e pass |
 
 ## Gaps Summary
 
