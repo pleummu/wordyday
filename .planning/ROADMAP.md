@@ -16,7 +16,7 @@ Vertical MVP: a playable game appears as early as possible (Phase 2), then each 
 - [ ] **Phase 6: Result Screen, Share and Definitions** - Result modal with Play again, Show definition and Share
 - [x] **Phase 7: Themes, Accessibility and Polish** - Dark/colour-blind themes, how-to-play, screen-reader and keyboard support, metadata
  (completed 2026-10-14)
-- [ ] **Phase 8: E2E, CI Hardening and Pipeline Docs** - Playwright full-game suite, complete CI, and the PIPELINE.md learning guide
+- [x] **Phase 8: E2E, CI Hardening and Pipeline Docs** - Playwright full-game suite, complete CI, and the PIPELINE.md learning guide (completed 2026-10-16)
 
 ## Phase Details
 
@@ -400,7 +400,7 @@ Plans:
 
 **Wave 5** *(blocked on Wave 4 completion)*
 
-- [ ] 08-05-PLAN.md — QA-03 traceability in 08-VERIFICATION.md, PIPELINE.md refresh with retrospective and Try-it boxes, owner read-through (checkpoint)
+- [x] 08-05-PLAN.md — QA-03 traceability in 08-VERIFICATION.md, PIPELINE.md refresh with retrospective and Try-it boxes, owner read-through (checkpoint)
 **Notes**: Research flag: Playwright page.clock/reducedMotion and current actions/* versions. Includes the bundle budget and branch protection.
 
 ## Progress
@@ -414,4 +414,4 @@ Plans:
 | 5. Stats, Streaks and Restore | 8/8 | Complete   | 2026-10-05 |
 | 6. Result Screen, Share and Definitions | 7/8 | In Progress|  |
 | 7. Themes, Accessibility and Polish | 8/8 | Complete   | 2026-10-14 |
-| 8. E2E, CI Hardening and Pipeline Docs | 4/5 | In Progress|  |
+| 8. E2E, CI Hardening and Pipeline Docs | 5/5 | Complete   | 2026-10-16 |
