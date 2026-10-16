@@ -34,7 +34,7 @@ describe('R-SCORE-1 two-pass scoring', () => {
     expect(score('plumb', 'tread')).toEqual(Array(5).fill('absent'))
   })
 
-  it('handles 4 letters with repeats', () => {
+  it('QA-02 scoring at length 4 with repeats', () => {
     expect(score('ball', 'lull')).toEqual([
       'absent',
       'absent',
@@ -43,7 +43,7 @@ describe('R-SCORE-1 two-pass scoring', () => {
     ])
   })
 
-  it('handles 6 letters with repeats', () => {
+  it('QA-02 scoring at length 6 with repeats', () => {
     expect(score('banana', 'ananas')).toEqual([
       'present',
       'present',
@@ -54,7 +54,7 @@ describe('R-SCORE-1 two-pass scoring', () => {
     ])
   })
 
-  it('handles triple letters', () => {
+  it('QA-02 scoring with triple letters', () => {
     expect(score('eerie', 'eeeee')).toEqual([
       'correct',
       'correct',

@@ -100,3 +100,58 @@ export function cell(page: Page, row: number, col: number) {
     name: new RegExp(`^Row ${row}, column ${col}, `),
   })
 }
+
+const ATTEMPTS = { 4: 5, 5: 6, 6: 7 } as const
+
+export function defaultV2State(): Record<string, unknown> {
+  const stats: Record<string, unknown> = {}
+  for (const mode of ['normal', 'wordubado']) {
+    for (const n of [4, 5, 6] as const) {
+      stats[`${mode}-${n}`] = {
+        played: 0,
+        wins: 0,
+        gaveUp: 0,
+        dist: new Array<number>(ATTEMPTS[n]).fill(0),
+        winStreak: 0,
+        bestWinStreak: 0,
+        last: null,
+        lastCounted: null,
+      }
+    }
+  }
+  return {
+    boards: {},
+    last: { mode: 'normal', length: 5 },
+    wordubadoInfoSeen: false,
+    stats,
+    dayStreak: { current: 0, longest: 0, lastActiveDate: null },
+    restores: { month: '', used: 0 },
+    pendingRestore: null,
+    streakRev: 0,
+  }
+}
+
+// Seeds the save only when the key is absent, so reloads keep the app's own writes.
+// overrides.stats is merged per Board key.
+export async function seedSave(
+  page: Page,
+  overrides: Record<string, unknown> = {},
+): Promise<void> {
+  const base = defaultV2State()
+  const { stats: statOverrides, ...rest } = overrides as {
+    stats?: Record<string, Record<string, unknown>>
+  }
+  const stats = base.stats as Record<string, Record<string, unknown>>
+  for (const [k, v] of Object.entries(statOverrides ?? {})) {
+    stats[k] = { ...stats[k], ...v }
+  }
+  const state = { ...base, ...rest, stats }
+  await page.addInitScript(
+    (doc) => {
+      if (localStorage.getItem('unlimited-wordle') === null) {
+        localStorage.setItem('unlimited-wordle', JSON.stringify(doc))
+      }
+    },
+    { version: 2, state },
+  )
+}

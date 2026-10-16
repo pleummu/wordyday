@@ -1,4 +1,5 @@
 import { useEffect, type CSSProperties } from 'react'
+import { TOAST_LIFE_MS } from '../state/copy'
 
 export type ToastData = {
   id: number
@@ -11,8 +12,6 @@ type ToastProps = {
   toast: ToastData | null
   onDismiss: (id: number) => void
 }
-
-const TOAST_LIFE_MS = 1860
 
 export default function Toast({ toast, onDismiss }: ToastProps) {
   const id = toast?.id

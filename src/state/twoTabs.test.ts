@@ -2,7 +2,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { createGameStore } from './gameStore'
 import type { Pools } from '../data/wordData'
 import type { WordLength } from '../logic/boards'
-import { SAVE_KEY, SAVE_VERSION } from '../logic/save'
+import { SAVE_KEY, SAVE_VERSION, emptyStats } from '../logic/save'
+import { saveEnvelope, v2Save } from '../test/storageDoubles'
 import { createSaveStorage } from './storage'
 
 const OTHER_TAB = 'Updated from your other tab.'
@@ -323,5 +324,133 @@ describe('two tabs', () => {
     )
     await settle()
     expect(b.store.getState().boards['wordubado-4']).toBeUndefined()
+  })
+})
+
+describe('D-20 stats and streak slices', () => {
+  const statsOf = (shared: Map<string, string>) =>
+    JSON.parse(shared.get(SAVE_KEY) as string).state.stats
+
+  function envelopeFor(t: Tab, over: Record<string, unknown>) {
+    const s = t.store.getState()
+    return saveEnvelope(
+      v2Save({
+        boards: s.boards,
+        stats: s.stats,
+        ...over,
+      } as never),
+    )
+  }
+
+  it('D-20 both tabs finish the same game before the sync arrives: counted once', async () => {
+    const { shared, a, b, settle } = await twoTabs()
+    type(a, 'crane')
+    type(b, 'crane')
+    a.store.getState().submit()
+    b.store.getState().submit()
+    await settle()
+    for (const t of [a, b]) {
+      const st = t.store.getState().stats['normal-5']
+      expect(st.played).toBe(1)
+      expect(st.wins).toBe(1)
+      expect(st.winStreak).toBe(1)
+    }
+    expect(statsOf(shared)['normal-5'].played).toBe(1)
+  })
+
+  it('D-20 a finish in one tab is adopted by the other and survives its write-back', async () => {
+    const { shared, a, b, settle } = await twoTabs()
+    await guess(a, settle, 'crane')
+    expect(b.store.getState().stats['normal-5'].played).toBe(1)
+    b.store.getState().switchBoard({ length: 4 })
+    await settle()
+    await guess(b, settle, b.store.getState().answer)
+    for (const t of [a, b]) {
+      expect(t.store.getState().stats['normal-5'].played).toBe(1)
+      expect(t.store.getState().stats['normal-4'].played).toBe(1)
+    }
+    expect(statsOf(shared)['normal-5'].played).toBe(1)
+    expect(statsOf(shared)['normal-4'].played).toBe(1)
+  })
+
+  it('D-20 a tab that already merged the other tab finish does not count it again', async () => {
+    const { shared, a, b, settle } = await twoTabs()
+    type(a, 'crane')
+    type(b, 'crane')
+    a.store.getState().submit()
+    b.store.getState().submit()
+    await settle()
+    expect(a.store.getState().submit()).toBe('blocked')
+    expect(statsOf(shared)['normal-5'].played).toBe(1)
+  })
+
+  it('D-20 streak slice with the higher streakRev wins in both tabs', async () => {
+    const { b, settle } = await twoTabs()
+    b.store.getState().applyExternal(
+      envelopeFor(b, {
+        dayStreak: { current: 3, longest: 3, lastActiveDate: '2026-06-03' },
+        streakRev: 5,
+      }),
+    )
+    await settle()
+    expect(b.store.getState().dayStreak.current).toBe(3)
+    b.store.getState().applyExternal(
+      envelopeFor(b, {
+        dayStreak: { current: 9, longest: 9, lastActiveDate: '2026-06-04' },
+        streakRev: 4,
+      }),
+    )
+    await settle()
+    expect(b.store.getState().dayStreak.current).toBe(3)
+  })
+
+  it('D-20 a pending prompt answered in the other tab is cleared here', async () => {
+    const { b, settle } = await twoTabs()
+    b.store.getState().applyExternal(
+      envelopeFor(b, {
+        pendingRestore: { streak: 5, missed: 1, creditDeferred: false },
+        streakRev: 2,
+      }),
+    )
+    await settle()
+    expect(b.store.getState().pendingRestore).not.toBeNull()
+    b.store
+      .getState()
+      .applyExternal(envelopeFor(b, { pendingRestore: null, streakRev: 3 }))
+    await settle()
+    expect(b.store.getState().pendingRestore).toBeNull()
+    expect(b.store.getState().toast?.text).not.toBe(OTHER_TAB)
+  })
+
+  it('D-20 a stale pre-reset document never brings back stats', async () => {
+    const { shared, a, settle } = await twoTabs()
+    await guess(a, settle, 'crane')
+    const stale = shared.get(SAVE_KEY) as string
+    a.store.getState().resetAll()
+    await settle()
+    a.store.getState().applyExternal(stale)
+    await settle()
+    expect(a.store.getState().stats).toEqual(emptyStats())
+    expect(a.store.getState().dayStreak.current).toBe(0)
+  })
+})
+
+describe('Restore prompt across tabs', () => {
+  it('a Restore answered in tab A closes the prompt in tab B silently', async () => {
+    const { a, b, settle } = await twoTabs()
+    const pending = { streak: 5, missed: 1, creditDeferred: false }
+    const slice = {
+      dayStreak: { current: 5, longest: 5, lastActiveDate: '2026-06-01' },
+      restores: { month: '', used: 0 },
+      pendingRestore: pending,
+      streakRev: 1,
+    }
+    a.store.setState(slice)
+    b.store.setState(slice)
+    a.store.getState().restore()
+    await settle()
+    expect(a.store.getState().pendingRestore).toBeNull()
+    expect(b.store.getState().pendingRestore).toBeNull()
+    expect(b.store.getState().toast?.text).not.toBe(OTHER_TAB)
   })
 })

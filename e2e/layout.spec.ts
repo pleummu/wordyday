@@ -2,6 +2,7 @@ import { expect, test, type Page } from '@playwright/test'
 import {
   fixAnswers,
   guessAll,
+  seedSave,
   selectLength,
   turnOnWordubado,
   waitForReady,
@@ -166,3 +167,99 @@ test('forfeit row fits at 320x500 with 5 letters in normal', async ({
   await guessAll(page, ['house', 'ghost', 'plant', 'mouse'])
   await expectForfeitFits(page, 500, 'Row 6, column 5, empty')
 })
+
+for (const h of [500, 568, 640]) {
+  for (const mode of ['normal', 'wordubado'] as const) {
+    test(`header fits title and actions at 320x${h} in ${mode}`, async ({
+      page,
+    }) => {
+      await fixAnswers(page)
+      await page.setViewportSize({ width: 320, height: h })
+      await page.goto('/')
+      await waitForReady(page)
+      if (mode === 'wordubado') await turnOnWordubado(page)
+      await expectNoScroll(page, h)
+      const title = (await page.locator('h1.title').boundingBox())!
+      const actions = (await page.locator('.header-actions').boundingBox())!
+      const overlap =
+        title.x < actions.x + actions.width &&
+        actions.x < title.x + title.width &&
+        title.y < actions.y + actions.height &&
+        actions.y < title.y + title.height
+      expect(overlap).toBe(false)
+      for (const name of ['Statistics', 'Settings']) {
+        const b = (await page.getByRole('button', { name }).boundingBox())!
+        expect(b.width).toBeCloseTo(36, 0)
+        expect(b.height).toBeCloseTo(36, 0)
+      }
+    })
+  }
+}
+
+test('header action buttons are 40 px at 1280x720', async ({ page }) => {
+  await fixAnswers(page)
+  await page.setViewportSize({ width: 1280, height: 720 })
+  await page.goto('/')
+  await waitForReady(page)
+  for (const name of ['Statistics', 'Settings']) {
+    const b = (await page.getByRole('button', { name }).boundingBox())!
+    expect(b.width).toBeCloseTo(40, 0)
+    expect(b.height).toBeCloseTo(40, 0)
+  }
+})
+
+async function chipPage(
+  page: Page,
+  h: number,
+  mode: 'normal' | 'wordubado',
+  streak: number,
+): Promise<Page> {
+  const p = await page.context().newPage()
+  await p.clock.install({ time: new Date('2026-06-03T09:00:00') })
+  await p.addInitScript(() => localStorage.removeItem('unlimited-wordle'))
+  await fixAnswers(p)
+  await seedSave(p, {
+    dayStreak: {
+      current: streak,
+      longest: streak,
+      lastActiveDate: streak ? '2026-06-03' : null,
+    },
+    wordubadoInfoSeen: true,
+  })
+  await p.setViewportSize({ width: 320, height: h })
+  await p.goto('/')
+  await waitForReady(p)
+  if (mode === 'wordubado') await turnOnWordubado(p, { firstTime: false })
+  return p
+}
+
+for (const h of [500, 568, 640]) {
+  for (const mode of ['normal', 'wordubado'] as const) {
+    test(`header fits the Day Streak chip at 320x${h} in ${mode}`, async ({
+      page,
+    }) => {
+      const p0 = await chipPage(page, h, mode, 0)
+      const base = (await p0.locator('.header').boundingBox())!.height
+      await p0.close()
+      for (const streak of [12, 123]) {
+        const p = await chipPage(page, h, mode, streak)
+        await expectNoScroll(p, h)
+        const title = (await p.locator('h1.title').boundingBox())!
+        const actions = (await p.locator('.header-actions').boundingBox())!
+        const overlap =
+          title.x < actions.x + actions.width &&
+          actions.x < title.x + title.width &&
+          title.y < actions.y + actions.height &&
+          actions.y < title.y + title.height
+        expect(overlap).toBe(false)
+        const chip = (await p
+          .getByRole('button', { name: /^Day streak/ })
+          .boundingBox())!
+        expect(chip.x).toBeGreaterThanOrEqual(0)
+        expect(chip.x + chip.width).toBeLessThanOrEqual(320)
+        expect((await p.locator('.header').boundingBox())!.height).toBe(base)
+        await p.close()
+      }
+    })
+  }
+}

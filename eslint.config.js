@@ -37,6 +37,25 @@ export default defineConfig([
     rules: { 'no-restricted-imports': 'off' },
   },
   {
+    files: ['src/logic/**/*.ts'],
+    rules: {
+      'no-restricted-syntax': [
+        'error',
+        {
+          selector: "NewExpression[callee.name='Date'][arguments.length=0]",
+          message:
+            'R-DATE-3: logic receives today as input; read the clock only in src/state/clock.ts or the store deps.',
+        },
+        {
+          selector:
+            "CallExpression[callee.object.name='Date'][callee.property.name='now']",
+          message:
+            'R-DATE-3: logic receives today as input; read the clock only in src/state/clock.ts or the store deps.',
+        },
+      ],
+    },
+  },
+  {
     files: ['scripts/**/*.mjs'],
     extends: [js.configs.recommended],
     languageOptions: {

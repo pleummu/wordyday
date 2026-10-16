@@ -3,6 +3,8 @@ import type { WordLength } from '../logic/boards'
 import { useGameStore } from '../state/gameStore'
 import InfoButton from './InfoButton'
 import SettingsButton from './SettingsButton'
+import StreakChip from './StreakChip'
+import StatsButton from './StatsButton'
 import LengthPicker from './LengthPicker'
 import ModeSwitch from './ModeSwitch'
 
@@ -24,6 +26,8 @@ export default function Header() {
       <div className="header-top">
         <h1 className="title">Unlimited Wordle</h1>
         <div className="header-actions">
+          <StreakChip />
+          <StatsButton />
           <SettingsButton />
         </div>
       </div>

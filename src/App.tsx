@@ -8,12 +8,16 @@ import LoadError from './components/LoadError'
 import LoadingNotice from './components/LoadingNotice'
 import NewGameConfirm from './components/NewGameConfirm'
 import ResetConfirm from './components/ResetConfirm'
+import RestorePrompt from './components/RestorePrompt'
+import StreakBreakModal from './components/StreakBreakModal'
 import SettingsModal from './components/SettingsModal'
+import StatsModal from './components/StatsModal'
 import Toast from './components/Toast'
 import WordubadoInfo from './components/WordubadoInfo'
 import { usePhysicalKeyboard } from './components/usePhysicalKeyboard'
 import { BOARD_CONFIG } from './logic/boards'
 import { canForfeit } from './logic/save'
+import { winStreakLine } from './state/copy'
 import { isFinished, useGameStore } from './state/gameStore'
 
 export default function App() {
@@ -32,6 +36,7 @@ export default function App() {
   const playAgain = useGameStore((s) => s.playAgain)
   const retryLoad = useGameStore((s) => s.retryLoad)
   const finishedInSession = useGameStore((s) => s.finishedInSession)
+  const finishNote = useGameStore((s) => s.finishNote)
 
   const showRow = canForfeit(status, rows.length, BOARD_CONFIG[length].attempts)
 
@@ -53,7 +58,10 @@ export default function App() {
       <GiveUpConfirm />
       <NewGameConfirm />
       <SettingsModal />
+      <StatsModal />
       <ResetConfirm />
+      <RestorePrompt />
+      <StreakBreakModal />
       <LoadingNotice active={status === 'loading'} />
       <Header />
       <main className="board-area">
@@ -77,6 +85,9 @@ export default function App() {
             attemptsUsed={rows.length}
             maxAttempts={BOARD_CONFIG[length].attempts}
             onPlayAgain={playAgain}
+            streakLine={
+              finishedInSession && finishNote ? winStreakLine(finishNote) : null
+            }
           />
         ) : status === 'error' ? (
           <LoadError onRetry={retryLoad} />

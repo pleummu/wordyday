@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: ready_to_plan
-stopped_at: Phase 04 complete (12/12) — ready to discuss Phase 5
-last_updated: 2026-10-04T06:54:05.744Z
-last_activity: 2026-10-04
+status: verifying
+stopped_at: Completed 05-08-PLAN.md
+last_updated: "2026-10-05T14:28:42.501Z"
+last_activity: 2026-10-05
 progress:
   total_phases: 8
   completed_phases: 4
-  total_plans: 35
-  completed_plans: 35
+  total_plans: 43
+  completed_plans: 42
   percent: 50
 ---
 
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-10-01)
 
 **Core value:** Endless, correct Wordle play. Scoring (including repeated letters), word validation and a smooth, responsive feel must be right for all three lengths.
-**Current focus:** Phase 5 — stats, streaks and restore
+**Current focus:** Phase 05 — stats-streaks-and-restore
 
 ## Current Position
 
-Phase: 5
-Plan: Not started
-Status: Ready to plan
-Last activity: 2026-10-04
+Phase: 05 (stats-streaks-and-restore) — EXECUTING
+Plan: 8 of 8
+Status: Phase complete — ready for verification
+Last activity: 2026-10-05
 
-Progress: [█████████░] 89%
+Progress: [██████████] 95%
 
 ## Performance Metrics
 
@@ -64,6 +64,13 @@ Progress: [█████████░] 89%
 | Phase 04 P06 | 15min | 2 tasks | 14 files |
 | Phase 04 P07 | 25min | 3 tasks | 17 files |
 | 04 | 12 | - | - |
+| Phase 05 P01 | 25min | 4 tasks | 20 files |
+| Phase 5 P03 | 25min | 3 tasks | 18 files |
+| Phase 05 P04 | 40min | 3 tasks | 13 files |
+| Phase 05 P05 | 25 min | 2 tasks | 10 files |
+| Phase 05 P06 | 45min | 3 tasks | 15 files |
+| Phase 05 P07 | 25min | 3 tasks | 14 files |
+| Phase 05 P08 | 30min | 2 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -92,6 +99,12 @@ Progress: [█████████░] 89%
 - [Phase 04]: Merge two tabs per Board by game id; pickGame is a symmetric total order (higher id wins, ties by lower answer) (04-09)
 - [Phase 04]: Game ids assigned after loadPools await; forfeit stored as gave-up snapshot before next game (04-10)
 - [Phase 04]: Only a reset may start a game from another tab; resetFloor ignores pre-reset games; write back only when ahead (04-11)
+- [Phase 05]: 05-01: Restores month sentinel is empty string; forfeit snapshot rides in the same set as the count
+- [Phase 5]: 05-03: All tab highlights latest win in the mode by last.seq; axe helper waits for dialog animations
+- [Phase ?]: 05-04: Day Streak credit recorded at submit, toast held in dayToastDue until reveal ends
+- [Phase ?]: 05-05: Day Streak chip dimmed via data-dimmed when lastActiveDate != today; E2E Statistics button queries use exact:true
+- [Phase ?]: 05-06: Restore prompt is persisted pendingRestore (not a DialogName), gated on status !== revealing; Modal dismissible=false re-opens on native close
+- [Phase ?]: 05-07: finishDay defers the Day Streak credit while a Restore is pending; breakNotice is transient and Fresh start waits for the reveal
 
 ### Pending Todos
 
@@ -106,6 +119,6 @@ Progress: [█████████░] 89%
 
 ## Session Continuity
 
-Last session: 2026-10-03T19:32:41.813Z
-Stopped at: Completed 04-12-PLAN.md
+Last session: 2026-10-05T14:28:42.496Z
+Stopped at: Completed 05-08-PLAN.md
 Resume file: None

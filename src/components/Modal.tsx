@@ -6,6 +6,8 @@ type ModalProps = {
   titleId: string
   bodyId: string
   fallbackFocus?: () => HTMLElement | null
+  // false = only the dialog's own buttons can close it (D-14).
+  dismissible?: boolean
   children: ReactNode
 }
 
@@ -23,6 +25,7 @@ export default function Modal({
   titleId,
   bodyId,
   fallbackFocus,
+  dismissible = true,
   children,
 }: ModalProps) {
   const ref = useRef<HTMLDialogElement>(null)
@@ -105,15 +108,19 @@ export default function Modal({
       aria-describedby={bodyId}
       onCancel={(e) => {
         e.preventDefault()
-        onClose()
+        if (dismissible) onClose()
       }}
       onClose={() => {
         // Native close with the prop still true = browser closed it (D-14);
         // programmatic closes happen after the prop is false, so skip those.
-        if (openRef.current) onClose()
+        if (!openRef.current) return
+        // A browser may close a modal dialog on a second Esc without a
+        // cancelable event (research A1); put a non-dismissable one back.
+        if (dismissible) onClose()
+        else ref.current?.showModal()
       }}
       onClick={(e) => {
-        if (e.target === e.currentTarget) onClose()
+        if (dismissible && e.target === e.currentTarget) onClose()
       }}
       onKeyDown={onKeyDown}
     >

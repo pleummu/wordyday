@@ -50,7 +50,7 @@ describe('WORD-04 pickWordubadoAnswer', () => {
   const slang = Array.from({ length: 20 }, (_, i) => `s${i}`)
   const answers = Array.from({ length: 20 }, (_, i) => `a${i}`)
 
-  it('draws slang about 75% of the time over 10000 seeded draws', () => {
+  it('QA-02 draws slang about 75% of the time over 10000 seeded draws', () => {
     const rng = mulberry32(2026)
     let slangHits = 0
     for (let i = 0; i < 10000; i++) {
