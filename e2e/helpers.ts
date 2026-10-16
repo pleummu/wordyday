@@ -155,3 +155,16 @@ export async function seedSave(
     { version: 2, state },
   )
 }
+
+export function resultDialog(page: Page) {
+  return page.locator('dialog[open]:has(.result-heading)')
+}
+
+export async function waitForResult(page: Page): Promise<void> {
+  await expect(resultDialog(page)).toBeVisible()
+}
+
+export async function closeResult(page: Page): Promise<void> {
+  await page.keyboard.press('Escape')
+  await expect(resultDialog(page)).toBeHidden()
+}

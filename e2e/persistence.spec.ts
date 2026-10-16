@@ -2,9 +2,12 @@ import { expect, test } from '@playwright/test'
 import {
   fixAnswers,
   guess,
+  closeResult,
   guessAll,
+  resultDialog,
   selectLength,
   waitForReady,
+  waitForResult,
 } from './helpers.ts'
 
 test.use({ reducedMotion: 'reduce' })
@@ -29,14 +32,16 @@ test('refresh keeps submitted guesses and drops the half-typed row', async ({
     page.getByRole('gridcell', { name: /^Row 2, column 1, empty/ }),
   ).toBeVisible()
   await guess(page, 'crane', 2)
-  await expect(page.getByText('You got it in 2 of 6')).toBeVisible()
+  await waitForResult(page)
 })
 
 test('a finished Board comes back finished after refresh', async ({ page }) => {
   await guess(page, 'crane', 1)
-  await expect(page.getByText('You got it in 1 of 6')).toBeVisible()
+  await waitForResult(page)
+  await closeResult(page)
   await page.reload()
-  await expect(page.getByText('You got it in 1 of 6')).toBeVisible()
+  await expect(page.locator('.banner').getByText('Solved in 1')).toBeVisible()
+  await expect(resultDialog(page)).toHaveCount(0)
   const again = page.getByRole('button', { name: 'Play again' })
   await expect(again).toBeVisible()
   await expect(again).not.toBeFocused()
@@ -68,6 +73,9 @@ test('a refresh reopens the last Board played', async ({ page }) => {
 test('a refresh mid-loss cannot dodge the loss', async ({ page }) => {
   await guessAll(page, ['house', 'ghost', 'plant', 'mouse', 'light', 'sound'])
   await page.reload()
-  await expect(page.getByText('The word was CRANE')).toBeVisible()
+  await expect(resultDialog(page)).toHaveCount(0)
+  await expect(
+    page.locator('.banner').getByText('The word was CRANE'),
+  ).toBeVisible()
   await expect(page.getByRole('button', { name: 'Play again' })).toBeVisible()
 })

@@ -304,7 +304,9 @@ test.describe('Breaks and triggers (D-16, STRK-04)', () => {
     await guess(page, 'house', 1)
     await page.clock.fastForward('00:03:00')
     await guess(page, 'crane', 2)
-    await expect(page.getByRole('status')).toHaveText('Day streak: 6')
+    await expect(
+      page.locator('.toast-layer').getByText('Day streak: 6'),
+    ).toBeVisible()
   })
 
   for (const wordubado of [false, true]) {

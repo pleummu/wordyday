@@ -11,14 +11,14 @@ import ResetConfirm from './components/ResetConfirm'
 import RestorePrompt from './components/RestorePrompt'
 import StreakBreakModal from './components/StreakBreakModal'
 import SettingsModal from './components/SettingsModal'
+import ResultModal from './components/ResultModal'
 import StatsModal from './components/StatsModal'
 import Toast from './components/Toast'
 import WordubadoInfo from './components/WordubadoInfo'
 import { usePhysicalKeyboard } from './components/usePhysicalKeyboard'
 import { BOARD_CONFIG } from './logic/boards'
 import { canForfeit } from './logic/save'
-import { winStreakLine } from './state/copy'
-import { isFinished, useGameStore } from './state/gameStore'
+import { isBusy, isFinished, useGameStore } from './state/gameStore'
 
 export default function App() {
   usePhysicalKeyboard()
@@ -36,7 +36,9 @@ export default function App() {
   const playAgain = useGameStore((s) => s.playAgain)
   const retryLoad = useGameStore((s) => s.retryLoad)
   const finishedInSession = useGameStore((s) => s.finishedInSession)
-  const finishNote = useGameStore((s) => s.finishNote)
+  const openResult = useGameStore((s) => s.openResult)
+  const busy = useGameStore(isBusy)
+  const dialog = useGameStore((s) => s.dialog)
 
   const showRow = canForfeit(status, rows.length, BOARD_CONFIG[length].attempts)
 
@@ -53,12 +55,12 @@ export default function App() {
       data-mode={mode}
       data-forfeit={showRow ? 'true' : undefined}
     >
-      <Toast toast={toast} onDismiss={dismissToast} />
       <WordubadoInfo />
       <GiveUpConfirm />
       <NewGameConfirm />
       <SettingsModal />
       <StatsModal />
+      <ResultModal />
       <ResetConfirm />
       <RestorePrompt />
       <StreakBreakModal />
@@ -80,14 +82,11 @@ export default function App() {
         {isFinished(status) ? (
           <Banner
             status={status as 'won' | 'lost' | 'gave-up'}
-            autoFocus={finishedInSession}
             answer={answer}
             attemptsUsed={rows.length}
-            maxAttempts={BOARD_CONFIG[length].attempts}
+            busy={busy}
+            onSeeResult={openResult}
             onPlayAgain={playAgain}
-            streakLine={
-              finishedInSession && finishNote ? winStreakLine(finishNote) : null
-            }
           />
         ) : status === 'error' ? (
           <LoadError onRetry={retryLoad} />
@@ -99,6 +98,12 @@ export default function App() {
           />
         )}
       </div>
+      <Toast
+        toast={toast}
+        onDismiss={dismissToast}
+        raiseKey={dialog}
+        announce={dialog !== 'result'}
+      />
     </div>
   )
 }

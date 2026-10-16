@@ -1,12 +1,14 @@
 import { expect, test } from '@playwright/test'
 import { expectNoA11yViolations } from './axe.ts'
 import {
+  closeResult,
   dismissInfo,
   fixAnswers,
   guess,
   seedSave,
   selectLength,
   waitForReady,
+  waitForResult,
 } from './helpers.ts'
 
 test.use({ reducedMotion: 'reduce' })
@@ -54,6 +56,8 @@ test.describe('Statistics dialog', () => {
     await waitForReady(page)
     await guess(page, 'house', 1)
     await guess(page, 'crane', 2)
+    await waitForResult(page)
+    await closeResult(page)
     await page.getByRole('button', { name: 'Statistics', exact: true }).click()
     const dialog = page.getByRole('dialog', { name: 'Statistics' })
     await expect(dialog.locator('.stat-value').first()).toHaveText('1')

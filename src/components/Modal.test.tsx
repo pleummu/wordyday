@@ -106,8 +106,18 @@ it('does not steal focus when focus has moved elsewhere', () => {
 it('a native close event while the prop is open calls onClose once', () => {
   const onClose = vi.fn()
   render(<Sample open onClose={onClose} />)
-  document.querySelector('dialog')!.dispatchEvent(new Event('close'))
+  const dialog = document.querySelector('dialog')!
+  dialog.removeAttribute('open')
+  dialog.dispatchEvent(new Event('close'))
   expect(onClose).toHaveBeenCalledTimes(1)
+})
+
+it('a stale close event after the dialog reopened is ignored', () => {
+  const onClose = vi.fn()
+  render(<Sample open onClose={onClose} />)
+  // The dialog is open again when the queued close event of an earlier close() lands.
+  document.querySelector('dialog')!.dispatchEvent(new Event('close'))
+  expect(onClose).not.toHaveBeenCalled()
 })
 
 it('a programmatic close does not call onClose', () => {
@@ -164,4 +174,22 @@ it('dismissible false: a native close while open re-opens the dialog', () => {
   expect(dialog.hasAttribute('open')).toBe(true)
   expect(onClose).not.toHaveBeenCalled()
   spy.mockRestore()
+})
+
+it('includes a textarea in the Tab trap', () => {
+  render(
+    <Modal open onClose={() => {}} titleId="t" bodyId="b">
+      <h2 id="t">Title</h2>
+      <p id="b">Body</p>
+      <button data-initial-focus>first</button>
+      <textarea aria-label="box" readOnly value="x" />
+    </Modal>,
+  )
+  const first = screen.getByText('first')
+  const box = screen.getByLabelText('box')
+  box.focus()
+  fireEvent.keyDown(box, { key: 'Tab' })
+  expect(document.activeElement).toBe(first)
+  fireEvent.keyDown(first, { key: 'Tab', shiftKey: true })
+  expect(document.activeElement).toBe(box)
 })

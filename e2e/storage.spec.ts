@@ -1,5 +1,12 @@
 import { expect, test, type Page } from '@playwright/test'
-import { fixAnswers, guess, waitForReady } from './helpers.ts'
+import {
+  closeResult,
+  fixAnswers,
+  guess,
+  resultDialog,
+  waitForReady,
+  waitForResult,
+} from './helpers.ts'
 
 test.use({ reducedMotion: 'reduce' })
 
@@ -10,7 +17,8 @@ const STORAGE_TOAST =
 async function playTwoGuesses(page: Page) {
   await guess(page, 'house', 1)
   await guess(page, 'crane', 2)
-  await expect(page.getByText('You got it in 2 of 6')).toBeVisible()
+  await waitForResult(page)
+  await closeResult(page)
 }
 
 test('corrupt saved data starts fresh with a notice', async ({ page }) => {
@@ -27,7 +35,8 @@ test('corrupt saved data starts fresh with a notice', async ({ page }) => {
   ).toBeVisible()
   await waitForReady(page)
   await guess(page, 'crane', 1)
-  await expect(page.getByText('You got it in 1 of 6')).toBeVisible()
+  await waitForResult(page)
+  await closeResult(page)
   expect(
     await page.evaluate(() => localStorage.getItem('unlimited-wordle:corrupt')),
   ).toBe(SEED)
@@ -35,7 +44,8 @@ test('corrupt saved data starts fresh with a notice', async ({ page }) => {
   await expect(page.getByText("We couldn't read your saved games")).toHaveCount(
     0,
   )
-  await expect(page.getByText('You got it in 1 of 6')).toBeVisible()
+  await expect(page.locator('.banner').getByText('Solved in 1')).toBeVisible()
+  await expect(resultDialog(page)).toHaveCount(0)
 })
 
 test('blocked storage still plays in memory', async ({ page }) => {
@@ -92,8 +102,8 @@ test('a save from a newer version is kept untouched (CR-01)', async ({
   await waitForReady(page)
   await guess(page, 'house', 1)
   await guess(page, 'crane', 2)
-  await expect(page.getByText('You got it in 2 of 6')).toBeVisible()
-  await page.getByRole('button', { name: 'Play again' }).click()
+  await waitForResult(page)
+  await resultDialog(page).getByRole('button', { name: 'Play again' }).click()
   await waitForReady(page)
   expect(
     await page.evaluate(() => localStorage.getItem('unlimited-wordle')),

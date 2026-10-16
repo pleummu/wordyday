@@ -1,11 +1,14 @@
 import { expect, test } from '@playwright/test'
 import {
   cell,
+  closeResult,
   fixAnswers,
   guess,
   guessAll,
+  resultDialog,
   selectLength,
   waitForReady,
+  waitForResult,
 } from './helpers.ts'
 
 test.use({ reducedMotion: 'reduce' })
@@ -57,14 +60,27 @@ test('confirming Give up reveals the answer and survives a refresh', async ({
   await page.getByRole('button', { name: 'Give up' }).click()
   const dialog = page.getByRole('dialog', { name: 'Give up?' })
   await dialog.getByRole('button', { name: 'Give up' }).click()
-  await expect(page.getByText('The word was CRANE')).toBeVisible()
-  await expect(page.getByText('You gave up. Ready for another?')).toBeVisible()
-  await expect(page.getByRole('button', { name: 'Play again' })).toBeFocused()
+  await waitForResult(page)
+  await expect(
+    resultDialog(page).getByRole('heading', { name: 'You gave up' }),
+  ).toBeVisible()
+  await expect(
+    resultDialog(page).getByRole('button', { name: 'Play again' }),
+  ).toBeFocused()
+  await closeResult(page)
+  const banner = page.locator('.banner')
+  await expect(banner).toContainText('The word was CRANE')
+  await expect(
+    banner.getByRole('heading', { name: 'You gave up' }),
+  ).toBeVisible()
   await expect(
     page.getByRole('gridcell', { name: /^Row 5, column 1, empty/ }),
   ).toBeVisible()
   await page.reload()
-  await expect(page.getByText('You gave up. Ready for another?')).toBeVisible()
+  await expect(
+    page.locator('.banner').getByRole('heading', { name: 'You gave up' }),
+  ).toBeVisible()
+  await expect(resultDialog(page)).toHaveCount(0)
   await expect(
     page.getByRole('button', { name: 'Play again' }),
   ).not.toBeFocused()
@@ -80,6 +96,7 @@ test('New game asks first and starts a fresh game', async ({ page }) => {
   ).toBeVisible()
   await dialog.getByRole('button', { name: 'New game' }).click()
   await waitForReady(page)
+  await expect(resultDialog(page)).toHaveCount(0)
   await expect(cell(page, 1, 1)).toHaveAccessibleName(/^Row 1, column 1, empty/)
   await expect(page.getByRole('button', { name: 'Give up' })).toHaveCount(0)
 })

@@ -1,77 +1,82 @@
 // @vitest-environment jsdom
-import { cleanup, render, screen } from '@testing-library/react'
-import { afterEach, expect, it } from 'vitest'
+import { cleanup, fireEvent, render, screen } from '@testing-library/react'
+import { afterEach, expect, it, vi } from 'vitest'
 import Banner from './Banner'
-import { winStreakLine } from '../state/copy'
 
 afterEach(cleanup)
 
-function renderBanner(autoFocus: boolean) {
-  render(
+function renderBanner(
+  props: Partial<React.ComponentProps<typeof Banner>> = {},
+) {
+  const onSeeResult = vi.fn()
+  const onPlayAgain = vi.fn()
+  const view = render(
     <Banner
       status="won"
-      autoFocus={autoFocus}
       answer="crane"
-      attemptsUsed={3}
-      maxAttempts={6}
-      onPlayAgain={() => {}}
+      attemptsUsed={4}
+      busy={false}
+      onSeeResult={onSeeResult}
+      onPlayAgain={onPlayAgain}
+      {...props}
     />,
   )
+  return { ...view, onSeeResult, onPlayAgain }
 }
 
-it('does not steal focus when autoFocus is false', () => {
-  renderBanner(false)
-  expect(document.activeElement).not.toBe(
-    screen.getByRole('button', { name: /play again/i }),
+it('win says Solved in n with no body', () => {
+  const { container } = renderBanner()
+  expect(screen.getByRole('heading', { level: 2 }).textContent).toBe(
+    'Solved in 4',
+  )
+  expect(container.querySelector('.banner-body')).toBeNull()
+})
+
+it('loss says The word was ANSWER', () => {
+  renderBanner({ status: 'lost', answer: 'crane' })
+  expect(screen.getByRole('heading', { level: 2 }).textContent).toBe(
+    'The word was CRANE',
   )
 })
 
-it('focuses Play again when autoFocus is true', () => {
-  renderBanner(true)
-  expect(document.activeElement).toBe(
-    screen.getByRole('button', { name: /play again/i }),
+it('gave-up has a heading and the answer body', () => {
+  const { container } = renderBanner({ status: 'gave-up' })
+  expect(screen.getByRole('heading', { level: 2 }).textContent).toBe(
+    'You gave up',
+  )
+  expect(container.querySelector('.banner-body')!.textContent).toBe(
+    'The word was CRANE',
   )
 })
 
-it('renders the streak line and marks the section', () => {
-  render(
-    <Banner
-      status="won"
-      autoFocus={false}
-      answer="crane"
-      attemptsUsed={3}
-      maxAttempts={6}
-      onPlayAgain={() => {}}
-      streakLine="Win streak: 3"
-    />,
-  )
-  const line = screen.getByText('Win streak: 3')
-  expect(line.className).toBe('banner-streak')
-  expect(line.closest('section')?.hasAttribute('data-streak')).toBe(true)
+it('has See result then Play again, each calling its prop once', () => {
+  const { onSeeResult, onPlayAgain } = renderBanner()
+  const buttons = screen.getAllByRole('button')
+  expect(buttons.map((b) => b.textContent)).toEqual([
+    'See result',
+    'Play again',
+  ])
+  expect(buttons[0].hasAttribute('data-see-result')).toBe(true)
+  expect(buttons[0].hasAttribute('data-own-enter')).toBe(true)
+  expect(buttons[1].hasAttribute('data-own-enter')).toBe(true)
+  fireEvent.click(buttons[0])
+  expect(onSeeResult).toHaveBeenCalledTimes(1)
+  expect(onPlayAgain).not.toHaveBeenCalled()
+  fireEvent.click(buttons[1])
+  expect(onPlayAgain).toHaveBeenCalledTimes(1)
 })
 
-it('renders no streak line when it is null', () => {
-  const { container } = render(
-    <Banner
-      status="lost"
-      autoFocus={false}
-      answer="crane"
-      attemptsUsed={6}
-      maxAttempts={6}
-      onPlayAgain={() => {}}
-      streakLine={null}
-    />,
-  )
-  expect(container.querySelector('.banner-streak')).toBeNull()
-  expect(container.querySelector('[data-streak]')).toBeNull()
+it('busy disables both buttons', () => {
+  renderBanner({ busy: true })
+  for (const b of screen.getAllByRole('button')) {
+    expect((b as HTMLButtonElement).disabled).toBe(true)
+  }
 })
 
-it('winStreakLine words the win and the reset', () => {
-  expect(winStreakLine({ won: true, winStreak: 3, prev: 2 })).toBe(
-    'Win streak: 3',
+it('is not a live region and takes no focus on mount', () => {
+  const { container } = renderBanner()
+  expect(container.querySelector('section')!.hasAttribute('aria-live')).toBe(
+    false,
   )
-  expect(winStreakLine({ won: false, winStreak: 0, prev: 2 })).toBe(
-    'Win streak reset',
-  )
-  expect(winStreakLine({ won: false, winStreak: 0, prev: 0 })).toBeNull()
+  expect(document.activeElement).toBe(document.body)
 })

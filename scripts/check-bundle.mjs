@@ -44,8 +44,10 @@ const fail = (msg) => {
 const sentinels = {}
 const slangSentinels = {}
 const slangCounts = {}
+const defSentinels = {}
+const defCounts = {}
 for (const n of [4, 5, 6]) {
-  const { answers, slang } = JSON.parse(
+  const { answers, slang, defs } = JSON.parse(
     readFileSync(join('src', 'data', `words-${n}.json`), 'utf8'),
   )
   sentinels[n] = answers.split(' ').filter(Boolean).slice(0, 20).join(' ')
@@ -57,6 +59,16 @@ for (const n of [4, 5, 6]) {
   } else {
     slangSentinels[n] = slangWords.slice(0, 10).join(' ')
   }
+  const defValues = Object.values(defs ?? {})
+  defCounts[n] = defValues.length
+  if (defValues.length === 0) {
+    fail(`no curated definitions for ${n} letters.`)
+  } else {
+    // Skip text that JSON-to-JS escaping could change.
+    defSentinels[n] = defValues.find((d) => !/["\\]/.test(d))
+    if (!defSentinels[n])
+      fail(`no escape-free curated definition for ${n} letters.`)
+  }
 }
 
 for (const name of startNames) {
@@ -66,6 +78,8 @@ for (const name of startNames) {
       fail(`${name} (loaded at start) contains the ${n}-letter word pool.`)
     if (slangSentinels[n] && text.includes(slangSentinels[n]))
       fail(`${name} (loaded at start) contains the ${n}-letter slang list.`)
+    if (defSentinels[n] && text.includes(defSentinels[n]))
+      fail(`${name} (loaded at start) contains ${n}-letter definitions.`)
   }
 }
 
@@ -82,6 +96,16 @@ for (const n of [4, 5, 6]) {
       `the ${n}-letter pool appears in ${hits.length} chunks (expected exactly 1).`,
     )
   else found[n] = hits[0]
+}
+for (const n of [4, 5, 6]) {
+  if (
+    found[n] &&
+    defSentinels[n] &&
+    !readFileSync(join(dist, 'assets', found[n]), 'utf8').includes(
+      defSentinels[n],
+    )
+  )
+    fail(`the ${n}-letter definitions are missing from ${found[n]}.`)
 }
 const names = Object.values(found)
 if (new Set(names).size !== names.length)
@@ -102,6 +126,8 @@ if (failed) process.exit(1)
 console.log('check:bundle OK')
 for (const n of [4, 5, 6])
   console.log(`  ${n}-letter slang: ${slangCounts[n]} words`)
+for (const n of [4, 5, 6])
+  console.log(`  ${n}-letter definitions: ${defCounts[n]}`)
 for (const n of [4, 5, 6]) {
   const kb = (statSync(join(dist, 'assets', found[n])).size / 1024).toFixed(1)
   console.log(`  ${n}-letter pool: assets/${found[n]} (${kb} KB)`)

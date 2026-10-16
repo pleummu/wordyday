@@ -1,67 +1,66 @@
-import { useEffect, useRef } from 'react'
 import {
-  GAVE_UP_BODY,
-  LOSS_BODY,
   PLAY_AGAIN,
-  WIN_BODY,
-  lossHeading,
-  winHeading,
+  SEE_RESULT,
+  YOU_GAVE_UP,
+  solvedIn,
+  wordWasLine,
 } from '../state/copy'
 
 type BannerProps = {
   status: 'won' | 'lost' | 'gave-up'
-  autoFocus: boolean
   answer: string
   attemptsUsed: number
-  maxAttempts: number
+  busy: boolean
+  onSeeResult: () => void
   onPlayAgain: () => void
-  streakLine?: string | null
 }
 
 export default function Banner({
   status,
-  autoFocus,
   answer,
   attemptsUsed,
-  maxAttempts,
+  busy,
+  onSeeResult,
   onPlayAgain,
-  streakLine,
 }: BannerProps) {
-  const button = useRef<HTMLButtonElement>(null)
-  useEffect(() => {
-    if (autoFocus) button.current?.focus()
-    // Focus only on mount: a restored game must not steal focus.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
-  const won = status === 'won'
+  const heading =
+    status === 'won'
+      ? solvedIn(attemptsUsed)
+      : status === 'lost'
+        ? wordWasLine(answer)
+        : YOU_GAVE_UP
   return (
-    <section
-      className="banner"
-      data-result={status}
-      data-streak={streakLine ? '' : undefined}
-      aria-live="polite"
-    >
-      <h2 className="banner-heading">
-        {won ? winHeading(attemptsUsed, maxAttempts) : lossHeading(answer)}
-      </h2>
-      <p className="banner-body">
-        {won ? WIN_BODY : status === 'gave-up' ? GAVE_UP_BODY : LOSS_BODY}
-      </p>
-      {streakLine ? <p className="banner-streak">{streakLine}</p> : null}
-      <button
-        ref={button}
-        type="button"
-        className="play-again"
-        data-own-enter
-        onClick={() => {
-          onPlayAgain()
-          if (document.activeElement instanceof HTMLElement) {
-            document.activeElement.blur()
-          }
-        }}
-      >
-        {PLAY_AGAIN}
-      </button>
+    <section className="banner" data-result={status}>
+      <h2 className="banner-heading">{heading}</h2>
+      {status === 'gave-up' ? (
+        <p className="banner-body">{wordWasLine(answer)}</p>
+      ) : null}
+      <div className="banner-actions">
+        <button
+          type="button"
+          className="see-result"
+          data-see-result
+          data-own-enter
+          disabled={busy}
+          onClick={onSeeResult}
+        >
+          {SEE_RESULT}
+        </button>
+        <button
+          type="button"
+          className="play-again"
+          data-own-enter
+          disabled={busy}
+          onClick={() => {
+            onPlayAgain()
+            if (document.activeElement instanceof HTMLElement) {
+              document.activeElement.blur()
+            }
+          }}
+        >
+          {PLAY_AGAIN}
+        </button>
+      </div>
     </section>
   )
 }

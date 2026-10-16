@@ -1,11 +1,13 @@
 import { expect, test, type Page } from '@playwright/test'
 import {
+  closeResult,
   fixAnswers,
   guessAll,
   seedSave,
   selectLength,
   turnOnWordubado,
   waitForReady,
+  waitForResult,
 } from './helpers.ts'
 
 test.use({ reducedMotion: 'reduce' })
@@ -74,6 +76,8 @@ test('no vertical scroll at 320x500 after a lost 6-letter game', async ({
       }),
     ).toBeVisible()
   }
+  await waitForResult(page)
+  await closeResult(page)
   const again = page.getByRole('button', { name: 'Play again' })
   await expect(again).toBeVisible()
   await expectNoScroll(page, 500)
@@ -193,6 +197,58 @@ for (const h of [500, 568, 640]) {
         expect(b.height).toBeCloseTo(36, 0)
       }
     })
+  }
+}
+
+const LOST5 = ['house', 'ghost', 'plant', 'mouse', 'stone', 'brick']
+
+for (const h of [500, 568, 640]) {
+  for (const mode of ['normal', 'wordubado'] as const) {
+    for (const outcome of ['won', 'lost', 'gave-up'] as const) {
+      test(`result modal and banner fit at 320x${h} in ${mode} after ${outcome}`, async ({
+        page,
+      }) => {
+        await fixAnswers(page)
+        await page.setViewportSize({ width: 320, height: h })
+        await page.goto('/')
+        await waitForReady(page)
+        if (mode === 'wordubado') await turnOnWordubado(page)
+        if (outcome === 'won') {
+          await guessAll(page, ['house', 'crane'])
+        } else if (outcome === 'lost') {
+          await guessAll(page, LOST5)
+        } else {
+          await guessAll(page, ['house', 'ghost', 'plant', 'mouse'])
+          await page.getByRole('button', { name: 'Give up' }).click()
+          await page
+            .getByRole('dialog', { name: 'Give up?' })
+            .getByRole('button', { name: 'Give up' })
+            .click()
+        }
+        await waitForResult(page)
+        const dlg = page.locator('dialog[open]:has(.result-heading)')
+        const noHScroll = await page.evaluate(
+          () => document.documentElement.scrollWidth <= window.innerWidth,
+        )
+        expect(noHScroll).toBe(true)
+        expect(await bottom(dlg)).toBeLessThanOrEqual(h)
+        expect(
+          await bottom(dlg.getByRole('button', { name: 'Play again' })),
+        ).toBeLessThanOrEqual(h)
+        await closeResult(page)
+        await expectNoScroll(page, h)
+        const banner = page.locator('.banner')
+        await expect(banner).toBeVisible()
+        expect(await bottom(banner)).toBeLessThanOrEqual(h)
+        const controlsH = await page.evaluate(
+          () =>
+            document.querySelector('.controls')!.getBoundingClientRect().height,
+        )
+        expect((await banner.boundingBox())!.height).toBeLessThanOrEqual(
+          controlsH + 0.5,
+        )
+      })
+    }
   }
 }
 

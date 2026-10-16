@@ -1,5 +1,13 @@
 import { expect, test } from '@playwright/test'
-import { fixAnswers, guess, selectLength, waitForReady } from './helpers.ts'
+import {
+  closeResult,
+  fixAnswers,
+  guess,
+  resultDialog,
+  selectLength,
+  waitForReady,
+  waitForResult,
+} from './helpers.ts'
 
 test.use({ reducedMotion: 'reduce' })
 
@@ -13,9 +21,13 @@ test('win a 5-letter game', async ({ page }) => {
   await guess(page, 'house', 1)
   await guess(page, 'crane', 2)
 
-  await expect(page.getByText('You got it in 2 of 6')).toBeVisible()
-  await expect(page.getByText('Ready for another?')).toBeVisible()
-  const playAgain = page.getByRole('button', { name: 'Play again' })
+  await waitForResult(page)
+  await expect(
+    resultDialog(page).getByRole('heading', { name: 'You got it in 2/6!' }),
+  ).toBeVisible()
+  const playAgain = resultDialog(page).getByRole('button', {
+    name: 'Play again',
+  })
   await expect(playAgain).toBeFocused()
 
   await playAgain.click()
@@ -31,7 +43,10 @@ test('lose a 4-letter game reveals the answer', async ({ page }) => {
     await guess(page, word, i + 1)
   }
 
-  await expect(page.getByText('The word was GOLD')).toBeVisible()
-  await expect(page.getByText('Better luck next time.')).toBeVisible()
+  await waitForResult(page)
+  await closeResult(page)
+  await expect(
+    page.locator('.banner').getByText('The word was GOLD'),
+  ).toBeVisible()
   await expect(page.getByRole('button', { name: 'Enter' })).toHaveCount(0)
 })

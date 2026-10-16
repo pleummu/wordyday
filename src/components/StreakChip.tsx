@@ -1,11 +1,11 @@
 import { chipName } from '../state/copy'
-import { useGameStore } from '../state/gameStore'
+import { isBusy, useGameStore } from '../state/gameStore'
 
 export default function StreakChip() {
   const current = useGameStore((s) => s.dayStreak.current)
   const lastActiveDate = useGameStore((s) => s.dayStreak.lastActiveDate)
   const today = useGameStore((s) => s.today)
-  const busy = useGameStore((s) => s.status === 'revealing')
+  const busy = useGameStore(isBusy)
   const openStats = useGameStore((s) => s.openStats)
   if (current === 0) return null
   const credited = lastActiveDate === today

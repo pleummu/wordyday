@@ -21,44 +21,18 @@ import {
   WORD_LENGTH,
   avgLine,
   dayStreakFooter,
-  distRowLabel,
   gaveUpLine,
   restoresLeftLine,
 } from '../state/copy'
 import { useGameStore } from '../state/gameStore'
 import Modal from './Modal'
+import { DistChart, Stat } from './StatsBlock'
 
 const MODES: { value: Mode; label: string }[] = [
   { value: 'normal', label: 'Normal' },
   { value: 'wordubado', label: 'Wordubado' },
 ]
 const TABS: StatsTab[] = [4, 5, 6, 'all']
-
-function Stat({
-  value,
-  label,
-  full,
-}: {
-  value: string
-  label: string
-  full?: string
-}) {
-  return (
-    <div className="stat">
-      <span className="stat-value">{value}</span>
-      {full ? (
-        <>
-          <span className="stat-label" aria-hidden="true">
-            {label}
-          </span>
-          <span className="visually-hidden">{full}</span>
-        </>
-      ) : (
-        <span className="stat-label">{label}</span>
-      )}
-    </div>
-  )
-}
 
 export default function StatsModal() {
   const open = useGameStore((s) => s.dialog === 'stats')
@@ -87,7 +61,6 @@ export default function StatsModal() {
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([])
 
   const v = deriveStats(stats, mode, tab)
-  const maxCount = Math.max(...v.dist, 0)
 
   function onModeKey(e: KeyboardEvent<HTMLButtonElement>, i: number) {
     if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return
@@ -206,36 +179,7 @@ export default function StatsModal() {
         {v.wins === 0 ? (
           <p className="stats-line stats-empty">{NO_WINS_YET}</p>
         ) : (
-          <ol className="dist">
-            {v.dist.map((count, i) => {
-              const row = i + 1
-              const latest = v.highlightRow === row
-              const width =
-                maxCount > 0
-                  ? `max(24px, ${(count / maxCount) * 100}%)`
-                  : '24px'
-              return (
-                <li
-                  key={row}
-                  className="dist-row"
-                  aria-label={distRowLabel(row, count, latest)}
-                >
-                  <span className="dist-num" aria-hidden="true">
-                    {row}
-                  </span>
-                  <span className="dist-track" aria-hidden="true">
-                    <span
-                      className="dist-bar"
-                      data-highlight={latest ? '' : undefined}
-                      style={{ width }}
-                    >
-                      {count}
-                    </span>
-                  </span>
-                </li>
-              )
-            })}
-          </ol>
+          <DistChart dist={v.dist} highlightRow={v.highlightRow} />
         )}
         <p className="stats-line">{avgLine(v.avgGuesses)}</p>
         <hr className="stats-divider" />

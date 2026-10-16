@@ -11,7 +11,8 @@ Vertical MVP: a playable game appears as early as possible (Phase 2), then each 
 - [x] **Phase 3: Wordubado Mode and Slang** - Switch to Wordubado with owner-reviewed slang answers, plus slang as a valid Normal guess (completed 2026-10-02)
 - [x] **Phase 4: Six Boards and Persistence** - Six independent saved Boards that survive refresh, with safe, versioned storage
  (completed 2026-10-03)
-- [x] **Phase 5: Stats, Streaks and Restore** - Win Streaks, Day Streak, monthly Restores and the statistics screen (completed 2026-10-05)
+- [x] **Phase 5: Stats, Streaks and Restore** - Win Streaks, Day Streak, monthly Restores and the statistics screen
+ (completed 2026-10-05)
 - [ ] **Phase 6: Result Screen, Share and Definitions** - Result modal with Play again, Show definition and Share
 - [ ] **Phase 7: Themes, Accessibility and Polish** - Dark/colour-blind themes, how-to-play, screen-reader and keyboard support, metadata
 - [ ] **Phase 8: E2E, CI Hardening and Pipeline Docs** - Playwright full-game suite, complete CI, and the PIPELINE.md learning guide
@@ -285,7 +286,38 @@ Plans:
   3. User can share an emoji grid headed "Unlimited Wordle - Wordubado 5 - 4/6" (X/n for a loss, orange/blue squares in colour-blind mode) plus the site URL
   4. User on a phone gets the share sheet; otherwise the result is copied to the clipboard with a "Copied" toast
 
-**Plans**: TBD
+**Plans**: 8 plans
+
+Plans:
+**Wave 1**
+
+- [x] 06-01-PLAN.md — Failing result E2E, timing.ts, store auto-open/skip/input block, ResultModal with Board stats
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [x] 06-02-PLAN.md — Slim banner with See result, Win Streak moved into the modal, 320 px layout
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
+- [x] 06-03-PLAN.md — Share text builder, share sheet vs clipboard, "Copied ✓", copy-failure box, SPEC R-SHARE-1 (D-12)
+- [x] 06-08-PLAN.md — Legacy E2E specs migrated to the auto-opening Result modal (parallel with 06-03)
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
+- [x] 06-04-PLAN.md — Toasts above the Result modal ("Copied", Day Streak), announced once
+
+**Wave 5** *(blocked on Wave 4 completion)*
+
+- [x] 06-05-PLAN.md — Show definition via dictionaryapi.dev: timeout, failures, Try again, session cache
+
+**Wave 6** *(blocked on Wave 5 completion)*
+
+- [x] 06-06-PLAN.md — Curated slang definitions in the lazy chunks (D-08), check:bundle sentinel
+
+**Wave 7** *(blocked on Wave 6 completion)*
+
+- [ ] 06-07-PLAN.md — Full gate, validation map, owner checks on iPhone and live dictionary (checkpoint)
+
 **UI hint**: yes
 **Notes**: Research flag: dictionaryapi.dev availability/CORS and iOS Web Share/clipboard behaviour.
 
@@ -331,6 +363,6 @@ Plans:
 | 3. Wordubado Mode and Slang | 6/6 | Complete    | 2026-10-02 |
 | 4. Six Boards and Persistence | 12/12 | Complete   | 2026-10-04 |
 | 5. Stats, Streaks and Restore | 8/8 | Complete   | 2026-10-05 |
-| 6. Result Screen, Share and Definitions | 0/TBD | Not started | - |
+| 6. Result Screen, Share and Definitions | 7/8 | In Progress|  |
 | 7. Themes, Accessibility and Polish | 0/TBD | Not started | - |
 | 8. E2E, CI Hardening and Pipeline Docs | 0/TBD | Not started | - |

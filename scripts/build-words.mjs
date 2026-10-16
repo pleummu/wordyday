@@ -22,6 +22,7 @@ import {
   parseCutList,
   parseList,
   renderSlangReview,
+  reviewedDefs,
   reviewedSlang,
   serialisePools,
 } from './words/lib.mjs'
@@ -87,10 +88,11 @@ for (const length of LENGTHS) {
     exclude,
     minAnswers: MIN_ANSWERS,
   })
-  const text = serialisePools({ answers, guesses, slang: slangAnswers })
+  const defs = reviewedDefs(slangEntries, length)
+  const text = serialisePools({ answers, guesses, slang: slangAnswers, defs })
   const gzip = gzipSync(Buffer.from(text)).length
   console.log(
-    `length ${length}: answers ${answers.length}, guesses ${guesses.length}, slang ${slangAnswers.length} (gzip ${(gzip / 1024).toFixed(1)} KB)`,
+    `length ${length}: answers ${answers.length}, guesses ${guesses.length}, slang ${slangAnswers.length}, defs ${Object.keys(defs).length} (gzip ${(gzip / 1024).toFixed(1)} KB)`,
   )
   for (const w of dropped.profanity) console.log(`obscenity drop: ${w}`)
   console.log(

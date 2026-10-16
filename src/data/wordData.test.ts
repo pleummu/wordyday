@@ -13,6 +13,20 @@ describe('toPools (D-13)', () => {
   })
 })
 
+describe('toPools defs (06-06)', () => {
+  it('carries defs and defaults to an empty object', () => {
+    const raw = { answers: 'aa', guesses: 'cc', slang: 'dd' }
+    expect(toPools({ ...raw, defs: { dd: 'Def.' } }).defs).toEqual({
+      dd: 'Def.',
+    })
+    expect(toPools(raw).defs).toEqual({})
+  })
+  it('loads the real curated definitions', async () => {
+    const p = await loadPools(5)
+    expect(p.defs?.aight).toBe('A casual way of saying all right.')
+  })
+})
+
 describe('loadPools (D-12)', () => {
   it('memoises per length and every answer is a valid guess', async () => {
     const a = loadPools(4)

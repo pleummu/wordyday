@@ -5,7 +5,10 @@ import {
   guess,
   selectLength,
   slangWords,
+  closeResult,
   dismissInfo,
+  resultDialog,
+  waitForResult,
   turnOnWordubado,
   waitForReady,
 } from './helpers.ts'
@@ -39,9 +42,12 @@ test('turning Wordubado on starts a game that can be won with a slang answer', a
   await turnOnWordubado(page)
 
   await guess(page, word, 1)
-  await expect(page.getByText('You got it in 1 of 6')).toBeVisible()
+  await waitForResult(page)
+  await expect(
+    resultDialog(page).getByRole('heading', { name: 'You got it in 1/6!' }),
+  ).toBeVisible()
 
-  await page.getByRole('button', { name: 'Play again' }).click()
+  await resultDialog(page).getByRole('button', { name: 'Play again' }).click()
   await expect(wordubadoSwitch(page)).toHaveAttribute('aria-checked', 'true')
 })
 
@@ -56,7 +62,11 @@ for (const n of [4, 6] as const) {
     await expect(wordubadoSwitch(page)).toHaveAttribute('aria-checked', 'true')
 
     await guess(page, word, 1)
-    await expect(page.getByText('You got it in 1 of')).toBeVisible()
+    await waitForResult(page)
+    await expect(
+      resultDialog(page).getByRole('heading', { name: /^You got it in 1\// }),
+    ).toBeVisible()
+    await closeResult(page)
   })
 }
 
