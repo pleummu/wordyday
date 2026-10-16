@@ -68,15 +68,15 @@
 ### UI, Design and Accessibility (UI)
 
 - [x] **UI-01**: The design is minimal, soft and light: airy palette, soft rounded tiles, gentle animations, generous white space
-- [ ] **UI-02**: User can switch to dark mode (same soft feel); on first visit the theme follows the system preference; no theme flash on load
-- [ ] **UI-03**: User can turn on a colour-blind (high-contrast) palette
-- [ ] **UI-04**: User sees a How-to-play modal automatically on the first visit and can reopen it from the header
+- [x] **UI-02**: User can switch to dark mode (same soft feel); on first visit the theme follows the system preference; no theme flash on load
+- [x] **UI-03**: User can turn on a colour-blind (high-contrast) palette
+- [x] **UI-04**: User sees a How-to-play modal automatically on the first visit and can reopen it from the header
 - [ ] **UI-05**: The header has a mode toggle, length picker, and help/stats/settings buttons
 - [x] **UI-06**: The layout works on phone widths (≥320 px) with the largest grid (6 letters × 7 rows), using a `dvh`-safe height
-- [ ] **UI-07**: Screen-reader users hear each guess result through an aria-live region; tiles and keys have accessible labels
-- [ ] **UI-08**: Modals trap focus, close on Esc and return focus; the whole game is playable by keyboard alone
+- [x] **UI-07**: Screen-reader users hear each guess result through an aria-live region; tiles and keys have accessible labels
+- [x] **UI-08**: Modals trap focus, close on Esc and return focus; the whole game is playable by keyboard alone
 - [x] **UI-09**: Animations respect prefers-reduced-motion
-- [ ] **UI-10**: Page has a title, meta description, Open Graph tags with an absolute image URL, a favicon and a `<noscript>` message
+- [x] **UI-10**: Page has a title, meta description, Open Graph tags with an absolute image URL, a favicon and a `<noscript>` message
 - [x] **UI-11**: Settings has a note that progress is stored in this browser only
 
 ### Docs (DOC)
@@ -184,12 +184,12 @@
 | RSLT-02 | Phase 6 | Complete |
 | RSLT-03 | Phase 6 | Complete |
 | RSLT-04 | Phase 6 | Complete |
-| UI-02 | Phase 7 | Pending |
-| UI-03 | Phase 7 | Pending |
-| UI-04 | Phase 7 | Pending |
-| UI-07 | Phase 7 | Pending |
-| UI-08 | Phase 7 | Pending |
-| UI-10 | Phase 7 | Pending |
+| UI-02 | Phase 7 | Complete |
+| UI-03 | Phase 7 | Complete |
+| UI-04 | Phase 7 | Complete |
+| UI-07 | Phase 7 | Complete |
+| UI-08 | Phase 7 | Complete |
+| UI-10 | Phase 7 | Complete |
 | DOC-03 | Phase 8 | Pending |
 | QA-03 | Phase 8 | Pending |
 | QA-04 | Phase 8 | Pending |

@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import { BOARD_CONFIG, type WordLength } from './boards'
 import {
+  MIGRATIONS,
+  type SaveDoc,
   mergeBoardStats,
   mergeStats,
   pickStreak,
@@ -47,6 +49,9 @@ const V2_ZERO = {
   restores: { month: '', used: 0 },
   pendingRestore: null,
   streakRev: 0,
+  theme: 'system',
+  colourBlind: false,
+  howToPlaySeen: false,
 }
 const V1_AS_V2 = { ...V1_FIXTURE, ...V2_ZERO }
 
@@ -136,8 +141,39 @@ describe('migrateSave', () => {
   it('missing step throws', () => {
     expect(() => migrateSave({}, 1, 3, { 1: (s) => s })).toThrow()
   })
-  it('SAVE_VERSION is 2', () => {
-    expect(SAVE_VERSION).toBe(2)
+  it('SAVE_VERSION is 3', () => {
+    expect(SAVE_VERSION).toBe(3)
+  })
+  it('migrateSave v2 to v3 adds the appearance defaults and keeps the rest', () => {
+    const v2 = { ...V1_AS_V2 } as Record<string, unknown>
+    delete v2.theme
+    delete v2.colourBlind
+    delete v2.howToPlaySeen
+    expect(migrateSave(v2, 2)).toEqual(V1_AS_V2)
+  })
+  it('MIGRATIONS[2] returns a non-object unchanged', () => {
+    expect(MIGRATIONS[2]!(null)).toBeNull()
+    expect(MIGRATIONS[2]!([1])).toEqual([1])
+  })
+  it('coerces bad theme and flags to defaults', () => {
+    for (const theme of ['purple', 42, undefined]) {
+      const d = { ...clone(), theme }
+      expect((validateSave(d) as SaveDoc).theme).toBe('system')
+    }
+    expect((validateSave({ ...clone(), theme: 'dark' }) as SaveDoc).theme).toBe(
+      'dark',
+    )
+    const bad = validateSave({
+      ...clone(),
+      colourBlind: 'yes',
+      howToPlaySeen: 1,
+    }) as SaveDoc
+    expect(bad.colourBlind).toBe(false)
+    expect(bad.howToPlaySeen).toBe(false)
+    expect(
+      (validateSave({ ...clone(), howToPlaySeen: true }) as SaveDoc)
+        .howToPlaySeen,
+    ).toBe(true)
   })
 })
 
@@ -164,6 +200,9 @@ describe('validateSave', () => {
       'restores',
       'pendingRestore',
       'streakRev',
+      'theme',
+      'colourBlind',
+      'howToPlaySeen',
     ])
   })
   it.each([

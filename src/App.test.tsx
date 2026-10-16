@@ -166,6 +166,21 @@ it('ignores physical keys while the info popup is open', async () => {
   expect(s.rows).toHaveLength(0)
 })
 
+it('typing while a header button is focused blurs it so Enter submits; Enter alone still activates it', () => {
+  render(<App />)
+  const help = screen.getByRole('button', { name: 'How to play' })
+  help.focus()
+  for (const k of 'house') fireEvent.keyDown(window, { key: k })
+  expect(document.activeElement).toBe(document.body)
+  fireEvent.keyDown(window, { key: 'Enter' })
+  expect(useGameStore.getState().rows).toHaveLength(1)
+  const settings = screen.getByRole('button', { name: 'Settings' })
+  settings.focus()
+  fireEvent.keyDown(settings, { key: 'Enter' })
+  expect(document.activeElement).toBe(settings)
+  expect(useGameStore.getState().rows).toHaveLength(1)
+})
+
 function playFour() {
   for (const w of ['house', 'bruhs', 'house', 'bruhs']) {
     for (const k of w) fireEvent.keyDown(window, { key: k })

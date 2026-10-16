@@ -4,6 +4,7 @@ import ForfeitRow from './components/ForfeitRow'
 import GiveUpConfirm from './components/GiveUpConfirm'
 import Header from './components/Header'
 import Keyboard from './components/Keyboard'
+import HowToPlayModal from './components/HowToPlayModal'
 import LoadError from './components/LoadError'
 import LoadingNotice from './components/LoadingNotice'
 import NewGameConfirm from './components/NewGameConfirm'
@@ -13,6 +14,7 @@ import StreakBreakModal from './components/StreakBreakModal'
 import SettingsModal from './components/SettingsModal'
 import ResultModal from './components/ResultModal'
 import StatsModal from './components/StatsModal'
+import LiveRegion from './components/LiveRegion'
 import Toast from './components/Toast'
 import WordubadoInfo from './components/WordubadoInfo'
 import { usePhysicalKeyboard } from './components/usePhysicalKeyboard'
@@ -56,6 +58,7 @@ export default function App() {
       data-forfeit={showRow ? 'true' : undefined}
     >
       <WordubadoInfo />
+      <HowToPlayModal />
       <GiveUpConfirm />
       <NewGameConfirm />
       <SettingsModal />
@@ -104,6 +107,7 @@ export default function App() {
         raiseKey={dialog}
         announce={dialog !== 'result'}
       />
+      <LiveRegion raiseKey={dialog} />
     </div>
   )
 }

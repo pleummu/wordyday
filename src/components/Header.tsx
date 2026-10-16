@@ -1,6 +1,7 @@
 import { boardKey, type SavedGame } from '../logic/save'
 import type { WordLength } from '../logic/boards'
 import { isBusy, useGameStore } from '../state/gameStore'
+import HelpButton from './HelpButton'
 import InfoButton from './InfoButton'
 import SettingsButton from './SettingsButton'
 import StreakChip from './StreakChip'
@@ -25,6 +26,7 @@ export default function Header() {
       <div className="header-top">
         <h1 className="title">Unlimited Wordle</h1>
         <div className="header-actions">
+          <HelpButton />
           <StreakChip />
           <StatsButton />
           <SettingsButton />

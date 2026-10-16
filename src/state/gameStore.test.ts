@@ -903,6 +903,9 @@ describe('reset', () => {
     await store.getState().startGame(4, 'wordubado')
     store.setState({
       wordubadoInfoSeen: true,
+      howToPlaySeen: true,
+      theme: 'dark',
+      colourBlind: true,
       boards: {
         'normal-5': { answer: 'crane', guesses: [], outcome: 'playing' },
       },
@@ -910,18 +913,24 @@ describe('reset', () => {
     store.getState().resetAll()
     await vi.waitFor(() => expect(store.getState().status).toBe('playing'))
     const s = store.getState()
-    expect(s.dialog).toBeNull()
+    expect(s.dialog).toBe('help')
     expect(s.infoOpen).toBe(false)
     expect(s.mode).toBe('normal')
     expect(s.length).toBe(5)
     expect(s.boards).toEqual({})
     expect(s.wordubadoInfoSeen).toBe(false)
+    expect(s.howToPlaySeen).toBe(true) // reopened and saved again
+    expect(s.theme).toBe('system')
+    expect(s.colourBlind).toBe(false)
     expect(s.toast?.text).toBe('All data reset')
     expect(s.toast?.kind).toBe('info')
     expect(mem.getItem(SAVE_KEY + ':corrupt')).toBeNull()
     const doc = JSON.parse(mem.getItem(SAVE_KEY)!)
     expect(doc.state.last).toEqual({ mode: 'normal', length: 5 })
     expect(doc.state.wordubadoInfoSeen).toBe(false)
+    expect(doc.state.howToPlaySeen).toBe(true)
+    expect(doc.state.theme).toBe('system')
+    expect(doc.state.colourBlind).toBe(false)
     expect(Object.keys(doc.state.boards)).toEqual(['normal-5'])
   })
 
@@ -1749,6 +1758,7 @@ describe('Restore prompt (STRK-04..07)', () => {
 
   it('declineRestore() resets silently', () => {
     const { store } = seeded()
+    store.setState({ howToPlaySeen: true })
     store.getState().checkStreaks()
     const rev = store.getState().streakRev
     store.getState().declineRestore()
@@ -2072,12 +2082,13 @@ describe('Result modal scheduling (phase 6)', () => {
 })
 
 describe('colourBlind seam and notify (06-03)', () => {
-  it('defaults colourBlind to false and never persists it', async () => {
+  it('persists colourBlind and theme', async () => {
     const ctx = await started()
     expect(ctx.store.getState().colourBlind).toBe(false)
-    type(ctx.store, 'crane')
-    ctx.store.getState().submit()
-    expect(ctx.mem.getItem(SAVE_KEY)!).not.toContain('colourBlind')
+    ctx.store.setState({ colourBlind: true, theme: 'dark' })
+    const doc = JSON.parse(ctx.mem.getItem(SAVE_KEY)!)
+    expect(doc.state.colourBlind).toBe(true)
+    expect(doc.state.theme).toBe('dark')
   })
 
   it('notify sets an info toast with a new id each call', async () => {
@@ -2134,5 +2145,172 @@ describe('definitionShown (06-05)', () => {
     type(ctx.store, 'x')
     ctx.store.getState().switchBoard({ length: 4 })
     expect(ctx.mem.getItem(SAVE_KEY)!).not.toContain('definitionShown')
+  })
+})
+
+describe('How to play (07-01)', () => {
+  it('maybeOpenHelp opens once and saves the flag at once', async () => {
+    const ctx = await started()
+    ctx.store.getState().maybeOpenHelp()
+    expect(ctx.store.getState().dialog).toBe('help')
+    expect(ctx.store.getState().howToPlaySeen).toBe(true)
+    expect(JSON.parse(ctx.mem.getItem(SAVE_KEY)!).state.howToPlaySeen).toBe(
+      true,
+    )
+    ctx.store.getState().closeDialog()
+    ctx.store.getState().maybeOpenHelp()
+    expect(ctx.store.getState().dialog).toBeNull()
+  })
+
+  it('maybeOpenHelp does nothing when the hook skips Help', async () => {
+    globalThis.__WORDLE_TEST__ = { skipHelp: true }
+    const ctx = await started()
+    ctx.store.getState().maybeOpenHelp()
+    expect(ctx.store.getState().dialog).toBeNull()
+    expect(ctx.store.getState().howToPlaySeen).toBe(false)
+  })
+
+  it.each([
+    ['a Restore prompt', { pendingRestore: { lost: 3, month: '2026-06' } }],
+    ['a streak-break notice', { breakNotice: true }],
+    ['another dialog', { dialog: 'settings' }],
+    ['the Wordubado popup', { infoOpen: true }],
+    ['a reveal', { status: 'revealing' }],
+    ['the result pause', { resultPending: true }],
+  ])('openHelp is refused during %s', async (_n, patch) => {
+    const ctx = await started()
+    ctx.store.setState(patch as never)
+    const before = ctx.store.getState().dialog
+    ctx.store.getState().openHelp()
+    expect(ctx.store.getState().dialog).toBe(before)
+    expect(ctx.store.getState().howToPlaySeen).toBe(false)
+  })
+
+  it.each([
+    [
+      'declineRestore',
+      'declineRestore',
+      { pendingRestore: { streak: 5, missed: 1, creditDeferred: false } },
+    ],
+    [
+      'restore',
+      'restore',
+      { pendingRestore: { streak: 5, missed: 1, creditDeferred: false } },
+    ],
+    ['dismissBreak', 'dismissBreak', { breakNotice: true }],
+  ])('%s opens Help once the blocker clears', async (_n, action, patch) => {
+    const ctx = await started()
+    ctx.store.setState(patch as never)
+    ctx.store.getState().maybeOpenHelp()
+    expect(ctx.store.getState().dialog).toBeNull()
+    ;(ctx.store.getState() as never as Record<string, () => void>)[action]()
+    expect(ctx.store.getState().dialog).toBe('help')
+  })
+
+  it.each(['declineRestore', 'restore', 'dismissBreak'])(
+    '%s leaves dialog null when Help was seen',
+    async (action) => {
+      const ctx = await started()
+      ctx.store.setState({
+        howToPlaySeen: true,
+        pendingRestore: { streak: 5, missed: 1, creditDeferred: false },
+        breakNotice: true,
+      } as never)
+      ;(ctx.store.getState() as never as Record<string, () => void>)[action]()
+      expect(ctx.store.getState().dialog).toBeNull()
+    },
+  )
+
+  it('an other-tab reset clears the three fields', async () => {
+    const ctx = await started()
+    ctx.store.setState({
+      howToPlaySeen: true,
+      theme: 'dark',
+      colourBlind: true,
+    })
+    ctx.store.getState().applyExternal(null)
+    const s = ctx.store.getState()
+    expect(s.howToPlaySeen).toBe(false)
+    expect(s.theme).toBe('system')
+    expect(s.colourBlind).toBe(false)
+  })
+})
+
+describe('announcement (07-05)', () => {
+  it('is set by finishReveal, not submit, and ignores typing', async () => {
+    const { store } = await started()
+    type(store, 'hou')
+    store.getState().backspace()
+    expect(store.getState().announcement).toBeNull()
+    store.getState().typeLetter('u')
+    store.getState().typeLetter('s')
+    store.getState().typeLetter('e')
+    store.getState().submit()
+    expect(store.getState().announcement).toBeNull()
+    store.getState().finishReveal()
+    const a = store.getState().announcement
+    expect(a?.text).toBe(
+      'HOUSE: H absent, O absent, U absent, S absent, E correct. 5 tries left.',
+    )
+    store.getState().typeLetter('a')
+    store.getState().backspace()
+    expect(store.getState().announcement).toBe(a)
+  })
+
+  it('announces win, loss and give up', async () => {
+    const win = await started()
+    type(win.store, 'crane')
+    win.store.getState().submit()
+    win.store.getState().finishReveal()
+    expect(win.store.getState().announcement?.text).toMatch(/You won in 1\.$/)
+
+    const lose = await started()
+    for (const w of ['house', 'slate', 'ghost', 'house', 'slate', 'ghost']) {
+      type(lose.store, w)
+      lose.store.getState().submit()
+      lose.store.getState().finishReveal()
+    }
+    expect(lose.store.getState().announcement?.text).toMatch(
+      /Out of tries\. The word was CRANE\.$/,
+    )
+
+    const gu = await started()
+    for (const w of ['house', 'slate', 'ghost', 'house']) {
+      type(gu.store, w)
+      gu.store.getState().submit()
+      gu.store.getState().finishReveal()
+    }
+    gu.store.getState().giveUp()
+    expect(gu.store.getState().announcement?.text).toBe(
+      'You gave up. The word was CRANE.',
+    )
+  })
+
+  it('startGame clears it', async () => {
+    const { store } = await started()
+    type(store, 'house')
+    store.getState().submit()
+    store.getState().finishReveal()
+    await store.getState().startGame(5)
+    expect(store.getState().announcement).toBeNull()
+  })
+})
+
+describe('appearance (07-06)', () => {
+  it('setTheme and setColourBlind update state and the saved doc', async () => {
+    const { store, mem } = await started()
+    store.getState().setTheme('dark')
+    store.getState().setColourBlind(true)
+    expect(store.getState().theme).toBe('dark')
+    expect(store.getState().colourBlind).toBe(true)
+    const doc = JSON.parse(mem.getItem(SAVE_KEY) as string)
+    expect(doc.state.theme).toBe('dark')
+    expect(doc.state.colourBlind).toBe(true)
+  })
+
+  it('ignores a theme outside the three', async () => {
+    const { store } = await started()
+    store.getState().setTheme('purple' as never)
+    expect(store.getState().theme).toBe('system')
   })
 })

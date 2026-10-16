@@ -75,7 +75,7 @@ test('EC-11 a reload shows it again', async ({ page }) => {
 test('STRK-07 Restore keeps the streak', async ({ page }) => {
   await start(page)
   await prompt(page).getByRole('button', { name: 'Restore' }).click()
-  await expect(page.getByRole('status')).toHaveText(
+  await expect(page.locator('.toast[role=status]')).toHaveText(
     'Streak restored. 2 left this month.',
   )
   await expect(prompt(page)).toBeHidden()
@@ -168,7 +168,7 @@ test('UI-SPEC contrast: the dimmed chip icon is at least 3:1', async ({
   const chip = page.locator('.streak-chip[data-dimmed]')
   await expect(chip).toBeVisible()
   // Let the toast and its animation finish so axe sees a settled page.
-  await expect(page.getByRole('status')).toBeHidden()
+  await expect(page.locator('.toast[role=status]')).toBeHidden()
   expect(
     await nonTextContrast(page.locator('.streak-chip[data-dimmed] svg')),
   ).toBeGreaterThanOrEqual(3)

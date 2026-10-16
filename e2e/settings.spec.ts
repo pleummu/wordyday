@@ -40,7 +40,7 @@ test('Reset needs a confirm and Cancel goes back to Settings', async ({
   await expect(dialog).toBeVisible()
   await expect(
     dialog.getByText(
-      "This clears every game, your stats, streaks and Restores. It can't be undone.",
+      "This clears your stats and streaks and puts your settings back to the defaults. This can't be undone.",
     ),
   ).toBeVisible()
   await expect(dialog.getByRole('button', { name: 'Cancel' })).toBeFocused()
@@ -61,7 +61,9 @@ test('Reset makes the app a first visit', async ({ page }) => {
     .getByRole('dialog', { name: 'Reset all data?' })
     .getByRole('button', { name: 'Reset', exact: true })
     .click()
-  await expect(page.getByRole('status')).toContainText('All data reset')
+  await expect(page.locator('.toast[role=status]')).toContainText(
+    'All data reset',
+  )
   await expect(page.getByRole('switch', { name: 'Wordubado' })).toHaveAttribute(
     'aria-checked',
     'false',

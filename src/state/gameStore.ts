@@ -26,8 +26,10 @@ import {
   type PendingRestore,
   type Restores,
   type SaveDoc,
+  type Theme,
   type SavedGame,
 } from '../logic/save'
+import { giveUpAnnouncement, guessAnnouncement } from '../logic/announce'
 import { score, type TileState } from '../logic/score'
 import { nextSeq, recordResult } from '../logic/stats'
 import {
@@ -63,12 +65,12 @@ import {
   type StorageNotice,
 } from './storage'
 import { localDateKey } from './clock'
-import { readTestAnswer } from './testHook'
+import { readSkipHelp, readTestAnswer } from './testHook'
 
 export type GameStatus =
   'loading' | 'error' | 'playing' | 'revealing' | 'won' | 'lost' | 'gave-up'
 export type DialogName =
-  'giveUp' | 'newGame' | 'settings' | 'reset' | 'stats' | 'result'
+  'giveUp' | 'newGame' | 'settings' | 'reset' | 'stats' | 'result' | 'help'
 export type FinishedOutcome = 'won' | 'lost' | 'gave-up' | 'forfeit'
 
 export { revealDurationMs } from '../logic/timing'
@@ -107,6 +109,8 @@ export type GameState = {
   status: GameStatus
   keyStates: KeyStates
   toast: Toast | null
+  // Transient screen-reader line, set only when a reveal finishes or a game is given up.
+  announcement: { id: number; text: string } | null
   shakeId: number
   shakeRow: number
   pools: Pools | null
@@ -116,6 +120,8 @@ export type GameState = {
   dialog: DialogName | null
   boards: Partial<Record<BoardKey, SavedGame>>
   wordubadoInfoSeen: boolean
+  howToPlaySeen: boolean
+  theme: Theme
   stats: Record<BoardKey, BoardStats>
   dayStreak: DayStreak
   restores: Restores
@@ -137,8 +143,7 @@ export type GameState = {
   resultFlourish: boolean
   // Transient: the dictionary definition was revealed on this Board (D-24, D-25).
   definitionShown: boolean
-  // Share grid uses orange/blue squares. Transient until Phase 7 adds the
-  // toggle and persistence (D-16).
+  // Colour-blind palette and share-grid squares. Persisted (Phase 7 D-04).
   colourBlind: boolean
   // undefined = nothing waiting; null = the other tab reset everything.
   pendingExternal: string | null | undefined
@@ -152,12 +157,16 @@ export type GameState = {
   openDialog(name: 'giveUp' | 'newGame'): void
   closeDialog(): void
   openSettings(): void
+  openHelp(): void
+  maybeOpenHelp(): void
   openStats(): void
   openResult(): void
   showDefinition(): void
   openReset(): void
   cancelReset(): void
   resetAll(): void
+  setTheme(theme: Theme): void
+  setColourBlind(on: boolean): void
   applyStorageNotice(n: StorageNotice): void
   applyExternal(raw: string | null): void
   giveUp(): void
@@ -233,6 +242,9 @@ function docFromState(s: GameState): SaveDoc {
     restores: s.restores,
     pendingRestore: s.pendingRestore,
     streakRev: s.streakRev,
+    theme: s.theme,
+    colourBlind: s.colourBlind,
+    howToPlaySeen: s.howToPlaySeen,
   }
 }
 
@@ -267,6 +279,9 @@ function mergeDocIntoState(persisted: unknown, current: GameState): GameState {
     ...current,
     boards: doc.boards,
     wordubadoInfoSeen: doc.wordubadoInfoSeen,
+    howToPlaySeen: doc.howToPlaySeen,
+    theme: doc.theme,
+    colourBlind: doc.colourBlind,
     stats: doc.stats,
     dayStreak: doc.dayStreak,
     restores: doc.restores,
@@ -421,6 +436,7 @@ export function createGameStore(deps: GameDeps) {
             rows: [],
             current: '',
             keyStates: {},
+            announcement: null,
             shakeRow: -1,
             finishedInSession: false,
             finishNote: null,
@@ -468,6 +484,7 @@ export function createGameStore(deps: GameDeps) {
           status: 'loading',
           keyStates: {},
           toast: null,
+          announcement: null,
           colourBlind: false,
           shakeId: 0,
           shakeRow: -1,
@@ -478,6 +495,8 @@ export function createGameStore(deps: GameDeps) {
           dialog: null,
           boards: {},
           wordubadoInfoSeen: false,
+          howToPlaySeen: false,
+          theme: 'system',
           ...streakDefaults(),
           breakNotice: false,
           today: localDateKey(now()),
@@ -552,6 +571,7 @@ export function createGameStore(deps: GameDeps) {
                   }
                 : {}),
             })
+            get().maybeOpenHelp()
           },
 
           declineRestore() {
@@ -563,10 +583,13 @@ export function createGameStore(deps: GameDeps) {
               today,
               streakRev: state.streakRev + 1,
             })
+            get().maybeOpenHelp()
           },
 
           dismissBreak() {
-            if (get().breakNotice) set({ breakNotice: false })
+            if (!get().breakNotice) return
+            set({ breakNotice: false })
+            get().maybeOpenHelp()
           },
 
           openInfo() {
@@ -604,6 +627,17 @@ export function createGameStore(deps: GameDeps) {
             set({ dialog: null })
           },
 
+          setTheme(theme) {
+            if (theme !== 'system' && theme !== 'light' && theme !== 'dark') {
+              return
+            }
+            set({ theme })
+          },
+
+          setColourBlind(on) {
+            set({ colourBlind: on })
+          },
+
           openSettings() {
             const { dialog, infoOpen, pendingRestore, resultPending } = get()
             if (
@@ -615,6 +649,26 @@ export function createGameStore(deps: GameDeps) {
               return
             }
             set({ dialog: 'settings', settingsFocus: 'close' })
+          },
+
+          openHelp() {
+            const s = get()
+            if (
+              s.dialog !== null ||
+              s.infoOpen ||
+              s.pendingRestore !== null ||
+              s.breakNotice ||
+              isBusy(s)
+            ) {
+              return
+            }
+            // Saved the moment it opens, like the Wordubado info (D-08).
+            set({ dialog: 'help', howToPlaySeen: true })
+          },
+
+          maybeOpenHelp() {
+            if (get().howToPlaySeen || readSkipHelp()) return
+            get().openHelp()
           },
 
           openStats() {
@@ -661,6 +715,9 @@ export function createGameStore(deps: GameDeps) {
               gameId: 0,
               boards: {},
               wordubadoInfoSeen: false,
+              howToPlaySeen: false,
+              theme: 'system',
+              colourBlind: false,
               ...streakDefaults(),
               ...freshToday(),
               streakRev: get().streakRev + 1,
@@ -678,11 +735,13 @@ export function createGameStore(deps: GameDeps) {
               answer: '',
               rows: [],
               current: '',
+              announcement: null,
             })
             void get().startGame(5, 'normal')
             set({
               toast: { id: ++toastSeq, text: ALL_DATA_RESET, kind: 'info' },
             })
+            get().maybeOpenHelp() // reset = first visit (Phase 4 D-09)
           },
 
           applyStorageNotice(n) {
@@ -740,6 +799,9 @@ export function createGameStore(deps: GameDeps) {
               set({
                 boards: {},
                 wordubadoInfoSeen: false,
+                howToPlaySeen: false,
+                theme: 'system',
+                colourBlind: false,
                 ...streakDefaults(),
                 ...freshToday(),
                 streakRev: s0.streakRev + 1,
@@ -756,6 +818,7 @@ export function createGameStore(deps: GameDeps) {
                 resultFlourish: false,
                 definitionShown: false,
                 dialog: closeConfirms(s0.dialog),
+                announcement: null,
               })
               void get().startGame(s0.length, s0.mode)
               set({ toast: toast() })
@@ -773,8 +836,15 @@ export function createGameStore(deps: GameDeps) {
             const mergedStats = mergeStats(state.stats, doc.stats, resetFloor)
             const mergedStreak = pickStreak(pickFields(state), pickFields(doc))
             const seen = state.wordubadoInfoSeen || doc.wordubadoInfoSeen
-            let changedForMe = seen !== state.wordubadoInfoSeen
-            let behindThem = seen !== doc.wordubadoInfoSeen
+            const help = state.howToPlaySeen || doc.howToPlaySeen
+            // Appearance: adopt the other tab's choice; never "behind", so no ping-pong.
+            let changedForMe =
+              seen !== state.wordubadoInfoSeen ||
+              help !== state.howToPlaySeen ||
+              doc.theme !== state.theme ||
+              doc.colourBlind !== state.colourBlind
+            let behindThem =
+              seen !== doc.wordubadoInfoSeen || help !== doc.howToPlaySeen
             for (const k of BOARD_KEYS) {
               if (!sameGame(merged[k], mine[k])) changedForMe = true
               if (!sameGame(merged[k], doc.boards[k])) behindThem = true
@@ -792,6 +862,9 @@ export function createGameStore(deps: GameDeps) {
             const base = {
               boards: merged,
               wordubadoInfoSeen: seen,
+              howToPlaySeen: help,
+              theme: doc.theme,
+              colourBlind: doc.colourBlind,
               stats: mergedStats,
               ...mergedStreak,
             }
@@ -854,7 +927,14 @@ export function createGameStore(deps: GameDeps) {
             set({ dialog: null })
             const { status, rows, length, mode } = get()
             if (!canForfeit(status, rows.length, ATTEMPTS(length))) return
-            set({ status: 'gave-up', finishedInSession: true })
+            set({
+              status: 'gave-up',
+              finishedInSession: true,
+              announcement: {
+                id: ++toastSeq,
+                text: giveUpAnnouncement(get().answer),
+              },
+            })
             finishGame(boardKey(mode, length), 'gave-up')
             showDueDayToast()
             const after = get()
@@ -920,6 +1000,7 @@ export function createGameStore(deps: GameDeps) {
               current: '',
               keyStates: {},
               toast: null,
+              announcement: null,
               shakeRow: -1,
               finishedInSession: false,
               finishNote: null,
@@ -1052,7 +1133,7 @@ export function createGameStore(deps: GameDeps) {
           },
 
           finishReveal() {
-            const { status, rows, keyStates, length } = get()
+            const { status, rows, keyStates, length, answer } = get()
             if (status !== 'revealing') return
             const last = rows[rows.length - 1]
             const merged = applyGuessToKeys(
@@ -1061,11 +1142,16 @@ export function createGameStore(deps: GameDeps) {
               last.states,
             )
             const due = get().dayToastDue
+            const say = (end: Parameters<typeof guessAnnouncement>[2]) => ({
+              id: ++toastSeq,
+              text: guessAnnouncement(last.letters, last.states, end),
+            })
             if (last.states.every((s) => s === 'correct')) {
               set({
                 keyStates: merged,
                 status: 'won',
                 finishedInSession: true,
+                announcement: say({ kind: 'won', attempts: rows.length }),
                 toast: {
                   id: ++toastSeq,
                   text: PRAISE[rows.length - 1] ?? PRAISE[PRAISE.length - 1],
@@ -1093,11 +1179,19 @@ export function createGameStore(deps: GameDeps) {
                 keyStates: merged,
                 status: 'lost',
                 finishedInSession: true,
+                announcement: say({ kind: 'lost', answer }),
               })
               showDueDayToast()
               scheduleResult('lost')
             } else {
-              set({ keyStates: merged, status: 'playing' })
+              set({
+                keyStates: merged,
+                status: 'playing',
+                announcement: say({
+                  kind: 'playing',
+                  triesLeft: BOARD_CONFIG[length].attempts - rows.length,
+                }),
+              })
             }
             const pending = get().pendingExternal
             if (pending !== undefined) {

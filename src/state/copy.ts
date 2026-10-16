@@ -49,7 +49,16 @@ export const RESET_MY_DATA = 'Reset my data'
 export const CLOSE = 'Close'
 export const RESET_HEADING = 'Reset all data?'
 export const RESET_BODY =
-  "This clears every game, your stats, streaks and Restores. It can't be undone."
+  "This clears your stats and streaks and puts your settings back to the defaults. This can't be undone."
+export const APPEARANCE = 'Appearance'
+export const THEME = 'Theme'
+export const THEME_OPTIONS = [
+  { value: 'system', label: 'System' },
+  { value: 'light', label: 'Light' },
+  { value: 'dark', label: 'Dark' },
+] as const
+export const COLOUR_BLIND = 'Colour-blind friendly colours'
+export const COLOUR_BLIND_HINT = 'Orange and blue instead of green and yellow.'
 export const CANCEL = 'Cancel'
 export const RESET = 'Reset'
 export const ALL_DATA_RESET = 'All data reset'
@@ -119,3 +128,40 @@ export const COPIED_TOAST = 'Copied'
 export const COPY_FAILED_NOTE = "Couldn't copy. Select the text and copy it."
 export const SHARE_TEXT_LABEL = 'Share text'
 export const COPIED_MS = 2000
+
+export const HELP = 'How to play'
+export const HELP_RULES =
+  'Guess the word in as few tries as you can. Every guess must be a real word.'
+export const HELP_MODES =
+  'Pick 4, 5 or 6 letters. Normal uses everyday words; Wordubado uses slang.'
+export const HELP_STREAKS =
+  'Win Streak counts wins in a row on each board. Day Streak counts days you play, and Restores can save a missed day.'
+export const HELP_GOT_IT = 'Got it'
+export const HELP_EXAMPLES = [
+  {
+    word: 'CRANE',
+    index: 0,
+    state: 'correct',
+    caption: 'C is in the word and in the right spot.',
+  },
+  {
+    word: 'PILOT',
+    index: 2,
+    state: 'present',
+    caption: 'L is in the word but in the wrong spot.',
+  },
+  {
+    word: 'FUNGI',
+    index: 3,
+    state: 'absent',
+    caption: 'G is not in the word at all.',
+  },
+] as const
+
+export const triesLeftLine = (n: number) =>
+  n === 1 ? '1 try left.' : `${n} tries left.`
+export const wonLine = (n: number) => `You won in ${n}.`
+export const lostLine = (word: string) =>
+  `Out of tries. The word was ${word.toUpperCase()}.`
+export const forfeitLine = (word: string) =>
+  `You gave up. The word was ${word.toUpperCase()}.`

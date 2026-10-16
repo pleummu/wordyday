@@ -3,10 +3,73 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#fbfaf7" />
+    <!-- Pre-paint theme: reads the versioned save (key unlimited-wordle). A future CSP needs a script-src sha256 hash for this exact script. Hex values mirror --color-bg in tokens.css. -->
+    <script>
+      ;(function () {
+        var t = 'system',
+          cb = false
+        try {
+          var s = JSON.parse(localStorage.getItem('unlimited-wordle')).state
+          if (s.theme === 'light' || s.theme === 'dark') t = s.theme
+          cb = s.colourBlind === true
+        } catch (e) {}
+        var dark =
+          t === 'dark' ||
+          (t === 'system' && matchMedia('(prefers-color-scheme: dark)').matches)
+        var root = document.documentElement
+        root.dataset.theme = dark ? 'dark' : 'light'
+        if (cb) root.dataset.palette = 'colour-blind'
+        document
+          .querySelector('meta[name="theme-color"]')
+          .setAttribute('content', dark ? '#232220' : '#fbfaf7')
+      })()
+    </script>
     <title>Unlimited Wordle</title>
+    <meta
+      name="description"
+      content="Endless Wordle in 4, 5 and 6 letters. Play as many games as you like, in Normal or Wordubado."
+    />
+    <meta property="og:title" content="Unlimited Wordle" />
+    <meta
+      property="og:description"
+      content="Endless Wordle in 4, 5 and 6 letters. Play as many games as you like, in Normal or Wordubado."
+    />
+    <meta property="og:type" content="website" />
+    <!-- Absolute URLs are hard-coded to production (D-17); swap if a custom domain is added. -->
+    <meta property="og:url" content="https://wordyday.vercel.app/" />
+    <meta
+      property="og:image"
+      content="https://wordyday.vercel.app/og-image.png"
+    />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta
+      property="og:image:alt"
+      content="Unlimited Wordle: a row of soft letter tiles and the tagline Endless Wordle in 4, 5 and 6 letters"
+    />
+    <meta name="twitter:card" content="summary_large_image" />
   </head>
   <body>
+    <noscript>
+      <p
+        style="
+          font-family: system-ui, sans-serif;
+          text-align: center;
+          padding: 48px 16px;
+          margin: 0;
+          color: #2b2d33;
+          background: #fbfaf7;
+          font-size: 16px;
+          line-height: 1.5;
+        "
+      >
+        Unlimited Wordle needs JavaScript to play. Please turn it on and reload.
+      </p>
+    </noscript>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
