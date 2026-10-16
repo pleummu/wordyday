@@ -392,7 +392,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 08-03-PLAN.md — Merge the chain in order with merge commits; main CI and production green
+- [x] 08-03-PLAN.md — Merge the chain in order with merge commits; main CI and production green
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
@@ -414,4 +414,4 @@ Plans:
 | 5. Stats, Streaks and Restore | 8/8 | Complete   | 2026-10-05 |
 | 6. Result Screen, Share and Definitions | 7/8 | In Progress|  |
 | 7. Themes, Accessibility and Polish | 8/8 | Complete   | 2026-10-14 |
-| 8. E2E, CI Hardening and Pipeline Docs | 2/5 | In Progress|  |
+| 8. E2E, CI Hardening and Pipeline Docs | 3/5 | In Progress|  |
