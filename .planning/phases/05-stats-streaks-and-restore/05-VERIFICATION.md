@@ -1,11 +1,13 @@
 ---
 phase: 05-stats-streaks-and-restore
 verified: 2026-10-05T00:00:00Z
-status: gaps_found
-score: 4/5 roadmap truths verified (SC1 and SC3 carry a partial caveat from CR-01; see gaps)
+status: passed
+score: 5/5 roadmap truths verified (CR-01 gap closed 2026-10-17 by PR #10)
+re_verified: 2026-10-17
 gaps:
   - truth: "Day Streak goes up at most once per local day, for a day on which a game finished (STRK-02); Restore sets lastActiveDate to yesterday and keeps the number (STRK-07)"
-    status: partial
+    status: closed
+    closed_by: "PR #10 (92e0088): PendingRestore.creditDate, SAVE_VERSION 4 with v3->v4 migration, store re-checks after answer; tests for D+1, D+3, lapse on D+5"
     reason: "CR-01 confirmed in code. PendingRestore.creditDeferred is a boolean; withCredit(s, deferred, today) credits the day the offer is ANSWERED or LAPSES, not the day the game was played. If a game finishes on D, the offer is left unanswered (refresh/close), and answered on D+1 or later, the player gets a credit for a day with no finished game (Restore path: streak +1 with lastActiveDate = answer day; decline path: current=1 on the wrong date; lapse path likewise). The real play day is lost and later missed-day checks count from the wrong date."
     artifacts:
       - path: "src/logic/streaks.ts"
@@ -23,8 +25,8 @@ human_verification: []
 
 **Phase Goal:** As a player, I want to see accurate Win Streaks for each Board, one global Day Streak protected by up to 3 Restores a month, and full statistics for each mode and length, so that I can track my progress and have a reason to come back every day.
 **Verified:** 2026-10-05
-**Status:** gaps_found
-**Re-verification:** No, initial verification
+**Status:** passed (re-verified 2026-10-17)
+**Re-verification:** Yes. CR-01 closed by PR #10; 686 unit tests and 437 E2E tests pass.
 
 ## Goal Achievement
 

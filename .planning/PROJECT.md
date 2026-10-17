@@ -36,35 +36,19 @@ A public, endless Wordle game on the web (deployed to Vercel). Players can choos
 - ✓ Accessibility: screen-reader announcements of tile results, focus handling in modals, keyboard-only play, axe in all four theme/palette combinations: validated in Phase 7
 - ✓ Page title and description, link-preview (Open Graph) image, favicon, noscript message: validated in Phase 7
 
+- ✓ Win Streak per Board; Day Streak once per local day; missed-day check on open, focus and midnight; 3 Restores a month covering gaps of up to 4 days (deferred credit goes to the play day after CR-01): validated in Phase 5 — v1.0
+- ✓ Statistics per mode with 4/5/6/All tabs, Day Streak and "Restores left" shown globally: validated in Phase 5 — v1.0
+- ✓ Result screen with Play again, Share (emoji grid, share sheet with clipboard fallback, colour-blind squares) and on-demand definitions (curated slang, dictionaryapi.dev, "Definition unavailable" fallback): validated in Phase 6 — v1.0
+- ✓ Answer pools filtered with a blocklist and owner-reviewed exclusions: validated in Phases 2-3 — v1.0
+- ✓ Vitest unit tests, Playwright full-game E2E, full GitHub Actions CI and docs/PIPELINE.md: validated in Phase 8 — v1.0
+
 ### Active
 
-**Gameplay**
+No milestone in progress. Candidates for the next one:
 
-**Streaks and Restore**
-- [ ] Win Streak per Board: +1 on a win; resets on a loss, Give Up or Forfeit
-- [ ] Day Streak (global): +1 at most once per local calendar day when any game finishes
-- [ ] Missed-day check on open, and again when the tab regains focus or the date changes: any missed day resets all Win Streaks
-- [ ] Restore prompt when Day Streak > 0, missed ≤ 4 and a Restore is left this month; one Restore covers the whole gap; lastActiveDate is set to yesterday
-- [ ] 3 Restores per calendar month, refilled on the 1st, unused ones don't carry over; declining resets the Day Streak; a clock moved backwards counts as missed = 0
-
-**Statistics and result screen**
-- [ ] Stats: games played, win rate, current/longest Win Streak, guess distribution, average guesses (wins only)
-- [ ] Tabs 4/5/6/All, kept separate for Normal and Wordubado; the All tab shows totals only (no Win Streak)
-- [ ] Day Streak (current/longest) and "Restores left: N/3" shown globally
-- [ ] Result screen: won/lost, answer, attempts, stats, Play again, Share
-- [ ] "Show definition" button (hidden until clicked): curated definition for slang, dictionaryapi.dev for common words, "Definition unavailable" if the lookup fails
-- [ ] Share: emoji grid ("Unlimited Wordle - Wordubado 5 - 4/6", X/n for a loss, 🟧🟦 in colour-blind mode); phone share sheet with clipboard fallback
-
-**Extras and polish**
-- [ ] Answer pools are filtered with a blocklist (no obscure, offensive or crude answers in Normal)
-
-**Docs and pipeline**
-- [x] SPEC.md (corrected spec) and GLOSSARY.md (Board, Mode, Normal, Wordubado, Answer Pool, Guess Pool, Win Streak, Day Streak, Missed Day, Restore, Forfeit, Give Up)
-- [x] Vitest unit tests for scoring, answer picking, streaks/Restore and storage: validated in Phase 8
-- [x] Playwright end-to-end tests of full games: validated in Phase 8
-- [x] GitHub Actions CI: lint, typecheck, unit tests, E2E, build: validated in Phase 8
-- [x] Vercel preview deploys for PRs and a production deploy from main
-- [x] docs/PIPELINE.md: a learning guide to the phases, the GSD workflow and the build/test/deploy pipeline: validated in Phase 8
+- [ ] Phase 5 review warnings WR-01..WR-05 (future clock freezes streak, stale-tab streak overwrite, simultaneous two-tab streak change, Day Streak toast lost on fast Play again, WR-05 accessibility)
+- [ ] PWA / offline install (deferred from v1)
+- [ ] Analytics (deferred from v1)
 
 ### Out of Scope
 
@@ -72,9 +56,12 @@ A public, endless Wordle game on the web (deployed to Vercel). Players can choos
 - Daily puzzle (same word for everyone): the game is "unlimited"; the Day Streak covers the daily habit
 - Accounts, backend, cloud sync: localStorage only; no server needed for v1
 - Leaderboards / multiplayer: needs a backend; not part of the core value
-- PWA / offline install: deferred to v2
-- Analytics: deferred to v2
 - Restoring Win Streaks: a Restore only ever covers the Day Streak, by design
+
+## Current State
+
+**Shipped:** v1.0 MVP on 2026-10-17, live at https://wordyday.vercel.app. All 62 v1 requirements are done.
+About 14.9k lines in `src/` (React 19, Vite 8, TypeScript 6, Zustand 5, plain CSS), 686 unit/component tests and 437 Playwright E2E tests running in CI. The save format is at v4.
 
 ## Context
 
@@ -96,13 +83,13 @@ A public, endless Wordle game on the web (deployed to Vercel). Players can choos
 
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
-| Two streak types: Win Streak per Board + global Day Streak | Resolves the "unlimited vs daily" contradiction | — Pending |
-| Restore: 3/month, missed ≤ 4 days, never restores Win Streaks | Forgiving without making streaks meaningless | — Pending |
-| Slang is a valid guess in Normal but never the answer | Resolves the "every word vs dictionary only" contradiction | — Pending |
-| Wordubado: 75% slang / 25% common answers | Keeps the mode distinct while slang pools stay small | — Pending |
-| New game mid-game / Give up = loss, with confirm | Stops players dodging losses to protect streaks | — Pending |
-| Separate stats for Normal and Wordubado | The modes differ in difficulty; mixing would skew stats | — Pending |
-| Public Vercel deploy with full CI (incl. Playwright) in v1 | The owner wants to learn the whole pipeline | — Pending |
+| Two streak types: Win Streak per Board + global Day Streak | Resolves the "unlimited vs daily" contradiction | ✓ Good (shipped v1.0) |
+| Restore: 3/month, missed ≤ 4 days, never restores Win Streaks | Forgiving without making streaks meaningless | ✓ Good (shipped v1.0) |
+| Slang is a valid guess in Normal but never the answer | Resolves the "every word vs dictionary only" contradiction | ✓ Good (shipped v1.0) |
+| Wordubado: 75% slang / 25% common answers | Keeps the mode distinct while slang pools stay small | ✓ Good (shipped v1.0) |
+| New game mid-game / Give up = loss, with confirm | Stops players dodging losses to protect streaks | ✓ Good (shipped v1.0) |
+| Separate stats for Normal and Wordubado | The modes differ in difficulty; mixing would skew stats | ✓ Good (shipped v1.0) |
+| Public Vercel deploy with full CI (incl. Playwright) in v1 | The owner wants to learn the whole pipeline | ✓ Good (shipped v1.0) |
 
 ## Evolution
 
@@ -123,3 +110,6 @@ This document evolves at phase transitions and milestone boundaries.
 
 ---
 *Last updated: 2026-10-16 after Phase 8 (E2E, CI Hardening and Pipeline Docs) complete: Phases 2-7 landed on protected main via green PRs, bundle budget and browser cache in CI, PIPELINE.md finished*
+
+---
+*Last updated: 2026-10-17 after v1.0 milestone*
