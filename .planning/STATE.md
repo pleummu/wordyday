@@ -2,10 +2,10 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: milestone_complete
-stopped_at: Milestone complete (Phase 08 was final phase)
-last_updated: 2026-10-17T00:00:00.000Z
-last_activity: 2026-10-17 -- Phase 06 plan 07 owner sign-off
+status: Awaiting next milestone
+stopped_at: v1.0 milestone archived and tagged
+last_updated: "2026-10-17T09:07:08.998Z"
+last_activity: 2026-10-17 — Milestone v1.0 completed and archived
 progress:
   total_phases: 8
   completed_phases: 8
@@ -18,19 +18,17 @@ progress:
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-10-01)
+See: .planning/PROJECT.md (updated 2026-10-17)
 
 **Core value:** Endless, correct Wordle play. Scoring (including repeated letters), word validation and a smooth, responsive feel must be right for all three lengths.
-**Current focus:** Milestone complete
+**Current focus:** Planning next milestone (v1.0 shipped 2026-10-17)
 
 ## Current Position
 
-Phase: 08
-Plan: Not started
-Status: Milestone complete
-Last activity: 2026-10-17
-
-Progress: [██████████] 100%
+Phase: Milestone v1.0 complete
+Plan: —
+Status: Awaiting next milestone
+Last activity: 2026-10-17 — Milestone v1.0 completed and archived
 
 ## Performance Metrics
 
@@ -136,6 +134,10 @@ Progress: [██████████] 100%
 
 ## Session Continuity
 
-Last session: 2026-10-16T14:16:19.241Z
-Stopped at: Phase 8 context gathered
-Resume file: .planning/phases/08-e2e-ci-hardening-and-pipeline-docs/08-CONTEXT.md
+Last session: 2026-10-17
+Stopped at: v1.0 milestone archived
+Resume file: none
+
+## Operator Next Steps
+
+- Start the next milestone with /gsd-new-milestone
