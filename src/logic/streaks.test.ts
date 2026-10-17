@@ -129,10 +129,14 @@ const mk = (
   pendingRestore: pending,
 })
 
-const pend = (streak: number, missed: number, creditDeferred = false) => ({
+const pend = (
+  streak: number,
+  missed: number,
+  creditDate: string | null = null,
+) => ({
   streak,
   missed,
-  creditDeferred,
+  creditDate,
 })
 
 describe('check (CHECK on open)', () => {
@@ -266,14 +270,14 @@ describe('restore and decline', () => {
   })
 
   it('EC-16 decline resets to 0 and keeps the Restores', () => {
-    const s = decline(pending(), '2026-06-03')
+    const s = decline(pending())
     expect(s.dayStreak.current).toBe(0)
     expect(s.pendingRestore).toBeNull()
     expect(s.restores).toEqual({ month: '2026-06', used: 0 })
   })
 
   it('EC-17 a day credited after declining starts at 1', () => {
-    const s = decline(pending(), '2026-06-03')
+    const s = decline(pending())
     expect(creditDay(s, '2026-06-03').slice.dayStreak.current).toBe(1)
   })
 
@@ -339,8 +343,8 @@ describe('restore and decline', () => {
     expect(r.slice.dayStreak.lastActiveDate).toBe('2026-06-30')
   })
 
-  it('creditDeferred: accept credits today after the Restore', () => {
-    const p = mk(5, 5, '2026-06-01', undefined, pend(5, 1, true))
+  it('deferred credit: accept credits today after the Restore', () => {
+    const p = mk(5, 5, '2026-06-01', undefined, pend(5, 1, '2026-06-03'))
     expect(restore(p, '2026-06-03').slice.dayStreak).toEqual({
       current: 6,
       longest: 6,
@@ -348,10 +352,48 @@ describe('restore and decline', () => {
     })
   })
 
-  it('creditDeferred: decline credits today as day 1', () => {
-    const p = mk(5, 5, '2026-06-01', undefined, pend(5, 1, true))
-    expect(decline(p, '2026-06-03').dayStreak).toEqual({
+  it('deferred credit: decline credits today as day 1', () => {
+    const p = mk(5, 5, '2026-06-01', undefined, pend(5, 1, '2026-06-03'))
+    expect(decline(p).dayStreak).toEqual({
       current: 1,
+      longest: 5,
+      lastActiveDate: '2026-06-03',
+    })
+  })
+
+  // CR-01: the credit goes to the play day, never to the answer day.
+  it('CR-01 Restore answered on D+1 credits the play day D', () => {
+    const p = mk(5, 5, '2026-06-01', undefined, pend(5, 1, '2026-06-03'))
+    expect(restore(p, '2026-06-04').slice.dayStreak).toEqual({
+      current: 6,
+      longest: 6,
+      lastActiveDate: '2026-06-03',
+    })
+  })
+
+  it('CR-01 decline answered on D+1 makes D day 1', () => {
+    const p = mk(5, 5, '2026-06-01', undefined, pend(5, 1, '2026-06-03'))
+    expect(decline(p).dayStreak).toEqual({
+      current: 1,
+      longest: 5,
+      lastActiveDate: '2026-06-03',
+    })
+  })
+
+  it('CR-01 Restore answered on D+3 leaves the newer gap for the next check', () => {
+    const p = mk(5, 5, '2026-06-01', undefined, pend(5, 1, '2026-06-03'))
+    const yes = restore(p, '2026-06-06').slice
+    expect(yes.dayStreak.lastActiveDate).toBe('2026-06-03')
+    expect(check(yes, '2026-06-06').effect).toBe('prompt')
+  })
+
+  it('CR-01 offer lapsing on D+5 credits D, then breaks for the days after it', () => {
+    const p = mk(5, 5, '2026-06-01', undefined, pend(5, 1, '2026-06-03'))
+    const r = check(p, '2026-06-08')
+    expect(r.effect).toBe('broke')
+    expect(r.slice.pendingRestore).toBeNull()
+    expect(r.slice.dayStreak).toEqual({
+      current: 0,
       longest: 5,
       lastActiveDate: '2026-06-03',
     })
@@ -457,7 +499,7 @@ describe('win streaks, Best and counts', () => {
 
   it('EC-42 decline keeps the longest streak', () => {
     const p = check(mk(9, 9, '2026-06-01'), '2026-06-03').slice
-    expect(decline(p, '2026-06-03').dayStreak.longest).toBe(9)
+    expect(decline(p).dayStreak.longest).toBe(9)
   })
 
   it('EC-43 the count is taken before the Restore is used', () => {
@@ -496,12 +538,12 @@ describe('finishDay', () => {
     expect(r.slice.pendingRestore).toEqual({
       streak: 5,
       missed: 2,
-      creditDeferred: true,
+      creditDate: '2026-06-04',
     })
     const yes = restore(r.slice, '2026-06-04').slice
     expect(yes.dayStreak.current).toBe(6)
     expect(yes.dayStreak.lastActiveDate).toBe('2026-06-04')
-    const no = decline(r.slice, '2026-06-04')
+    const no = decline(r.slice)
     expect(no.dayStreak.current).toBe(1)
     expect(no.dayStreak.lastActiveDate).toBe('2026-06-04')
   })

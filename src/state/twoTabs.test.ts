@@ -433,7 +433,7 @@ describe('D-20 stats and streak slices', () => {
     const { b, settle } = await twoTabs()
     b.store.getState().applyExternal(
       envelopeFor(b, {
-        pendingRestore: { streak: 5, missed: 1, creditDeferred: false },
+        pendingRestore: { streak: 5, missed: 1, creditDate: null },
         streakRev: 2,
       }),
     )
@@ -463,7 +463,7 @@ describe('D-20 stats and streak slices', () => {
 describe('Restore prompt across tabs', () => {
   it('a Restore answered in tab A closes the prompt in tab B silently', async () => {
     const { a, b, settle } = await twoTabs()
-    const pending = { streak: 5, missed: 1, creditDeferred: false }
+    const pending = { streak: 5, missed: 1, creditDate: null }
     const slice = {
       dayStreak: { current: 5, longest: 5, lastActiveDate: '2026-06-01' },
       restores: { month: '', used: 0 },

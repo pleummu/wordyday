@@ -141,8 +141,8 @@ describe('migrateSave', () => {
   it('missing step throws', () => {
     expect(() => migrateSave({}, 1, 3, { 1: (s) => s })).toThrow()
   })
-  it('SAVE_VERSION is 3', () => {
-    expect(SAVE_VERSION).toBe(3)
+  it('SAVE_VERSION is 4', () => {
+    expect(SAVE_VERSION).toBe(4)
   })
   it('migrateSave v2 to v3 adds the appearance defaults and keeps the rest', () => {
     const v2 = { ...V1_AS_V2 } as Record<string, unknown>
@@ -150,6 +150,28 @@ describe('migrateSave', () => {
     delete v2.colourBlind
     delete v2.howToPlaySeen
     expect(migrateSave(v2, 2)).toEqual(V1_AS_V2)
+  })
+  it('CR-01 migrateSave v3 to v4 turns the deferred flag into the offer day', () => {
+    const dayStreak = { current: 5, longest: 9, lastActiveDate: '2026-10-04' }
+    const v3 = (creditDeferred: boolean) => ({
+      ...V1_AS_V2,
+      dayStreak,
+      pendingRestore: { streak: 5, missed: 2, creditDeferred },
+    })
+    expect(validateSave(migrateSave(v3(true), 3))?.pendingRestore).toEqual({
+      streak: 5,
+      missed: 2,
+      creditDate: '2026-10-07',
+    })
+    expect(validateSave(migrateSave(v3(false), 3))?.pendingRestore).toEqual({
+      streak: 5,
+      missed: 2,
+      creditDate: null,
+    })
+    expect(migrateSave(V1_AS_V2, 3)).toEqual(V1_AS_V2)
+  })
+  it('MIGRATIONS[3] returns a non-object unchanged', () => {
+    expect(MIGRATIONS[3]!(null)).toBeNull()
   })
   it('MIGRATIONS[2] returns a non-object unchanged', () => {
     expect(MIGRATIONS[2]!(null)).toBeNull()
@@ -542,7 +564,7 @@ describe('v2 slice validation (T-05-01, T-05-02)', () => {
     ['restores', { restores: { month: '2026-13', used: 1 } }],
     [
       'pendingRestore',
-      { pendingRestore: { streak: 3, missed: 5, creditDeferred: false } },
+      { pendingRestore: { streak: 3, missed: 5, creditDate: null } },
     ],
   ])(
     'a malformed %s falls back to its default and keeps Boards',
@@ -555,7 +577,7 @@ describe('v2 slice validation (T-05-01, T-05-02)', () => {
 
   it('accepts a valid dayStreak and pendingRestore', () => {
     const dayStreak = { current: 5, longest: 9, lastActiveDate: '2026-10-04' }
-    const pendingRestore = { streak: 5, missed: 2, creditDeferred: true }
+    const pendingRestore = { streak: 5, missed: 2, creditDate: '2026-10-07' }
     const out = validateSave(doc({ dayStreak, pendingRestore }))
     expect(out?.dayStreak).toEqual(dayStreak)
     expect(out?.pendingRestore).toEqual(pendingRestore)

@@ -205,7 +205,7 @@ test.describe('Breaks and triggers (D-16, STRK-04)', () => {
     await start(page, {
       time: '2026-06-08T09:00:00',
       save: {
-        pendingRestore: { streak: 5, missed: 1, creditDeferred: false },
+        pendingRestore: { streak: 5, missed: 1, creditDate: null },
       },
     })
     await waitForReady(page)

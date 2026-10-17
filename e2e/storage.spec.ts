@@ -87,7 +87,7 @@ test('full storage still plays in memory', async ({ page }) => {
 test('a save from a newer version is kept untouched (CR-01)', async ({
   page,
 }) => {
-  const NEWER = '{"state":{"future":true},"version":4}'
+  const NEWER = '{"state":{"future":true},"version":5}'
   const CORRUPT = "We couldn't read your saved games, so we started fresh."
   await page.addInitScript((seed) => {
     if (sessionStorage.getItem('seeded') === null) {
