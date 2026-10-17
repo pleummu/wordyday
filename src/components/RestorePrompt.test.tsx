@@ -15,7 +15,7 @@ function seed(status = 'playing') {
   const restore = vi.fn()
   const declineRestore = vi.fn()
   useGameStore.setState({
-    pendingRestore: { streak: 12, missed: 1, creditDeferred: false },
+    pendingRestore: { streak: 12, missed: 1, creditDate: null },
     restores: { month: '2026-06', used: 1 },
     today: '2026-06-03',
     status,

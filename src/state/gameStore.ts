@@ -571,6 +571,8 @@ export function createGameStore(deps: GameDeps) {
                   }
                 : {}),
             })
+            // A play day credited late can leave a newer gap to check (CR-01).
+            get().checkStreaks()
             get().maybeOpenHelp()
           },
 
@@ -579,10 +581,11 @@ export function createGameStore(deps: GameDeps) {
             if (state.pendingRestore === null) return
             const today = localDateKey(now())
             set({
-              ...pureDecline(pickSlice(state), today),
+              ...pureDecline(pickSlice(state)),
               today,
               streakRev: state.streakRev + 1,
             })
+            get().checkStreaks()
             get().maybeOpenHelp()
           },
 

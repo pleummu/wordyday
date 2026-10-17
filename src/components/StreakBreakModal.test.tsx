@@ -38,7 +38,7 @@ it('renders when breakNotice is set and no prompt is pending', () => {
 })
 
 it('stays closed while a prompt is pending', () => {
-  seed({ pendingRestore: { streak: 5, missed: 1, creditDeferred: false } })
+  seed({ pendingRestore: { streak: 5, missed: 1, creditDate: null } })
   render(<StreakBreakModal />)
   expect(isOpen()).toBe(false)
 })

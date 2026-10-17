@@ -1,6 +1,6 @@
 import { BOARD_CONFIG, type Mode, type WordLength } from './boards'
 
-export const SAVE_VERSION = 3
+export const SAVE_VERSION = 4
 export type Theme = 'system' | 'light' | 'dark'
 export const SAVE_KEY = 'unlimited-wordle'
 // Backup key for an unreadable document is SAVE_KEY + CORRUPT_SUFFIX.
@@ -58,7 +58,8 @@ export type Restores = { month: string; used: number }
 export type PendingRestore = {
   streak: number
   missed: number
-  creditDeferred: boolean
+  // The day a game finished while the offer was open; credited on answer.
+  creditDate: string | null
 }
 
 export type SaveDoc = {
@@ -140,7 +141,9 @@ export function canForfeit(
 
 // v1 -> v2: add the Phase 5 slices, all at zero. Boards, last and the info flag
 // are untouched. v2 -> v3: add the Phase 7 appearance and How-to-play flag, so
-// existing players see How-to-play once. A non-object is returned as is so validation rejects it.
+// existing players see How-to-play once. v3 -> v4: the deferred credit flag
+// becomes the play date; the offer day (lastActiveDate + missed + 1) is the
+// earliest day the game can have finished. A non-object is returned as is so validation rejects it.
 export const MIGRATIONS: Readonly<Record<number, (s: unknown) => unknown>> = {
   1: (s) => {
     if (typeof s !== 'object' || s === null || Array.isArray(s)) return s
@@ -163,6 +166,26 @@ export const MIGRATIONS: Readonly<Record<number, (s: unknown) => unknown>> = {
       howToPlaySeen: false,
     }
   },
+  3: (s) => {
+    if (typeof s !== 'object' || s === null || Array.isArray(s)) return s
+    const doc = s as Record<string, unknown>
+    const p = doc.pendingRestore
+    if (typeof p !== 'object' || p === null || Array.isArray(p)) return s
+    const { creditDeferred, ...rest } = p as Record<string, unknown>
+    const ds = doc.dayStreak as { lastActiveDate?: unknown } | null
+    const lad = ds?.lastActiveDate
+    const creditDate =
+      creditDeferred === true && typeof lad === 'string' && DATE_RE.test(lad)
+        ? offerDay(lad, rest.missed)
+        : null
+    return { ...doc, pendingRestore: { ...rest, creditDate } }
+  },
+}
+
+function offerDay(lad: string, missed: unknown): string | null {
+  if (typeof missed !== 'number' || !Number.isInteger(missed)) return null
+  const [y, m, d] = lad.split('-').map(Number)
+  return new Date(Date.UTC(y, m - 1, d + missed + 1)).toISOString().slice(0, 10)
 }
 
 export function migrateSave(
@@ -448,17 +471,20 @@ function validateRestores(x: unknown): Restores {
 
 function validatePending(x: unknown): PendingRestore | null {
   if (!isObject(x)) return null
-  const { streak, missed, creditDeferred } = x
+  const { streak, missed, creditDate } = x
   if (
     !isCount(streak) ||
     streak < 1 ||
     !isCount(missed, 4) ||
     missed < 1 ||
-    typeof creditDeferred !== 'boolean'
+    !(
+      creditDate === null ||
+      (typeof creditDate === 'string' && DATE_RE.test(creditDate))
+    )
   ) {
     return null
   }
-  return { streak, missed, creditDeferred }
+  return { streak, missed, creditDate }
 }
 
 export function validateSave(x: unknown): SaveDoc | null {

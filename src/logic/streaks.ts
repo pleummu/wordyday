@@ -72,8 +72,9 @@ export type CheckEffect = 'none' | 'prompt' | 'broke'
 
 const MAX_MISSED_FOR_RESTORE = 4
 
-function withCredit(s: StreakSlice, deferred: boolean, today: string) {
-  return deferred ? creditDay(s, today).slice : s
+// The deferred credit goes to the day the game was played, not the answer day.
+function withCredit(s: StreakSlice, creditDate: string | null) {
+  return creditDate === null ? s : creditDay(s, creditDate).slice
 }
 
 // R-RESTORE-1..4: the missed-day check on open. Refills first, then resets the
@@ -97,17 +98,21 @@ export function check(
     if (eligible) {
       return { slice: base, effect: 'none', resetWinStreaks: false }
     }
-    // The offer lapsed: auto-decline.
+    // The offer lapsed: auto-decline. The play day still counts, but any days
+    // missed after it break that new streak too.
     const declined = withCredit(
       {
         ...base,
         dayStreak: { ...base.dayStreak, current: 0 },
         pendingRestore: null,
       },
-      s.pendingRestore.creditDeferred,
-      today,
+      s.pendingRestore.creditDate,
     )
-    return { slice: declined, effect: 'broke', resetWinStreaks: true }
+    const slice =
+      missedDays(declined.dayStreak.lastActiveDate, today) > 0
+        ? { ...declined, dayStreak: { ...declined.dayStreak, current: 0 } }
+        : declined
+    return { slice, effect: 'broke', resetWinStreaks: true }
   }
   if (current === 0) {
     return { slice: base, effect: 'none', resetWinStreaks: true }
@@ -116,7 +121,7 @@ export function check(
     return {
       slice: {
         ...base,
-        pendingRestore: { streak: current, missed, creditDeferred: false },
+        pendingRestore: { streak: current, missed, creditDate: null },
       },
       effect: 'prompt',
       resetWinStreaks: true,
@@ -129,8 +134,8 @@ export function check(
   }
 }
 
-// R-RESTORE-5..6: one Restore covers the whole gap; lastActiveDate becomes
-// yesterday so today can still be credited. Win Streaks are never revived.
+// R-RESTORE-5..6: one Restore covers the whole gap; lastActiveDate becomes the
+// day before the play day (or today) so that day can still be credited. Win Streaks are never revived.
 export function restore(
   s: StreakSlice,
   today: string,
@@ -139,21 +144,24 @@ export function restore(
   if (pending === null) return { slice: s, applied: false }
   const restores = refill(s.restores, today)
   if (restoresLeft(restores) === 0) {
-    return { slice: decline({ ...s, restores }, today), applied: false }
+    return { slice: decline({ ...s, restores }), applied: false }
   }
   const restored: StreakSlice = {
-    dayStreak: { ...s.dayStreak, lastActiveDate: prevDay(today) },
+    dayStreak: {
+      ...s.dayStreak,
+      lastActiveDate: prevDay(pending.creditDate ?? today),
+    },
     restores: { month: restores.month, used: restores.used + 1 },
     pendingRestore: null,
   }
   return {
-    slice: withCredit(restored, pending.creditDeferred, today),
+    slice: withCredit(restored, pending.creditDate),
     applied: true,
   }
 }
 
 // R-RESTORE-7: No. The Day Streak goes to 0; Best and the Restores are kept.
-export function decline(s: StreakSlice, today: string): StreakSlice {
+export function decline(s: StreakSlice): StreakSlice {
   const pending = s.pendingRestore
   if (pending === null) return s
   return withCredit(
@@ -162,8 +170,7 @@ export function decline(s: StreakSlice, today: string): StreakSlice {
       dayStreak: { ...s.dayStreak, current: 0 },
       pendingRestore: null,
     },
-    pending.creditDeferred,
-    today,
+    pending.creditDate,
   )
 }
 
@@ -181,9 +188,11 @@ export function finishDay(
   const r = check(s, today)
   if (r.slice.pendingRestore !== null) {
     const pending = r.slice.pendingRestore
-    const slice = pending.creditDeferred
-      ? r.slice
-      : { ...r.slice, pendingRestore: { ...pending, creditDeferred: true } }
+    // Keep the first play day if several games finish before the answer.
+    const slice =
+      pending.creditDate !== null
+        ? r.slice
+        : { ...r.slice, pendingRestore: { ...pending, creditDate: today } }
     return {
       slice,
       effect: r.effect,

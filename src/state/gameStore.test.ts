@@ -1682,7 +1682,7 @@ describe('Day Streak (STRK-02, D-11, D-21)', () => {
 })
 
 describe('Restore prompt (STRK-04..07)', () => {
-  const pend = { streak: 5, missed: 1, creditDeferred: false }
+  const pend = { streak: 5, missed: 1, creditDate: null }
 
   function seeded(today = '2026-06-03T09:00:00') {
     const clock = { at: new Date(today) }
@@ -1817,7 +1817,7 @@ describe('finish-time CHECK and break notice (STRK-04, D-16, D-21)', () => {
     expect(s.pendingRestore).toEqual({
       streak: 5,
       missed: 2,
-      creditDeferred: true,
+      creditDate: s.today,
     })
     expect(s.dayStreak.current).toBe(5)
     expect(s.dayToastDue).toBeNull()
@@ -1853,7 +1853,7 @@ describe('finish-time CHECK and break notice (STRK-04, D-16, D-21)', () => {
     expect(b.store.getState().breakNotice).toBe(true)
 
     const c = seeded('2026-06-08T09:00:00', FIVE, {
-      pendingRestore: { streak: 5, missed: 1, creditDeferred: false },
+      pendingRestore: { streak: 5, missed: 1, creditDate: null },
     })
     c.store.getState().checkStreaks()
     expect(c.store.getState().breakNotice).toBe(true)
@@ -2190,12 +2190,12 @@ describe('How to play (07-01)', () => {
     [
       'declineRestore',
       'declineRestore',
-      { pendingRestore: { streak: 5, missed: 1, creditDeferred: false } },
+      { pendingRestore: { streak: 5, missed: 1, creditDate: null } },
     ],
     [
       'restore',
       'restore',
-      { pendingRestore: { streak: 5, missed: 1, creditDeferred: false } },
+      { pendingRestore: { streak: 5, missed: 1, creditDate: null } },
     ],
     ['dismissBreak', 'dismissBreak', { breakNotice: true }],
   ])('%s opens Help once the blocker clears', async (_n, action, patch) => {
@@ -2213,7 +2213,7 @@ describe('How to play (07-01)', () => {
       const ctx = await started()
       ctx.store.setState({
         howToPlaySeen: true,
-        pendingRestore: { streak: 5, missed: 1, creditDeferred: false },
+        pendingRestore: { streak: 5, missed: 1, creditDate: null },
         breakNotice: true,
       } as never)
       ;(ctx.store.getState() as never as Record<string, () => void>)[action]()
