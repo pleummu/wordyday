@@ -43,7 +43,7 @@ test('reopens from the header and returns focus', async ({ page }) => {
   await expect(helpButton(page)).toBeFocused()
 })
 
-test('an existing v2 player sees it once and the save becomes v3', async ({
+test('an existing v2 player sees it once and the save becomes v4', async ({
   page,
 }) => {
   await fixAnswers(page, { help: true })
@@ -57,7 +57,7 @@ test('an existing v2 player sees it once and the save becomes v3', async ({
   const doc = await page.evaluate(() =>
     JSON.parse(localStorage.getItem('unlimited-wordle')!),
   )
-  expect(doc.version).toBe(3)
+  expect(doc.version).toBe(4)
   expect(doc.state.howToPlaySeen).toBe(true)
 })
 
