@@ -1,8 +1,9 @@
 // Bundle check (QA-06, WORD-09, D-12): after `npm run build`, prove that no
 // word-pool text sits in the entry chunk (or anything preloaded with it) and
 // that each length's pool lives in exactly one separate chunk.
-import { readFileSync, readdirSync, existsSync, statSync } from 'node:fs'
+import { readFileSync, readdirSync, existsSync } from 'node:fs'
 import { join } from 'node:path'
+import { gzipSync } from 'node:zlib'
 
 const dist = 'dist'
 const indexPath = join(dist, 'index.html')
@@ -121,6 +122,42 @@ for (const f of assets) {
     )
 }
 
+// Gzip budget (D-10, D-11). Level 9 matches Vite's own size report.
+const BUDGET_KB = { js: 100, css: 10 }
+const gz = (rel) => gzipSync(readFileSync(join(dist, rel)), { level: 9 }).length
+const kb = (bytes) => (bytes / 1024).toFixed(1)
+
+const entryCss = new Set()
+for (const tag of html.match(/<link\b[^>]*>/g) ?? []) {
+  if (!/rel="stylesheet"/.test(tag)) continue
+  const m = tag.match(/\bhref="([^"]+)"/)
+  if (m) entryCss.add(m[1].replace(/^\.?\//, ''))
+}
+const entryJs = [...startNames].filter((n) => n.endsWith('.js'))
+const sum = (names) => names.reduce((t, n) => t + gz(n), 0)
+const entryJsGz = sum(entryJs)
+const entryCssGz = sum([...entryCss])
+if (entryJsGz / 1024 > BUDGET_KB.js)
+  fail(`entry JS is ${kb(entryJsGz)} KB gzip, budget ${BUDGET_KB.js} KB.`)
+if (entryCssGz / 1024 > BUDGET_KB.css)
+  fail(`entry CSS is ${kb(entryCssGz)} KB gzip, budget ${BUDGET_KB.css} KB.`)
+
+// Size table, printed on pass and fail.
+const poolTag = Object.fromEntries(
+  [4, 5, 6].map((n) => [found[n], `${n}-letter pool`]),
+)
+console.log('Bundle sizes (KB):')
+for (const f of readdirSync(join(dist, 'assets')).sort()) {
+  if (!/\.(js|css)$/.test(f)) continue
+  const rel = `assets/${f}`
+  const raw = readFileSync(join(dist, rel)).length
+  const tag =
+    poolTag[f] ?? (startNames.has(rel) || entryCss.has(rel) ? 'entry' : 'lazy')
+  console.log(`  ${rel}: raw ${kb(raw)}, gzip ${kb(gz(rel))}, ${tag}`)
+}
+console.log(`  entry JS ${kb(entryJsGz)} KB gzip / ${BUDGET_KB.js} KB`)
+console.log(`  entry CSS ${kb(entryCssGz)} KB gzip / ${BUDGET_KB.css} KB`)
+
 if (failed) process.exit(1)
 
 console.log('check:bundle OK')
@@ -128,7 +165,3 @@ for (const n of [4, 5, 6])
   console.log(`  ${n}-letter slang: ${slangCounts[n]} words`)
 for (const n of [4, 5, 6])
   console.log(`  ${n}-letter definitions: ${defCounts[n]}`)
-for (const n of [4, 5, 6]) {
-  const kb = (statSync(join(dist, 'assets', found[n])).size / 1024).toFixed(1)
-  console.log(`  ${n}-letter pool: assets/${found[n]} (${kb} KB)`)
-}

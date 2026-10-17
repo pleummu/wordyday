@@ -83,14 +83,14 @@
 
 - [x] **DOC-01**: SPEC.md: the corrected spec, including every owner decision and the full Restore state machine and edge-case table
 - [x] **DOC-02**: GLOSSARY.md: Board, Mode, Normal, Wordubado, Answer Pool, Guess Pool, Win Streak, Day Streak, Missed Day, Restore, Forfeit, Give Up
-- [ ] **DOC-03**: docs/PIPELINE.md: a learning guide to the phases, the GSD workflow (discuss → plan → execute → verify) and the code pipeline (words build → Vite → Vitest → Playwright → CI → Vercel), with "what you'll learn" notes
+- [x] **DOC-03**: docs/PIPELINE.md: a learning guide to the phases, the GSD workflow (discuss → plan → execute → verify) and the code pipeline (words build → Vite → Vitest → Playwright → CI → Vercel), with "what you'll learn" notes
 
 ### Quality and Pipeline (QA)
 
 - [x] **QA-01**: Project uses React + Vite + TypeScript (pinned 6.0.x), ESLint flat config, Prettier, Node 24
 - [x] **QA-02**: Vitest unit tests cover scoring (ABBEY/BABES, SPEED/ERASE, triples, all lengths), the 75/25 split over 10,000 seeded draws, streaks/Restore (an edge-case table including DST, month boundary and clock moved backwards), forfeit rules, and storage (round-trip, migration, corrupt, throwing storage)
-- [ ] **QA-03**: Playwright E2E tests run against the production build: a full win and loss, invalid guess, resume after refresh, switching Boards, Give Up rule, the Restore prompt (fake clock), and an axe accessibility check, in desktop and mobile projects
-- [ ] **QA-04**: GitHub Actions CI on every PR and push to main runs lint, format check, typecheck, unit tests, build, E2E and the word-drift check
+- [x] **QA-03**: Playwright E2E tests run against the production build: a full win and loss, invalid guess, resume after refresh, switching Boards, Give Up rule, the Restore prompt (fake clock), and an axe accessibility check, in desktop and mobile projects
+- [x] **QA-04**: GitHub Actions CI on every PR and push to main runs lint, format check, typecheck, unit tests, build, E2E and the word-drift check
 - [x] **QA-05**: Vercel deploys a preview for every PR and production from main
 - [x] **QA-06**: Production build succeeds, with the word pools kept out of the entry chunk
 
@@ -190,9 +190,9 @@
 | UI-07 | Phase 7 | Complete |
 | UI-08 | Phase 7 | Complete |
 | UI-10 | Phase 7 | Complete |
-| DOC-03 | Phase 8 | Pending |
-| QA-03 | Phase 8 | Pending |
-| QA-04 | Phase 8 | Pending |
+| DOC-03 | Phase 8 | Complete |
+| QA-03 | Phase 8 | Complete |
+| QA-04 | Phase 8 | Complete |
 
 **Coverage:**
 - v1 requirements: 62 total

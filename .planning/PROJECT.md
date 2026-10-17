@@ -60,11 +60,11 @@ A public, endless Wordle game on the web (deployed to Vercel). Players can choos
 
 **Docs and pipeline**
 - [x] SPEC.md (corrected spec) and GLOSSARY.md (Board, Mode, Normal, Wordubado, Answer Pool, Guess Pool, Win Streak, Day Streak, Missed Day, Restore, Forfeit, Give Up)
-- [ ] Vitest unit tests for scoring, answer picking, streaks/Restore and storage
-- [ ] Playwright end-to-end tests of full games
-- [ ] GitHub Actions CI: lint, typecheck, unit tests, E2E, build
+- [x] Vitest unit tests for scoring, answer picking, streaks/Restore and storage: validated in Phase 8
+- [x] Playwright end-to-end tests of full games: validated in Phase 8
+- [x] GitHub Actions CI: lint, typecheck, unit tests, E2E, build: validated in Phase 8
 - [x] Vercel preview deploys for PRs and a production deploy from main
-- [ ] docs/PIPELINE.md: a learning guide to the phases, the GSD workflow and the build/test/deploy pipeline
+- [x] docs/PIPELINE.md: a learning guide to the phases, the GSD workflow and the build/test/deploy pipeline: validated in Phase 8
 
 ### Out of Scope
 
@@ -122,4 +122,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-10-15 after Phase 7 (Themes, Accessibility and Polish) complete: dark and colour-blind themes, How-to-play, screen-reader announcements, keyboard-only play, link-preview metadata*
+*Last updated: 2026-10-16 after Phase 8 (E2E, CI Hardening and Pipeline Docs) complete: Phases 2-7 landed on protected main via green PRs, bundle budget and browser cache in CI, PIPELINE.md finished*
